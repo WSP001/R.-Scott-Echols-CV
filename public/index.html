@@ -15,6 +15,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600,700&display=swap" rel="stylesheet" />
 
   <style>
     /* ── Design Tokens ─────────────────────────────── */
@@ -37,6 +38,7 @@
       --red: #e55353;
       --font-body: 'Inter', sans-serif;
       --font-display: 'Space Grotesk', sans-serif;
+      --font-hero: 'Clash Display', 'Space Grotesk', sans-serif;
       --radius: 12px;
       --radius-lg: 20px;
       --shadow: 0 8px 32px rgba(0,0,0,0.4);
@@ -48,7 +50,7 @@
 
     /* ── Reset ─────────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; overflow-x: hidden; }
+    html { overflow-x: hidden; }
     body {
       background: var(--bg);
       color: var(--text);
@@ -56,8 +58,79 @@
       font-size: 16px;
       line-height: 1.65;
       -webkit-font-smoothing: antialiased;
+      cursor: none;
+      overflow-x: hidden;
     }
     ::selection { background: rgba(201,168,76,0.25); color: var(--gold-2); }
+
+    /* ── Loading Screen ──────────────────────────────── */
+    #loader {
+      position: fixed; inset: 0; z-index: 10000;
+      background: var(--bg);
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 1.5rem;
+      transition: opacity 0.5s ease, visibility 0.5s ease;
+    }
+    #loader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+    .loader-logo {
+      animation: loaderSpin 1.5s ease-in-out infinite;
+    }
+    @keyframes loaderSpin {
+      0% { transform: rotate(0deg) scale(1); }
+      50% { transform: rotate(180deg) scale(1.1); }
+      100% { transform: rotate(360deg) scale(1); }
+    }
+    .loader-text {
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      color: var(--text-3);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+    .loader-bar {
+      width: 120px; height: 2px;
+      background: var(--surface);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .loader-bar-fill {
+      height: 100%; width: 0;
+      background: linear-gradient(90deg, var(--gold), var(--gold-2));
+      animation: loaderFill 1.5s ease forwards;
+    }
+    @keyframes loaderFill { to { width: 100%; } }
+
+    /* ── Custom Cursor ────────────────────────────────── */
+    .cursor-dot {
+      position: fixed; z-index: 9999;
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--gold);
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      transition: width 0.2s, height 0.2s, background 0.2s;
+    }
+    .cursor-ring {
+      position: fixed; z-index: 9998;
+      width: 36px; height: 36px; border-radius: 50%;
+      border: 1.5px solid rgba(201,168,76,0.4);
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      transition: width 0.3s, height 0.3s, border-color 0.3s, background 0.3s;
+    }
+    .cursor-hover .cursor-dot {
+      width: 14px; height: 14px;
+      background: var(--cyan);
+    }
+    .cursor-hover .cursor-ring {
+      width: 50px; height: 50px;
+      border-color: rgba(78,205,196,0.5);
+      background: rgba(78,205,196,0.05);
+    }
+
+    @media (max-width: 768px) {
+      .cursor-dot, .cursor-ring { display: none !important; }
+      body { cursor: auto; }
+    }
 
     /* ── Nav ────────────────────────────────────────── */
     nav {
@@ -94,6 +167,8 @@
     }
     .nav-links a:hover { color: var(--text); }
     .nav-links a:hover::after { width: 100%; }
+    .nav-links a.active { color: var(--gold-2); }
+    .nav-links a.active::after { width: 100%; }
     .nav-cta {
       background: linear-gradient(135deg, var(--gold), var(--gold-2));
       color: var(--bg) !important;
@@ -103,6 +178,7 @@
     }
     .nav-cta::after { display: none !important; }
     .nav-cta:hover { box-shadow: var(--glow-gold) !important; transform: translateY(-1px); }
+    .nav-cta.active { color: var(--bg) !important; }
 
     .hamburger {
       display: none; flex-direction: column; gap: 5px;
@@ -125,8 +201,11 @@
       position: absolute; inset: 0; z-index: 0;
       opacity: 0.6;
     }
+    #hero-three {
+      position: absolute; inset: 0; z-index: 1;
+    }
     .hero-content {
-      position: relative; z-index: 1;
+      position: relative; z-index: 2;
       max-width: 800px;
       text-align: center;
     }
@@ -136,7 +215,7 @@
       padding: 6px 16px; border-radius: 100px;
       font-size: 0.8rem; font-weight: 500; color: var(--gold-2);
       margin-bottom: 2rem;
-      animation: fadeInDown 0.8s ease both;
+      opacity: 0;
     }
     .hero-badge-dot {
       width: 6px; height: 6px; border-radius: 50%;
@@ -147,33 +226,33 @@
       50% { opacity: 0.5; transform: scale(1.3); }
     }
     .hero-name {
-      font-family: var(--font-display);
-      font-size: clamp(2.8rem, 7vw, 5.5rem);
-      font-weight: 700; line-height: 1.05;
-      letter-spacing: -0.02em;
+      font-family: var(--font-hero);
+      font-size: clamp(3.2rem, 8vw, 6.5rem);
+      font-weight: 700; line-height: 1.0;
+      letter-spacing: -0.03em;
       background: linear-gradient(135deg, #fff 0%, var(--gold-2) 60%, var(--gold) 100%);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
       background-clip: text;
-      animation: fadeInUp 0.8s 0.2s ease both;
       margin-bottom: 1rem;
+      opacity: 0;
     }
     .hero-title {
       font-size: clamp(1rem, 2.5vw, 1.3rem);
       color: var(--text-2); font-weight: 400;
       min-height: 2em;
-      animation: fadeInUp 0.8s 0.4s ease both;
       margin-bottom: 1.5rem;
+      opacity: 0;
     }
     .hero-title span { color: var(--cyan); font-weight: 500; }
     .hero-desc {
       font-size: clamp(0.95rem, 1.8vw, 1.1rem);
       color: var(--text-3); line-height: 1.8;
       max-width: 600px; margin: 0 auto 2.5rem;
-      animation: fadeInUp 0.8s 0.6s ease both;
+      opacity: 0;
     }
     .hero-actions {
       display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;
-      animation: fadeInUp 0.8s 0.8s ease both;
+      opacity: 0;
     }
     .btn {
       display: inline-flex; align-items: center; gap: 8px;
@@ -197,7 +276,7 @@
       position: absolute; bottom: 2.5rem; left: 50%; transform: translateX(-50%);
       display: flex; flex-direction: column; align-items: center; gap: 6px;
       color: var(--text-3); font-size: 0.75rem;
-      animation: fadeIn 1.5s 1.5s ease both;
+      opacity: 0;
     }
     .scroll-line {
       width: 1px; height: 50px;
@@ -207,7 +286,7 @@
     @keyframes scrollPulse { 0%,100% { opacity:0.3; } 50% { opacity:1; } }
 
     /* ── Sections ───────────────────────────────────── */
-    section { padding: clamp(4rem, 8vw, 7rem) clamp(1.5rem, 5vw, 4rem); }
+    section { padding: clamp(4rem, 8vw, 7rem) clamp(1.5rem, 5vw, 4rem); position: relative; }
     .section-label {
       display: inline-block;
       font-size: 0.75rem; font-weight: 600; letter-spacing: 0.15em;
@@ -228,15 +307,19 @@
     .container { max-width: 1200px; margin: 0 auto; }
     .section-header { margin-bottom: 4rem; }
 
+    /* Section gradient mesh backgrounds */
+    .section-mesh {
+      position: absolute; inset: 0; z-index: -1; opacity: 0.4;
+      pointer-events: none;
+    }
+
     /* ── About ─────────────────────────────────────── */
     #about { background: var(--bg-2); }
     .about-grid {
       display: grid; grid-template-columns: 1fr 2fr; gap: 5rem;
       align-items: start;
     }
-    .about-photo-wrap {
-      position: relative;
-    }
+    .about-photo-wrap { position: relative; }
     .about-photo {
       width: 100%; aspect-ratio: 3/4;
       border-radius: var(--radius-lg);
@@ -246,8 +329,7 @@
       align-items: center; justify-content: center;
       gap: 12px; cursor: pointer;
       transition: border-color var(--transition);
-      overflow: hidden;
-      position: relative;
+      overflow: hidden; position: relative;
     }
     .about-photo:hover { border-color: var(--gold); }
     .about-photo-label { color: var(--text-3); font-size: 0.85rem; }
@@ -311,6 +393,11 @@
       background: var(--gold); border: 3px solid var(--bg);
       transform: translateX(-50%);
       box-shadow: var(--glow-gold);
+      animation: dotPulse 3s ease-in-out infinite;
+    }
+    @keyframes dotPulse {
+      0%, 100% { box-shadow: 0 0 8px rgba(201,168,76,0.3); }
+      50% { box-shadow: 0 0 20px rgba(201,168,76,0.6), 0 0 40px rgba(201,168,76,0.2); }
     }
     .timeline-card {
       background: var(--surface);
@@ -357,7 +444,7 @@
     .skill-fill {
       height: 100%; border-radius: 2px;
       background: linear-gradient(90deg, var(--gold), var(--gold-2));
-      width: 0; transition: width 1.2s cubic-bezier(0.4,0,0.2,1);
+      width: 0; transition: width 1.5s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
     .skill-fill.cyan { background: linear-gradient(90deg, var(--cyan), var(--cyan-2)); }
     .skill-fill.purple { background: linear-gradient(90deg, var(--purple), #a89aff); }
@@ -384,10 +471,32 @@
       border-radius: var(--radius); overflow: hidden;
       cursor: pointer; transition: all var(--transition);
       transform-style: preserve-3d;
+      position: relative;
     }
-    .project-card:hover {
-      border-color: var(--border-2); transform: translateY(-4px) rotateX(1deg);
-      box-shadow: var(--shadow-lg);
+    .project-card::before {
+      content: '';
+      position: absolute; inset: 0; z-index: 1;
+      border-radius: var(--radius);
+      border: 1px solid transparent;
+      transition: border-color 0.4s ease;
+      pointer-events: none;
+    }
+    .project-card:hover::before {
+      border-color: rgba(201,168,76,0.4);
+      box-shadow: 0 0 30px rgba(201,168,76,0.1);
+    }
+    /* Glossy reflection sweep */
+    .project-card::after {
+      content: '';
+      position: absolute; inset: 0; z-index: 2;
+      background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.05) 45%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 55%, transparent 60%);
+      transform: translateX(-100%);
+      transition: transform 0.6s ease;
+      pointer-events: none;
+      border-radius: var(--radius);
+    }
+    .project-card:hover::after {
+      transform: translateX(100%);
     }
     .project-thumb {
       height: 180px; background: var(--bg-3);
@@ -408,7 +517,7 @@
       font-size: 0.7rem; font-weight: 600; text-transform: uppercase;
       letter-spacing: 0.08em;
     }
-    .project-body { padding: 1.5rem; }
+    .project-body { padding: 1.5rem; position: relative; z-index: 3; }
     .project-title {
       font-family: var(--font-display); font-size: 1.05rem;
       font-weight: 600; margin-bottom: 8px;
@@ -471,9 +580,7 @@
     #contact { background: var(--bg-2); }
     .contact-grid { display: grid; grid-template-columns: 1fr 1.4fr; gap: 5rem; align-items: start; }
     .contact-info { display: flex; flex-direction: column; gap: 1.5rem; }
-    .contact-item {
-      display: flex; align-items: flex-start; gap: 14px;
-    }
+    .contact-item { display: flex; align-items: flex-start; gap: 14px; }
     .contact-icon {
       width: 40px; height: 40px; border-radius: 10px;
       background: var(--surface); border: 1px solid var(--border);
@@ -512,32 +619,50 @@
     /* ── Chatbot ────────────────────────────────────── */
     #chat-bubble {
       position: fixed; bottom: 28px; right: 28px; z-index: 1000;
-      width: 60px; height: 60px; border-radius: 50%;
+      width: 68px; height: 68px; border-radius: 50%;
       background: linear-gradient(135deg, var(--gold), var(--gold-2));
       cursor: pointer; border: none;
       box-shadow: 0 4px 20px rgba(201,168,76,0.5);
       display: flex; align-items: center; justify-content: center;
-      animation: bubblePop 0.4s 2s cubic-bezier(0.34,1.56,0.64,1) both;
+      opacity: 0; transform: scale(0);
       transition: transform var(--transition), box-shadow var(--transition);
     }
-    #chat-bubble:hover { transform: scale(1.08); box-shadow: 0 8px 30px rgba(201,168,76,0.6); }
+    #chat-bubble:hover { transform: scale(1.08) !important; box-shadow: 0 8px 30px rgba(201,168,76,0.6); }
     #chat-bubble svg { color: var(--bg); }
-    @keyframes bubblePop {
-      from { transform: scale(0); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
-    }
     .bubble-ring {
-      position: absolute; inset: -6px; border-radius: 50%;
+      position: absolute; inset: -8px; border-radius: 50%;
       border: 2px solid rgba(201,168,76,0.4);
       animation: ringPulse 3s infinite;
+    }
+    .bubble-ring-2 {
+      position: absolute; inset: -14px; border-radius: 50%;
+      border: 1px solid rgba(201,168,76,0.2);
+      animation: ringPulse 3s 0.5s infinite;
     }
     @keyframes ringPulse {
       0%,100% { transform: scale(1); opacity: 0.6; }
       50% { transform: scale(1.2); opacity: 0; }
     }
+    /* Bounce animation for chat bubble */
+    @keyframes chatBounce {
+      0%, 100% { transform: scale(1) translateY(0); }
+      50% { transform: scale(1) translateY(-4px); }
+    }
+    #chat-bubble.bouncing { animation: chatBounce 2s ease-in-out infinite; }
+    /* Shimmer effect */
+    #chat-bubble::after {
+      content: '';
+      position: absolute; inset: 0; border-radius: 50%;
+      background: linear-gradient(135deg, transparent 30%, rgba(255,255,255,0.2) 50%, transparent 70%);
+      animation: shimmer 3s ease-in-out infinite;
+    }
+    @keyframes shimmer {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
 
     #chat-window {
-      position: fixed; bottom: 104px; right: 28px; z-index: 1000;
+      position: fixed; bottom: 110px; right: 28px; z-index: 1000;
       width: min(420px, calc(100vw - 56px));
       height: min(580px, calc(100vh - 160px));
       background: var(--bg-2);
@@ -731,11 +856,9 @@
     @keyframes fadeIn {
       from { opacity: 0; } to { opacity: 1; }
     }
-    .reveal {
-      opacity: 0; transform: translateY(24px);
-      transition: opacity 0.7s ease, transform 0.7s ease;
-    }
-    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* GSAP will handle reveals instead of the old observer */
+    .reveal { opacity: 0; transform: translateY(30px); }
 
     /* Editable placeholders */
     [contenteditable] {
@@ -761,10 +884,27 @@
       .timeline-dot { left: 0; }
       .contact-grid { grid-template-columns: 1fr; gap: 2rem; }
       .form-row { grid-template-columns: 1fr; }
+      .projects-grid { grid-template-columns: 1fr; }
+      #hero-three { opacity: 0.4; }
     }
   </style>
 </head>
 <body>
+
+<!-- ── Loading Screen ─────────────────────────────────── -->
+<div id="loader">
+  <svg class="loader-logo" width="64" height="64" viewBox="0 0 32 32" fill="none">
+    <polygon points="16,2 30,10 30,22 16,30 2,22 2,10" stroke="#c9a84c" stroke-width="1.5" fill="rgba(201,168,76,0.08)"/>
+    <polygon points="16,7 25,12 25,20 16,25 7,20 7,12" stroke="#4ecdc4" stroke-width="1" fill="none" opacity="0.6"/>
+    <circle cx="16" cy="16" r="3" fill="#c9a84c"/>
+  </svg>
+  <div class="loader-bar"><div class="loader-bar-fill"></div></div>
+  <div class="loader-text">Loading Experience</div>
+</div>
+
+<!-- ── Custom Cursor ──────────────────────────────────── -->
+<div class="cursor-dot" id="cursor-dot"></div>
+<div class="cursor-ring" id="cursor-ring"></div>
 
 <!-- ── Navigation ─────────────────────────────────── -->
 <nav>
@@ -793,6 +933,7 @@
 <!-- ── Hero ──────────────────────────────────────────── -->
 <section id="hero">
   <canvas id="hero-canvas"></canvas>
+  <div id="hero-three"></div>
   <div class="hero-content">
     <div class="hero-badge">
       <div class="hero-badge-dot"></div>
@@ -840,19 +981,19 @@
       <div class="reveal" style="transition-delay:0.1s">
         <div class="about-stats">
           <div class="stat-card">
-            <div class="stat-num" contenteditable="true">12+</div>
+            <div class="stat-num" data-count="12" contenteditable="true">0+</div>
             <div class="stat-label">Years Experience</div>
           </div>
           <div class="stat-card">
-            <div class="stat-num" contenteditable="true">40+</div>
+            <div class="stat-num" data-count="40" contenteditable="true">0+</div>
             <div class="stat-label">Projects Delivered</div>
           </div>
           <div class="stat-card">
-            <div class="stat-num" contenteditable="true">15+</div>
+            <div class="stat-num" data-count="15" contenteditable="true">0+</div>
             <div class="stat-label">Enterprise Clients</div>
           </div>
           <div class="stat-card">
-            <div class="stat-num" contenteditable="true">30+</div>
+            <div class="stat-num" data-count="30" contenteditable="true">0+</div>
             <div class="stat-label">Technologies</div>
           </div>
         </div>
@@ -901,7 +1042,7 @@
         <div class="timeline-empty"></div>
       </div>
 
-      <div class="timeline-item reveal" style="transition-delay:0.1s">
+      <div class="timeline-item reveal">
         <div class="timeline-dot"></div>
         <div class="timeline-empty"></div>
         <div class="timeline-card">
@@ -916,7 +1057,7 @@
         </div>
       </div>
 
-      <div class="timeline-item reveal" style="transition-delay:0.2s">
+      <div class="timeline-item reveal">
         <div class="timeline-dot"></div>
         <div class="timeline-card">
           <div class="timeline-period" contenteditable="true">2016 — 2019</div>
@@ -930,7 +1071,7 @@
         <div class="timeline-empty"></div>
       </div>
 
-      <div class="timeline-item reveal" style="transition-delay:0.3s">
+      <div class="timeline-item reveal">
         <div class="timeline-dot"></div>
         <div class="timeline-empty"></div>
         <div class="timeline-card">
@@ -944,7 +1085,7 @@
         </div>
       </div>
 
-      <div class="timeline-item reveal" style="transition-delay:0.4s">
+      <div class="timeline-item reveal">
         <div class="timeline-dot" style="background:var(--cyan);box-shadow:var(--glow-cyan)"></div>
         <div class="timeline-card" style="border-color:rgba(78,205,196,0.2)">
           <div class="timeline-period" style="color:var(--cyan)" contenteditable="true">Education</div>
@@ -979,7 +1120,7 @@
         <div class="skill-item"><div class="skill-header"><span>API Management</span><span class="skill-pct">93%</span></div><div class="skill-bar"><div class="skill-fill" data-width="93"></div></div></div>
       </div>
 
-      <div class="skill-group reveal" style="transition-delay:0.1s">
+      <div class="skill-group reveal">
         <div class="skill-group-title">
           <div class="skill-group-icon" style="background:rgba(78,205,196,0.1)">💻</div>
           Development
@@ -990,7 +1131,7 @@
         <div class="skill-item"><div class="skill-header"><span>React / Modern JS</span><span class="skill-pct">78%</span></div><div class="skill-bar"><div class="skill-fill cyan" data-width="78"></div></div></div>
       </div>
 
-      <div class="skill-group reveal" style="transition-delay:0.2s">
+      <div class="skill-group reveal">
         <div class="skill-group-title">
           <div class="skill-group-icon" style="background:rgba(124,106,247,0.1)">🤖</div>
           Agentic AI
@@ -1001,7 +1142,7 @@
         <div class="skill-item"><div class="skill-header"><span>RAG Pipelines</span><span class="skill-pct">85%</span></div><div class="skill-bar"><div class="skill-fill purple" data-width="85"></div></div></div>
       </div>
 
-      <div class="skill-group reveal" style="transition-delay:0.3s">
+      <div class="skill-group reveal">
         <div class="skill-group-title">
           <div class="skill-group-icon" style="background:rgba(201,168,76,0.1)">📊</div>
           Data &amp; Domain
@@ -1029,7 +1170,7 @@
       <button class="filter-btn" onclick="filterProjects('cloud', this)">Cloud</button>
     </div>
     <div class="projects-grid">
-      <div class="project-card reveal" data-cat="ai">
+      <div class="project-card reveal" data-cat="ai" data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.15">
         <div class="project-thumb">
           <div class="project-thumb-bg" style="background:linear-gradient(135deg,#1a1040,#0d1a2e)"></div>
           <div class="project-thumb-icon">🤖</div>
@@ -1050,7 +1191,7 @@
         </div>
       </div>
 
-      <div class="project-card reveal" data-cat="marine" style="transition-delay:0.1s">
+      <div class="project-card reveal" data-cat="marine" data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.15">
         <div class="project-thumb">
           <div class="project-thumb-bg" style="background:linear-gradient(135deg,#0d2a1a,#0a1a2e)"></div>
           <div class="project-thumb-icon">🐟</div>
@@ -1070,7 +1211,7 @@
         </div>
       </div>
 
-      <div class="project-card reveal" data-cat="cloud" style="transition-delay:0.2s">
+      <div class="project-card reveal" data-cat="cloud" data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.15">
         <div class="project-thumb">
           <div class="project-thumb-bg" style="background:linear-gradient(135deg,#1a1005,#2a1a05)"></div>
           <div class="project-thumb-icon">⚙️</div>
@@ -1091,7 +1232,7 @@
         </div>
       </div>
 
-      <div class="project-card reveal" data-cat="ai" style="transition-delay:0.3s">
+      <div class="project-card reveal" data-cat="ai" data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.15">
         <div class="project-thumb">
           <div class="project-thumb-bg" style="background:linear-gradient(135deg,#1a0520,#0d0520)"></div>
           <div class="project-thumb-icon">🧠</div>
@@ -1112,7 +1253,7 @@
         </div>
       </div>
 
-      <div class="project-card reveal" data-cat="marine" style="transition-delay:0.4s">
+      <div class="project-card reveal" data-cat="marine" data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.15">
         <div class="project-thumb">
           <div class="project-thumb-bg" style="background:linear-gradient(135deg,#051a1a,#0a2020)"></div>
           <div class="project-thumb-icon">🌊</div>
@@ -1130,7 +1271,7 @@
         </div>
       </div>
 
-      <div class="project-card reveal" data-cat="cloud" style="transition-delay:0.5s">
+      <div class="project-card reveal" data-cat="cloud" data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.15">
         <div class="project-thumb">
           <div class="project-thumb-bg" style="background:linear-gradient(135deg,#1a1005,#100a00)"></div>
           <div class="project-thumb-icon">🔧</div>
@@ -1167,7 +1308,7 @@
           Production-grade agentic pipelines with automated testing and crash prevention.
         </div>
       </div>
-      <div class="service-card reveal" style="transition-delay:0.1s">
+      <div class="service-card reveal">
         <div class="service-icon">🌊</div>
         <div class="service-title" contenteditable="true">Marine Intelligence Platforms</div>
         <div class="service-desc" contenteditable="true">
@@ -1175,7 +1316,7 @@
           and maritime operations optimization.
         </div>
       </div>
-      <div class="service-card reveal" style="transition-delay:0.2s">
+      <div class="service-card reveal">
         <div class="service-icon">☁️</div>
         <div class="service-title" contenteditable="true">Cloud &amp; DevOps Architecture</div>
         <div class="service-desc" contenteditable="true">
@@ -1183,7 +1324,7 @@
           API-driven infrastructure for scale.
         </div>
       </div>
-      <div class="service-card reveal" style="transition-delay:0.3s">
+      <div class="service-card reveal">
         <div class="service-icon">📊</div>
         <div class="service-title" contenteditable="true">Data Visualization &amp; Analytics</div>
         <div class="service-desc" contenteditable="true">
@@ -1345,6 +1486,7 @@
 <!-- ── AI Chatbot ──────────────────────────────────── -->
 <button id="chat-bubble" onclick="toggleChat()" aria-label="Open AI assistant">
   <div class="bubble-ring"></div>
+  <div class="bubble-ring-2"></div>
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
   </svg>
@@ -1405,6 +1547,12 @@
   </div>
 </div>
 
+<!-- ── CDN Libraries ──────────────────────────────────── -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.7.2/vanilla-tilt.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 
 <script>
 // ── State ──────────────────────────────────────────────
@@ -1415,6 +1563,169 @@ const state = {
   history: [],
   loading: false
 };
+
+// ── Loading Screen ─────────────────────────────────────
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('loader').classList.add('hidden');
+    initHeroAnimations();
+    initChatBubble();
+  }, 1500);
+});
+
+function initChatBubble() {
+  const bubble = document.getElementById('chat-bubble');
+  gsap.to(bubble, {
+    opacity: 1, scale: 1, duration: 0.5,
+    ease: 'back.out(1.7)', delay: 0.3,
+    onComplete: () => bubble.classList.add('bouncing')
+  });
+}
+
+// ── Custom Cursor ──────────────────────────────────────
+(function() {
+  if (window.matchMedia('(max-width: 768px)').matches) return;
+
+  const dot = document.getElementById('cursor-dot');
+  const ring = document.getElementById('cursor-ring');
+  let mouseX = 0, mouseY = 0;
+  let ringX = 0, ringY = 0;
+
+  document.addEventListener('mousemove', e => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    dot.style.left = mouseX + 'px';
+    dot.style.top = mouseY + 'px';
+  });
+
+  function animateRing() {
+    ringX += (mouseX - ringX) * 0.15;
+    ringY += (mouseY - ringY) * 0.15;
+    ring.style.left = ringX + 'px';
+    ring.style.top = ringY + 'px';
+    requestAnimationFrame(animateRing);
+  }
+  animateRing();
+
+  // Hover effect on interactive elements
+  const hoverTargets = 'a, button, [contenteditable], .project-card, .service-card, .filter-btn, .stat-card, input, textarea, select';
+  document.addEventListener('mouseover', e => {
+    if (e.target.closest(hoverTargets)) {
+      document.body.classList.add('cursor-hover');
+    }
+  });
+  document.addEventListener('mouseout', e => {
+    if (e.target.closest(hoverTargets)) {
+      document.body.classList.remove('cursor-hover');
+    }
+  });
+})();
+
+// ── Lenis Smooth Scrolling ──────────────────────────────
+const lenis = new Lenis({
+  duration: 1.2,
+  easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+  direction: 'vertical',
+  smooth: true,
+});
+
+function raf(time) {
+  lenis.raf(time);
+  requestAnimationFrame(raf);
+}
+requestAnimationFrame(raf);
+
+// Integrate Lenis with GSAP ScrollTrigger
+lenis.on('scroll', ScrollTrigger.update);
+gsap.ticker.add((time) => {
+  lenis.raf(time * 1000);
+});
+gsap.ticker.lagSmoothing(0);
+
+// Handle anchor clicks with Lenis
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  anchor.addEventListener('click', (e) => {
+    e.preventDefault();
+    const target = document.querySelector(anchor.getAttribute('href'));
+    if (target) lenis.scrollTo(target);
+  });
+});
+
+// ── Three.js Globe ──────────────────────────────────────
+(function() {
+  const container = document.getElementById('hero-three');
+  if (!container) return;
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(50, container.offsetWidth / container.offsetHeight, 0.1, 1000);
+  camera.position.z = 5;
+
+  const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+  renderer.setSize(container.offsetWidth, container.offsetHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  container.appendChild(renderer.domElement);
+
+  // Icosahedron wireframe
+  const geometry = new THREE.IcosahedronGeometry(2, 1);
+  const material = new THREE.MeshBasicMaterial({
+    color: 0xc9a84c,
+    wireframe: true,
+    transparent: true,
+    opacity: 0.2
+  });
+  const icosahedron = new THREE.Mesh(geometry, material);
+  scene.add(icosahedron);
+
+  // Inner icosahedron
+  const innerGeo = new THREE.IcosahedronGeometry(1.4, 0);
+  const innerMat = new THREE.MeshBasicMaterial({
+    color: 0x4ecdc4,
+    wireframe: true,
+    transparent: true,
+    opacity: 0.12
+  });
+  const innerIco = new THREE.Mesh(innerGeo, innerMat);
+  scene.add(innerIco);
+
+  // Points on vertices
+  const dotGeo = new THREE.SphereGeometry(0.03, 8, 8);
+  const dotMat = new THREE.MeshBasicMaterial({ color: 0xc9a84c, transparent: true, opacity: 0.6 });
+  const positions = geometry.attributes.position;
+  for (let i = 0; i < positions.count; i++) {
+    const dot = new THREE.Mesh(dotGeo, dotMat);
+    dot.position.set(positions.getX(i), positions.getY(i), positions.getZ(i));
+    icosahedron.add(dot);
+  }
+
+  let targetRotX = 0, targetRotY = 0;
+
+  document.addEventListener('mousemove', e => {
+    targetRotX = (e.clientY / window.innerHeight - 0.5) * 0.5;
+    targetRotY = (e.clientX / window.innerWidth - 0.5) * 0.5;
+  });
+
+  function animate() {
+    requestAnimationFrame(animate);
+    icosahedron.rotation.x += 0.002;
+    icosahedron.rotation.y += 0.003;
+    innerIco.rotation.x -= 0.001;
+    innerIco.rotation.y -= 0.002;
+
+    // Parallax tilt from mouse
+    icosahedron.rotation.x += (targetRotX - icosahedron.rotation.x * 0.1) * 0.02;
+    icosahedron.rotation.y += (targetRotY - icosahedron.rotation.y * 0.1) * 0.02;
+
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  window.addEventListener('resize', () => {
+    const w = container.offsetWidth, h = container.offsetHeight;
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    renderer.setSize(w, h);
+  });
+})();
 
 // ── Hero canvas particle animation ─────────────────────
 (function() {
@@ -1453,7 +1764,6 @@ const state = {
   function draw() {
     ctx.clearRect(0, 0, W, H);
     particles.forEach(p => {
-      // attract toward mouse slightly
       const dx = mx - p.x, dy = my - p.y;
       const dist = Math.sqrt(dx * dx + dy * dy);
       if (dist < 200) {
@@ -1470,7 +1780,6 @@ const state = {
       ctx.fillStyle = `rgba(201,168,76,${p.alpha})`;
       ctx.fill();
     });
-    // draw connecting lines
     for (let i = 0; i < particles.length; i++) {
       for (let j = i + 1; j < particles.length; j++) {
         const dx = particles[i].x - particles[j].x;
@@ -1492,6 +1801,136 @@ const state = {
   init(); draw();
   window.addEventListener('resize', () => { cancelAnimationFrame(animId); init(); draw(); });
 })();
+
+// ── Hero Animations with GSAP ───────────────────────────
+function initHeroAnimations() {
+  const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+  tl.to('.hero-badge', { opacity: 1, y: 0, duration: 0.8 }, 0.2)
+    .to('.hero-name', { opacity: 1, y: 0, duration: 1 }, 0.4)
+    .to('.hero-title', { opacity: 1, y: 0, duration: 0.8 }, 0.7)
+    .to('.hero-desc', { opacity: 1, y: 0, duration: 0.8 }, 0.9)
+    .to('.hero-actions', { opacity: 1, y: 0, duration: 0.8 }, 1.1)
+    .to('.hero-scroll', { opacity: 1, duration: 1 }, 1.5);
+
+  // Hero parallax on scroll
+  gsap.to('.hero-content', {
+    yPercent: -30,
+    ease: 'none',
+    scrollTrigger: {
+      trigger: '#hero',
+      start: 'top top',
+      end: 'bottom top',
+      scrub: true
+    }
+  });
+}
+
+// ── GSAP Scroll Animations ──────────────────────────────
+gsap.registerPlugin(ScrollTrigger);
+
+// Reveal animations for all .reveal elements with staggered children
+document.querySelectorAll('section').forEach(section => {
+  const reveals = section.querySelectorAll('.reveal');
+  reveals.forEach((el, i) => {
+    gsap.to(el, {
+      opacity: 1,
+      y: 0,
+      duration: 0.8,
+      ease: 'power2.out',
+      delay: i * 0.1,
+      scrollTrigger: {
+        trigger: el,
+        start: 'top 85%',
+        toggleActions: 'play none none none'
+      }
+    });
+
+    // Stagger children within each reveal
+    const children = el.querySelectorAll('.stat-card, .skill-item, .project-card, .service-card, .timeline-card, .contact-item');
+    if (children.length > 0) {
+      gsap.from(children, {
+        opacity: 0,
+        y: 20,
+        stagger: 0.08,
+        duration: 0.5,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: el,
+          start: 'top 80%',
+          toggleActions: 'play none none none'
+        }
+      });
+    }
+  });
+});
+
+// ── Navigation Active Section Highlighting ──────────────
+const navSections = ['hero', 'about', 'experience', 'skills', 'projects', 'services', 'contact'];
+navSections.forEach(id => {
+  ScrollTrigger.create({
+    trigger: '#' + id,
+    start: 'top 40%',
+    end: 'bottom 40%',
+    onToggle: self => {
+      if (self.isActive) {
+        document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+        const activeLink = document.querySelector(`.nav-links a[href="#${id}"]`);
+        if (activeLink) activeLink.classList.add('active');
+      }
+    }
+  });
+});
+
+// ── Animated Number Counters ────────────────────────────
+document.querySelectorAll('.stat-num[data-count]').forEach(el => {
+  const target = parseInt(el.dataset.count);
+  ScrollTrigger.create({
+    trigger: el,
+    start: 'top 80%',
+    once: true,
+    onEnter: () => {
+      gsap.to({ val: 0 }, {
+        val: target,
+        duration: 2,
+        ease: 'power2.out',
+        onUpdate: function() {
+          el.textContent = Math.round(this.targets()[0].val) + '+';
+        }
+      });
+    }
+  });
+});
+
+// ── Skill bars animate on scroll with spring easing ─────
+document.querySelectorAll('.skill-group').forEach(g => {
+  ScrollTrigger.create({
+    trigger: g,
+    start: 'top 75%',
+    once: true,
+    onEnter: () => {
+      g.querySelectorAll('.skill-fill').forEach((bar, i) => {
+        gsap.to(bar, {
+          width: bar.dataset.width + '%',
+          duration: 1.5,
+          ease: 'elastic.out(1, 0.5)',
+          delay: i * 0.1
+        });
+      });
+    }
+  });
+});
+
+// ── VanillaTilt for Project Cards ───────────────────────
+if (window.VanillaTilt && !window.matchMedia('(max-width: 768px)').matches) {
+  VanillaTilt.init(document.querySelectorAll('[data-tilt]'), {
+    max: 8,
+    speed: 400,
+    glare: true,
+    'max-glare': 0.15,
+    perspective: 1000,
+    gyroscope: false
+  });
+}
 
 // ── Typing title ───────────────────────────────────────
 (function() {
@@ -1515,31 +1954,18 @@ const state = {
   tick();
 })();
 
-// ── Reveal on scroll ───────────────────────────────────
-const observer = new IntersectionObserver(entries => {
-  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
-document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-
-// ── Skill bars animate on scroll ──────────────────────
-const skillObserver = new IntersectionObserver(entries => {
-  entries.forEach(e => {
-    if (e.isIntersecting) {
-      e.target.querySelectorAll('.skill-fill').forEach(bar => {
-        bar.style.width = bar.dataset.width + '%';
-      });
-    }
-  });
-}, { threshold: 0.3 });
-document.querySelectorAll('.skill-group').forEach(g => skillObserver.observe(g));
-
 // ── Project filter ─────────────────────────────────────
 function filterProjects(cat, btn) {
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   document.querySelectorAll('.project-card').forEach(card => {
     const show = cat === 'all' || card.dataset.cat === cat;
-    card.style.display = show ? '' : 'none';
+    if (show) {
+      card.style.display = '';
+      gsap.from(card, { opacity: 0, y: 20, duration: 0.4, ease: 'power2.out' });
+    } else {
+      card.style.display = 'none';
+    }
   });
 }
 
@@ -1648,7 +2074,6 @@ async function sendMessage() {
 function sendQuick(text) {
   document.getElementById('chat-input').value = text;
   sendMessage();
-  // Hide quick actions after first use
   document.getElementById('quick-actions').style.display = 'none';
 }
 
@@ -1682,10 +2107,9 @@ async function callAPI(message) {
     }
   } catch (err) {
     removeTyping();
-    // Fallback for when API is not configured (local dev / preview)
     const fallbacks = {
       'background': "Scott is a Senior Software Developer and Technical Lead with expertise in marine/fisheries technology and agentic AI systems. He's currently building SirTrav-A2A-Studio, a marine intelligence platform.",
-      'siртrav': "SirTrav-A2A-Studio is a marine intelligence platform using agent-to-agent (A2A) protocols with Claude API and Gemini Embedding 2 multimodal RAG.",
+      'sirtrav': "SirTrav-A2A-Studio is a marine intelligence platform using agent-to-agent (A2A) protocols with Claude API and Gemini Embedding 2 multimodal RAG.",
       'contact': "You can reach Scott at worldseafood@gmail.com or through the contact form on this page. He's open to enterprise consulting, technical leadership, and collaboration.",
       'default': "I'm Scott's AI assistant. I can answer questions about his background, projects (like SirTrav marine intelligence platform), AI architecture work, and how to get in touch. The live AI requires the Netlify deployment with ANTHROPIC_API_KEY configured — try the contact form above to reach Scott directly."
     };
