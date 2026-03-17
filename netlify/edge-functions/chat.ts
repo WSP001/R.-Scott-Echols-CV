@@ -136,7 +136,7 @@ export default async (request: Request) => {
 
   try {
     const response = await client.messages.create({
-      model: "claude-opus-4-5",
+      model: "claude-opus-4-6",
       max_tokens: isBusiness ? 2048 : 512,
       system: isBusiness ? BUSINESS_SYSTEM : PUBLIC_SYSTEM,
       messages,
