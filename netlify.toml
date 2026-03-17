@@ -4,8 +4,8 @@
 # ─────────────────────────────────────────────────────────────────────────────
 
 [build]
-  publish = "."
-  command = "echo 'Static site — no build step required'"
+  publish = "public"
+  command = "mkdir -p public && cp index.html public/index.html && cp -r netlify public/netlify 2>/dev/null || true"
 
 # Edge Functions directory
 [build.environment]
