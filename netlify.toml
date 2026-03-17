@@ -1,21 +1,10 @@
-# ─────────────────────────────────────────────────────────────────────────────
 # R. Scott Echols CV — Netlify Configuration
-# Includes: Edge Functions, security headers, SPA redirect, build settings
-# ─────────────────────────────────────────────────────────────────────────────
 
 [build]
   publish = "public"
-  command = "mkdir -p public && cp index.html public/index.html && cp -r netlify public/netlify 2>/dev/null || true"
+  command = ""
 
-# Edge Functions directory
-[build.environment]
-  NODE_VERSION = "20"
-  DENO_VERSION = "1.40.0"
-
-# ─── Edge Functions ───────────────────────────────────────────────────────────
-# chat, embed, and verify-access are served from /api/*
-# These run at the CDN edge (Deno runtime, zero cold start)
-
+# Edge Functions
 [[edge_functions]]
   path = "/api/chat"
   function = "chat"
@@ -28,47 +17,25 @@
   path = "/api/verify-access"
   function = "verify-access"
 
-# ─── SPA fallback redirect ───────────────────────────────────────────────────
+# SPA fallback
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
-  force = false
-  conditions = { Role = [""] }
 
-# ─── Security headers ────────────────────────────────────────────────────────
+# Security headers
 [[headers]]
   for = "/*"
   [headers.values]
     X-Frame-Options = "DENY"
     X-Content-Type-Options = "nosniff"
-    X-XSS-Protection = "1; mode=block"
     Referrer-Policy = "strict-origin-when-cross-origin"
-    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
-    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains"
 
-# API endpoints — prevent caching, add CORS
 [[headers]]
   for = "/api/*"
   [headers.values]
-    Cache-Control = "no-store, no-cache, must-revalidate"
-    X-Content-Type-Options = "nosniff"
+    Cache-Control = "no-store"
     Access-Control-Allow-Origin = "*"
     Access-Control-Allow-Methods = "POST, OPTIONS"
     Access-Control-Allow-Headers = "Content-Type, X-Access-Key"
-
-# Static assets — aggressive cache
-[[headers]]
-  for = "/*.css"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
-
-[[headers]]
-  for = "/*.js"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
-
-# ─── Rate Limiting (Netlify Pro/Business) ─────────────────────────────────────
-# Uncomment and configure these in Netlify UI → Security → Rate Limiting
-# Recommended: limit /api/chat to 10 req/min per IP
-# Recommended: limit /api/embed to 5 req/min per IP (business tier)
