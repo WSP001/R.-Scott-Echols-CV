@@ -1,0 +1,1743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Built with Perplexity Computer — https://www.perplexity.ai/computer -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="R. Scott Echols — Senior Software Developer, Technical Lead & Marine Intelligence AI Architect. Specializing in agentic AI systems, fisheries supply chain optimization, and enterprise cloud solutions." />
+  <meta name="author" content="R. Scott Echols" />
+  <meta property="og:title" content="R. Scott Echols — Obsidian Architect" />
+  <meta property="og:description" content="Senior Software Developer & AI Systems Architect specializing in marine intelligence, agentic AI, and enterprise cloud." />
+  <meta property="og:type" content="website" />
+  <title>R. Scott Echols — Obsidian Architect</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── Design Tokens ─────────────────────────────── */
+    :root {
+      --bg: #0a0b0d;
+      --bg-2: #111318;
+      --bg-3: #181b22;
+      --surface: #1c202b;
+      --surface-2: #252a38;
+      --border: rgba(255,255,255,0.07);
+      --border-2: rgba(255,255,255,0.12);
+      --text: #e8eaf0;
+      --text-2: #9ba3b8;
+      --text-3: #6b7490;
+      --gold: #c9a84c;
+      --gold-2: #e8c877;
+      --cyan: #4ecdc4;
+      --cyan-2: #7eddd6;
+      --purple: #7c6af7;
+      --red: #e55353;
+      --font-body: 'Inter', sans-serif;
+      --font-display: 'Space Grotesk', sans-serif;
+      --radius: 12px;
+      --radius-lg: 20px;
+      --shadow: 0 8px 32px rgba(0,0,0,0.4);
+      --shadow-lg: 0 24px 64px rgba(0,0,0,0.6);
+      --glow-gold: 0 0 20px rgba(201,168,76,0.3);
+      --glow-cyan: 0 0 20px rgba(78,205,196,0.3);
+      --transition: 0.25s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    /* ── Reset ─────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; overflow-x: hidden; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+    ::selection { background: rgba(201,168,76,0.25); color: var(--gold-2); }
+
+    /* ── Nav ────────────────────────────────────────── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 clamp(1.5rem, 5vw, 4rem);
+      background: rgba(10,11,13,0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      transition: var(--transition);
+    }
+    .nav-logo {
+      display: flex; align-items: center; gap: 10px;
+      text-decoration: none;
+      font-family: var(--font-display); font-weight: 700; font-size: 1.1rem;
+      color: var(--text);
+    }
+    .nav-logo svg { flex-shrink: 0; }
+    .nav-links {
+      display: flex; align-items: center; gap: 2rem;
+      list-style: none;
+    }
+    .nav-links a {
+      color: var(--text-2); text-decoration: none;
+      font-size: 0.875rem; font-weight: 500;
+      transition: color var(--transition);
+      position: relative;
+    }
+    .nav-links a::after {
+      content: ''; position: absolute; bottom: -4px; left: 0;
+      width: 0; height: 1px; background: var(--gold);
+      transition: width var(--transition);
+    }
+    .nav-links a:hover { color: var(--text); }
+    .nav-links a:hover::after { width: 100%; }
+    .nav-cta {
+      background: linear-gradient(135deg, var(--gold), var(--gold-2));
+      color: var(--bg) !important;
+      padding: 8px 20px; border-radius: 8px;
+      font-weight: 600 !important;
+      transition: box-shadow var(--transition), transform var(--transition) !important;
+    }
+    .nav-cta::after { display: none !important; }
+    .nav-cta:hover { box-shadow: var(--glow-gold) !important; transform: translateY(-1px); }
+
+    .hamburger {
+      display: none; flex-direction: column; gap: 5px;
+      cursor: pointer; padding: 8px; border: none; background: none;
+    }
+    .hamburger span {
+      display: block; width: 22px; height: 2px;
+      background: var(--text-2); border-radius: 2px;
+      transition: var(--transition);
+    }
+
+    /* ── Hero ──────────────────────────────────────── */
+    #hero {
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      position: relative; overflow: hidden;
+      padding: 8rem clamp(1.5rem, 5vw, 4rem) 4rem;
+    }
+    #hero-canvas {
+      position: absolute; inset: 0; z-index: 0;
+      opacity: 0.6;
+    }
+    .hero-content {
+      position: relative; z-index: 1;
+      max-width: 800px;
+      text-align: center;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.3);
+      padding: 6px 16px; border-radius: 100px;
+      font-size: 0.8rem; font-weight: 500; color: var(--gold-2);
+      margin-bottom: 2rem;
+      animation: fadeInDown 0.8s ease both;
+    }
+    .hero-badge-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--gold); animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.3); }
+    }
+    .hero-name {
+      font-family: var(--font-display);
+      font-size: clamp(2.8rem, 7vw, 5.5rem);
+      font-weight: 700; line-height: 1.05;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #fff 0%, var(--gold-2) 60%, var(--gold) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: fadeInUp 0.8s 0.2s ease both;
+      margin-bottom: 1rem;
+    }
+    .hero-title {
+      font-size: clamp(1rem, 2.5vw, 1.3rem);
+      color: var(--text-2); font-weight: 400;
+      min-height: 2em;
+      animation: fadeInUp 0.8s 0.4s ease both;
+      margin-bottom: 1.5rem;
+    }
+    .hero-title span { color: var(--cyan); font-weight: 500; }
+    .hero-desc {
+      font-size: clamp(0.95rem, 1.8vw, 1.1rem);
+      color: var(--text-3); line-height: 1.8;
+      max-width: 600px; margin: 0 auto 2.5rem;
+      animation: fadeInUp 0.8s 0.6s ease both;
+    }
+    .hero-actions {
+      display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;
+      animation: fadeInUp 0.8s 0.8s ease both;
+    }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 14px 28px; border-radius: var(--radius);
+      font-family: var(--font-body); font-weight: 600; font-size: 0.95rem;
+      text-decoration: none; cursor: pointer; border: none;
+      transition: all var(--transition);
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--gold), var(--gold-2));
+      color: var(--bg);
+    }
+    .btn-primary:hover { box-shadow: var(--glow-gold); transform: translateY(-2px); }
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid var(--border-2);
+      color: var(--text-2);
+    }
+    .btn-secondary:hover { border-color: var(--gold); color: var(--gold-2); background: rgba(201,168,76,0.05); }
+    .hero-scroll {
+      position: absolute; bottom: 2.5rem; left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      color: var(--text-3); font-size: 0.75rem;
+      animation: fadeIn 1.5s 1.5s ease both;
+    }
+    .scroll-line {
+      width: 1px; height: 50px;
+      background: linear-gradient(to bottom, transparent, var(--gold));
+      animation: scrollPulse 2s infinite;
+    }
+    @keyframes scrollPulse { 0%,100% { opacity:0.3; } 50% { opacity:1; } }
+
+    /* ── Sections ───────────────────────────────────── */
+    section { padding: clamp(4rem, 8vw, 7rem) clamp(1.5rem, 5vw, 4rem); }
+    .section-label {
+      display: inline-block;
+      font-size: 0.75rem; font-weight: 600; letter-spacing: 0.15em;
+      text-transform: uppercase; color: var(--gold);
+      margin-bottom: 1rem;
+    }
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 700; line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin-bottom: 1.5rem;
+    }
+    .section-desc {
+      color: var(--text-2); font-size: 1.05rem;
+      max-width: 600px; line-height: 1.8;
+    }
+    .container { max-width: 1200px; margin: 0 auto; }
+    .section-header { margin-bottom: 4rem; }
+
+    /* ── About ─────────────────────────────────────── */
+    #about { background: var(--bg-2); }
+    .about-grid {
+      display: grid; grid-template-columns: 1fr 2fr; gap: 5rem;
+      align-items: start;
+    }
+    .about-photo-wrap {
+      position: relative;
+    }
+    .about-photo {
+      width: 100%; aspect-ratio: 3/4;
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+      border: 2px dashed var(--border-2);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 12px; cursor: pointer;
+      transition: border-color var(--transition);
+      overflow: hidden;
+      position: relative;
+    }
+    .about-photo:hover { border-color: var(--gold); }
+    .about-photo-label { color: var(--text-3); font-size: 0.85rem; }
+    .about-photo img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
+    #photo-upload { display: none; }
+    .about-photo-badge {
+      position: absolute; bottom: 16px; right: -12px;
+      background: linear-gradient(135deg, var(--gold), var(--gold-2));
+      color: var(--bg); font-weight: 700; font-size: 0.8rem;
+      padding: 10px 16px; border-radius: 10px;
+      box-shadow: var(--shadow);
+    }
+    .about-stats {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.25rem;
+      text-align: center;
+      transition: border-color var(--transition), transform var(--transition);
+    }
+    .stat-card:hover { border-color: var(--gold); transform: translateY(-3px); }
+    .stat-num {
+      font-family: var(--font-display); font-size: 2rem;
+      font-weight: 700; color: var(--gold-2);
+    }
+    .stat-label { font-size: 0.75rem; color: var(--text-3); margin-top: 4px; }
+    .about-bio {
+      color: var(--text-2); line-height: 1.9; font-size: 1rem;
+      border-left: 2px solid var(--gold); padding-left: 1.5rem;
+      cursor: text;
+    }
+    .about-bio:focus-within { border-color: var(--cyan); }
+    .about-bio p[contenteditable]:focus { outline: none; color: var(--text); }
+
+    /* ── Experience Timeline ────────────────────────── */
+    #experience { background: var(--bg); }
+    .timeline {
+      position: relative;
+      max-width: 900px; margin: 0 auto;
+    }
+    .timeline::before {
+      content: '';
+      position: absolute; left: 50%; top: 0; bottom: 0;
+      width: 1px; background: linear-gradient(to bottom, transparent, var(--gold), transparent);
+      transform: translateX(-50%);
+    }
+    .timeline-item {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 2rem; margin-bottom: 3rem; position: relative;
+    }
+    .timeline-item:nth-child(odd) .timeline-card { grid-column: 1; }
+    .timeline-item:nth-child(odd) .timeline-empty { grid-column: 2; }
+    .timeline-item:nth-child(even) .timeline-card { grid-column: 2; }
+    .timeline-item:nth-child(even) .timeline-empty { grid-column: 1; order: -1; }
+    .timeline-dot {
+      position: absolute; left: 50%; top: 24px;
+      width: 12px; height: 12px; border-radius: 50%;
+      background: var(--gold); border: 3px solid var(--bg);
+      transform: translateX(-50%);
+      box-shadow: var(--glow-gold);
+    }
+    .timeline-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem;
+      transition: border-color var(--transition), transform var(--transition);
+      cursor: text;
+    }
+    .timeline-card:hover { border-color: var(--border-2); transform: translateY(-2px); }
+    .timeline-period {
+      font-size: 0.75rem; color: var(--gold); font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px;
+    }
+    .timeline-role {
+      font-family: var(--font-display); font-size: 1.05rem; font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .timeline-company { font-size: 0.875rem; color: var(--cyan); margin-bottom: 8px; }
+    .timeline-desc { font-size: 0.875rem; color: var(--text-2); line-height: 1.7; }
+
+    /* ── Skills ─────────────────────────────────────── */
+    #skills { background: var(--bg-2); }
+    .skills-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+    .skill-group {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.75rem;
+      transition: border-color var(--transition);
+    }
+    .skill-group:hover { border-color: var(--border-2); }
+    .skill-group-title {
+      font-family: var(--font-display); font-size: 0.95rem;
+      font-weight: 600; margin-bottom: 1.25rem;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .skill-group-icon {
+      width: 28px; height: 28px; border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.9rem;
+    }
+    .skill-item { margin-bottom: 1rem; }
+    .skill-header { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.875rem; }
+    .skill-pct { color: var(--gold); font-weight: 600; font-size: 0.8rem; }
+    .skill-bar { height: 4px; background: var(--bg-3); border-radius: 2px; overflow: hidden; }
+    .skill-fill {
+      height: 100%; border-radius: 2px;
+      background: linear-gradient(90deg, var(--gold), var(--gold-2));
+      width: 0; transition: width 1.2s cubic-bezier(0.4,0,0.2,1);
+    }
+    .skill-fill.cyan { background: linear-gradient(90deg, var(--cyan), var(--cyan-2)); }
+    .skill-fill.purple { background: linear-gradient(90deg, var(--purple), #a89aff); }
+
+    /* ── Projects ───────────────────────────────────── */
+    #projects { background: var(--bg); }
+    .projects-filters {
+      display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 2.5rem;
+    }
+    .filter-btn {
+      background: transparent; border: 1px solid var(--border);
+      color: var(--text-2); padding: 8px 20px; border-radius: 8px;
+      font-size: 0.85rem; font-weight: 500; cursor: pointer;
+      transition: all var(--transition);
+    }
+    .filter-btn:hover, .filter-btn.active {
+      background: rgba(201,168,76,0.1); border-color: var(--gold); color: var(--gold-2);
+    }
+    .projects-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.5rem;
+    }
+    .project-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden;
+      cursor: pointer; transition: all var(--transition);
+      transform-style: preserve-3d;
+    }
+    .project-card:hover {
+      border-color: var(--border-2); transform: translateY(-4px) rotateX(1deg);
+      box-shadow: var(--shadow-lg);
+    }
+    .project-thumb {
+      height: 180px; background: var(--bg-3);
+      position: relative; overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .project-thumb-bg {
+      position: absolute; inset: 0;
+      background: var(--bg-3);
+    }
+    .project-thumb-icon {
+      font-size: 3rem; position: relative; z-index: 1;
+    }
+    .project-tag {
+      position: absolute; top: 12px; right: 12px;
+      background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
+      padding: 4px 12px; border-radius: 6px;
+      font-size: 0.7rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .project-body { padding: 1.5rem; }
+    .project-title {
+      font-family: var(--font-display); font-size: 1.05rem;
+      font-weight: 600; margin-bottom: 8px;
+    }
+    .project-desc { font-size: 0.875rem; color: var(--text-2); line-height: 1.7; margin-bottom: 1rem; }
+    .project-tech { display: flex; gap: 6px; flex-wrap: wrap; }
+    .tech-badge {
+      background: var(--bg-3); color: var(--text-3);
+      padding: 4px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: 500;
+    }
+
+    /* ── Services ───────────────────────────────────── */
+    #services { background: var(--bg-2); }
+    .services-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem;
+    }
+    .service-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 2rem;
+      transition: all var(--transition);
+    }
+    .service-card:hover { border-color: var(--gold); transform: translateY(-3px); box-shadow: var(--shadow); }
+    .service-icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem; margin-bottom: 1.25rem;
+    }
+    .service-title {
+      font-family: var(--font-display); font-size: 1.05rem;
+      font-weight: 600; margin-bottom: 8px;
+    }
+    .service-desc { font-size: 0.875rem; color: var(--text-2); line-height: 1.75; }
+
+    /* ── Testimonials ────────────────────────────────── */
+    #testimonials { background: var(--bg); overflow: hidden; }
+    .testimonials-track {
+      display: flex; gap: 1.5rem; overflow-x: auto;
+      padding-bottom: 1rem; scrollbar-width: thin;
+      scrollbar-color: var(--border-2) transparent;
+    }
+    .testimonial-card {
+      flex-shrink: 0; width: 360px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 2rem;
+    }
+    .testimonial-stars { color: var(--gold); margin-bottom: 1rem; font-size: 0.9rem; }
+    .testimonial-text { font-size: 0.95rem; color: var(--text-2); line-height: 1.8; margin-bottom: 1.25rem; font-style: italic; }
+    .testimonial-author { display: flex; align-items: center; gap: 12px; }
+    .testimonial-avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: var(--surface-2); border: 2px solid var(--border-2);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; color: var(--gold);
+    }
+    .testimonial-name { font-weight: 600; font-size: 0.9rem; }
+    .testimonial-role { font-size: 0.78rem; color: var(--text-3); }
+
+    /* ── Contact ────────────────────────────────────── */
+    #contact { background: var(--bg-2); }
+    .contact-grid { display: grid; grid-template-columns: 1fr 1.4fr; gap: 5rem; align-items: start; }
+    .contact-info { display: flex; flex-direction: column; gap: 1.5rem; }
+    .contact-item {
+      display: flex; align-items: flex-start; gap: 14px;
+    }
+    .contact-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      background: var(--surface); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; flex-shrink: 0;
+    }
+    .contact-label { font-size: 0.75rem; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.1em; }
+    .contact-val { font-size: 0.95rem; color: var(--text); margin-top: 2px; }
+    .contact-form { display: flex; flex-direction: column; gap: 1rem; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-label { font-size: 0.8rem; font-weight: 500; color: var(--text-2); }
+    .form-input, .form-textarea, .form-select {
+      background: var(--surface); border: 1px solid var(--border);
+      color: var(--text); padding: 12px 16px; border-radius: var(--radius);
+      font-family: var(--font-body); font-size: 0.9rem;
+      transition: border-color var(--transition);
+      width: 100%; resize: none;
+    }
+    .form-input:focus, .form-textarea:focus, .form-select:focus {
+      outline: none; border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(201,168,76,0.1);
+    }
+    .form-textarea { min-height: 120px; }
+    .form-submit {
+      background: linear-gradient(135deg, var(--gold), var(--gold-2));
+      color: var(--bg); padding: 14px 32px; border-radius: var(--radius);
+      font-weight: 700; font-size: 0.95rem; cursor: pointer;
+      border: none; transition: all var(--transition); align-self: flex-start;
+    }
+    .form-submit:hover { box-shadow: var(--glow-gold); transform: translateY(-2px); }
+
+    /* honeypot */
+    .hp-field { display: none !important; }
+
+    /* ── Chatbot ────────────────────────────────────── */
+    #chat-bubble {
+      position: fixed; bottom: 28px; right: 28px; z-index: 1000;
+      width: 60px; height: 60px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold), var(--gold-2));
+      cursor: pointer; border: none;
+      box-shadow: 0 4px 20px rgba(201,168,76,0.5);
+      display: flex; align-items: center; justify-content: center;
+      animation: bubblePop 0.4s 2s cubic-bezier(0.34,1.56,0.64,1) both;
+      transition: transform var(--transition), box-shadow var(--transition);
+    }
+    #chat-bubble:hover { transform: scale(1.08); box-shadow: 0 8px 30px rgba(201,168,76,0.6); }
+    #chat-bubble svg { color: var(--bg); }
+    @keyframes bubblePop {
+      from { transform: scale(0); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .bubble-ring {
+      position: absolute; inset: -6px; border-radius: 50%;
+      border: 2px solid rgba(201,168,76,0.4);
+      animation: ringPulse 3s infinite;
+    }
+    @keyframes ringPulse {
+      0%,100% { transform: scale(1); opacity: 0.6; }
+      50% { transform: scale(1.2); opacity: 0; }
+    }
+
+    #chat-window {
+      position: fixed; bottom: 104px; right: 28px; z-index: 1000;
+      width: min(420px, calc(100vw - 56px));
+      height: min(580px, calc(100vh - 160px));
+      background: var(--bg-2);
+      border: 1px solid var(--border-2);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      display: flex; flex-direction: column;
+      overflow: hidden;
+      transform: scale(0.9) translateY(20px);
+      opacity: 0; pointer-events: none;
+      transform-origin: bottom right;
+      transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+    }
+    #chat-window.open {
+      transform: scale(1) translateY(0);
+      opacity: 1; pointer-events: all;
+    }
+
+    .chat-header {
+      background: var(--surface);
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .chat-header-info { display: flex; align-items: center; gap: 10px; }
+    .chat-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold), var(--gold-2));
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 0.85rem; color: var(--bg);
+      position: relative;
+    }
+    .chat-status-dot {
+      position: absolute; bottom: 1px; right: 1px;
+      width: 9px; height: 9px; border-radius: 50%;
+      background: #22c55e; border: 2px solid var(--surface);
+    }
+    .chat-name { font-weight: 600; font-size: 0.9rem; }
+    .chat-subtitle { font-size: 0.72rem; color: var(--text-3); margin-top: 1px; }
+    .chat-tier-badge {
+      font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; padding: 3px 10px; border-radius: 100px;
+      background: rgba(78,205,196,0.12); color: var(--cyan); border: 1px solid rgba(78,205,196,0.3);
+    }
+    .chat-tier-badge.business {
+      background: rgba(201,168,76,0.15); color: var(--gold-2); border-color: rgba(201,168,76,0.4);
+    }
+    .chat-close {
+      background: none; border: none; color: var(--text-3);
+      cursor: pointer; padding: 4px; border-radius: 6px;
+      transition: color var(--transition);
+    }
+    .chat-close:hover { color: var(--text); }
+
+    .chat-messages {
+      flex: 1; overflow-y: auto; padding: 1rem;
+      display: flex; flex-direction: column; gap: 1rem;
+      scrollbar-width: thin; scrollbar-color: var(--border) transparent;
+    }
+    .msg { display: flex; gap: 10px; max-width: 85%; }
+    .msg.user { align-self: flex-end; flex-direction: row-reverse; }
+    .msg-bubble {
+      padding: 10px 14px; border-radius: 16px;
+      font-size: 0.875rem; line-height: 1.6;
+    }
+    .msg.bot .msg-bubble {
+      background: var(--surface); border-radius: 4px 16px 16px 16px;
+      color: var(--text);
+    }
+    .msg.user .msg-bubble {
+      background: linear-gradient(135deg, var(--gold), var(--gold-2));
+      color: var(--bg); font-weight: 500;
+      border-radius: 16px 4px 16px 16px;
+    }
+    .msg-avatar {
+      width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--gold), var(--gold-2));
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 0.7rem; color: var(--bg);
+      align-self: flex-end;
+    }
+
+    .typing-indicator {
+      display: flex; gap: 4px; align-items: center;
+      padding: 10px 14px;
+    }
+    .typing-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--text-3); animation: typingBounce 1.4s infinite;
+    }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes typingBounce {
+      0%,60%,100% { transform: translateY(0); }
+      30% { transform: translateY(-6px); }
+    }
+
+    .chat-quick-actions {
+      padding: 0 1rem 0.75rem;
+      display: flex; gap: 6px; flex-wrap: wrap;
+      flex-shrink: 0;
+    }
+    .quick-btn {
+      background: var(--surface-2); border: 1px solid var(--border);
+      color: var(--text-2); padding: 6px 12px; border-radius: 20px;
+      font-size: 0.75rem; cursor: pointer;
+      transition: all var(--transition);
+      white-space: nowrap;
+    }
+    .quick-btn:hover { border-color: var(--gold); color: var(--gold-2); background: rgba(201,168,76,0.08); }
+
+    .chat-input-area {
+      padding: 0.75rem 1rem;
+      border-top: 1px solid var(--border);
+      display: flex; gap: 8px; align-items: flex-end;
+      flex-shrink: 0;
+    }
+    #chat-input {
+      flex: 1; background: var(--surface);
+      border: 1px solid var(--border); color: var(--text);
+      padding: 10px 14px; border-radius: 12px;
+      font-family: var(--font-body); font-size: 0.875rem;
+      resize: none; max-height: 120px; min-height: 40px;
+      transition: border-color var(--transition);
+      line-height: 1.5;
+    }
+    #chat-input:focus { outline: none; border-color: var(--gold); }
+    #chat-send {
+      width: 40px; height: 40px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--gold), var(--gold-2));
+      border: none; cursor: pointer; color: var(--bg);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: all var(--transition);
+    }
+    #chat-send:hover { transform: scale(1.05); box-shadow: var(--glow-gold); }
+    #chat-send:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    /* Business access gate */
+    .chat-gate {
+      padding: 1rem;
+      background: rgba(201,168,76,0.05);
+      border-top: 1px solid rgba(201,168,76,0.15);
+      border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+      flex-shrink: 0;
+    }
+    .gate-title {
+      font-size: 0.75rem; font-weight: 600; color: var(--gold);
+      text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px;
+    }
+    .gate-input-row { display: flex; gap: 8px; }
+    .gate-input {
+      flex: 1; background: var(--surface); border: 1px solid var(--border);
+      color: var(--text); padding: 8px 12px; border-radius: 8px;
+      font-size: 0.8rem; font-family: var(--font-body);
+    }
+    .gate-input:focus { outline: none; border-color: var(--gold); }
+    .gate-btn {
+      background: linear-gradient(135deg, var(--gold), var(--gold-2));
+      color: var(--bg); padding: 8px 16px; border-radius: 8px;
+      font-size: 0.8rem; font-weight: 600; border: none; cursor: pointer;
+      transition: all var(--transition); white-space: nowrap;
+    }
+    .gate-btn:hover { box-shadow: var(--glow-gold); }
+    .gate-msg { font-size: 0.72rem; color: var(--text-3); margin-top: 6px; }
+
+    /* ── Footer ─────────────────────────────────────── */
+    footer {
+      background: var(--bg);
+      border-top: 1px solid var(--border);
+      padding: 2.5rem clamp(1.5rem, 5vw, 4rem);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 1rem;
+    }
+    .footer-copy { color: var(--text-3); font-size: 0.85rem; }
+    .footer-pplx a {
+      color: var(--text-3); text-decoration: none; font-size: 0.8rem;
+      transition: color var(--transition);
+    }
+    .footer-pplx a:hover { color: var(--gold); }
+
+    /* ── Animations ──────────────────────────────────── */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; } to { opacity: 1; }
+    }
+    .reveal {
+      opacity: 0; transform: translateY(24px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* Editable placeholders */
+    [contenteditable] {
+      cursor: text;
+      border-radius: 4px;
+      transition: outline var(--transition);
+    }
+    [contenteditable]:hover { outline: 2px dashed rgba(201,168,76,0.3); }
+    [contenteditable]:focus { outline: 2px solid rgba(78,205,196,0.5); }
+
+    /* ── Mobile ──────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .hamburger { display: flex; }
+      .about-grid { grid-template-columns: 1fr; gap: 2rem; }
+      .about-stats { grid-template-columns: repeat(2,1fr); }
+      .timeline::before { left: 0; }
+      .timeline-item { grid-template-columns: 1fr; }
+      .timeline-item .timeline-card,
+      .timeline-item .timeline-empty,
+      .timeline-item:nth-child(even) .timeline-card,
+      .timeline-item:nth-child(even) .timeline-empty { grid-column: 1; order: unset; }
+      .timeline-dot { left: 0; }
+      .contact-grid { grid-template-columns: 1fr; gap: 2rem; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Navigation ─────────────────────────────────── -->
+<nav>
+  <a href="#hero" class="nav-logo">
+    <!-- SVG Logo: Obsidian Architect mark -->
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="RSE logo">
+      <polygon points="16,2 30,10 30,22 16,30 2,22 2,10" stroke="#c9a84c" stroke-width="1.5" fill="rgba(201,168,76,0.08)"/>
+      <polygon points="16,7 25,12 25,20 16,25 7,20 7,12" stroke="#4ecdc4" stroke-width="1" fill="none" opacity="0.6"/>
+      <circle cx="16" cy="16" r="3" fill="#c9a84c"/>
+    </svg>
+    <span>R. Scott Echols</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#services">Services</a></li>
+    <li><a href="#contact" class="nav-cta">Contact</a></li>
+  </ul>
+  <button class="hamburger" aria-label="Menu" onclick="toggleMenu()">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- ── Hero ──────────────────────────────────────────── -->
+<section id="hero">
+  <canvas id="hero-canvas"></canvas>
+  <div class="hero-content">
+    <div class="hero-badge">
+      <div class="hero-badge-dot"></div>
+      Available for Enterprise Engagements
+    </div>
+    <h1 class="hero-name">R. Scott Echols</h1>
+    <p class="hero-title">
+      <span id="typing-text">Solutions Architect</span>
+    </p>
+    <p class="hero-desc">
+      Senior Software Developer &amp; Technical Lead building intelligent systems at the intersection
+      of marine/fisheries technology, agentic AI, and enterprise cloud infrastructure.
+    </p>
+    <div class="hero-actions">
+      <a href="#projects" class="btn btn-primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+        </svg>
+        View Projects
+      </a>
+      <a href="#contact" class="btn btn-secondary">Get In Touch</a>
+    </div>
+  </div>
+  <div class="hero-scroll">
+    <div class="scroll-line"></div>
+    <span>Scroll</span>
+  </div>
+</section>
+
+<!-- ── About ─────────────────────────────────────────── -->
+<section id="about">
+  <div class="container">
+    <div class="about-grid">
+      <div class="about-photo-wrap reveal">
+        <div class="about-photo" onclick="document.getElementById('photo-upload').click()" title="Click to upload your photo">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1.5">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+          </svg>
+          <span class="about-photo-label">Click to upload photo</span>
+        </div>
+        <input type="file" id="photo-upload" accept="image/*" onchange="handlePhotoUpload(event)" />
+        <div class="about-photo-badge">Open to Work</div>
+      </div>
+
+      <div class="reveal" style="transition-delay:0.1s">
+        <div class="about-stats">
+          <div class="stat-card">
+            <div class="stat-num" contenteditable="true">12+</div>
+            <div class="stat-label">Years Experience</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" contenteditable="true">40+</div>
+            <div class="stat-label">Projects Delivered</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" contenteditable="true">15+</div>
+            <div class="stat-label">Enterprise Clients</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" contenteditable="true">30+</div>
+            <div class="stat-label">Technologies</div>
+          </div>
+        </div>
+        <div class="section-label">About</div>
+        <h2 class="section-title">Marine Intelligence<br>Meets AI Architecture</h2>
+        <div class="about-bio">
+          <p contenteditable="true">
+            I'm a Senior Software Developer and Technical Lead with a unique blend of marine/fisheries domain expertise
+            and cutting-edge AI systems architecture. I build production-grade agentic systems that solve real-world
+            supply chain and operational challenges in the maritime sector.
+          </p>
+          <br/>
+          <p contenteditable="true">
+            Currently leading development of SirTrav-A2A-Studio — a marine intelligence platform leveraging
+            agent-to-agent (A2A) protocols, Gemini Embedding 2 multimodal RAG, and Claude API integration.
+            My work bridges complex domain knowledge with modern AI infrastructure: from Power BI fisheries
+            dashboards to multi-agent orchestration systems deployed on Netlify's composable platform.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Experience ──────────────────────────────────── -->
+<section id="experience">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-label">Experience</div>
+      <h2 class="section-title">Career Timeline</h2>
+      <p class="section-desc">Click any card to edit. Add your roles, companies, and achievements.</p>
+    </div>
+    <div class="timeline">
+      <div class="timeline-item reveal">
+        <div class="timeline-dot"></div>
+        <div class="timeline-card">
+          <div class="timeline-period" contenteditable="true">2022 — Present</div>
+          <div class="timeline-role" contenteditable="true">Technical Lead &amp; AI Systems Architect</div>
+          <div class="timeline-company" contenteditable="true">SirTrav Marine Intelligence / WSP001</div>
+          <div class="timeline-desc" contenteditable="true">
+            Leading development of SirTrav-A2A-Studio, a marine intelligence platform with agent-to-agent (A2A) protocols.
+            Architected Gemini Embedding 2 multimodal RAG pipelines, Claude API integrations, and multi-agent orchestration systems.
+            Deployed composable AI stacks on Netlify with GitHub CI/CD automation.
+          </div>
+        </div>
+        <div class="timeline-empty"></div>
+      </div>
+
+      <div class="timeline-item reveal" style="transition-delay:0.1s">
+        <div class="timeline-dot"></div>
+        <div class="timeline-empty"></div>
+        <div class="timeline-card">
+          <div class="timeline-period" contenteditable="true">2019 — 2022</div>
+          <div class="timeline-role" contenteditable="true">Senior Software Developer</div>
+          <div class="timeline-company" contenteditable="true">[Company Name]</div>
+          <div class="timeline-desc" contenteditable="true">
+            Full-stack development with JavaScript/Node.js and Python. Built Power BI dashboards for fisheries
+            supply chain analytics. Managed GitHub workflows, environment configurations, and vault management systems.
+            Implemented automated testing and crash prevention pipelines.
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-item reveal" style="transition-delay:0.2s">
+        <div class="timeline-dot"></div>
+        <div class="timeline-card">
+          <div class="timeline-period" contenteditable="true">2016 — 2019</div>
+          <div class="timeline-role" contenteditable="true">Software Developer &amp; DevOps Engineer</div>
+          <div class="timeline-company" contenteditable="true">[Company Name]</div>
+          <div class="timeline-desc" contenteditable="true">
+            Cloud infrastructure, API integration and management. DevOps and environment configuration.
+            Established CI/CD pipelines, API-driven development practices, and multi-tool integrations.
+          </div>
+        </div>
+        <div class="timeline-empty"></div>
+      </div>
+
+      <div class="timeline-item reveal" style="transition-delay:0.3s">
+        <div class="timeline-dot"></div>
+        <div class="timeline-empty"></div>
+        <div class="timeline-card">
+          <div class="timeline-period" contenteditable="true">2012 — 2016</div>
+          <div class="timeline-role" contenteditable="true">Marine Technology Specialist</div>
+          <div class="timeline-company" contenteditable="true">[Organization Name]</div>
+          <div class="timeline-desc" contenteditable="true">
+            Fisheries supply chain optimization and marine domain expertise. Data collection, analysis,
+            and visualization for fisheries operations. Foundation of marine intelligence and supply chain domain knowledge.
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-item reveal" style="transition-delay:0.4s">
+        <div class="timeline-dot" style="background:var(--cyan);box-shadow:var(--glow-cyan)"></div>
+        <div class="timeline-card" style="border-color:rgba(78,205,196,0.2)">
+          <div class="timeline-period" style="color:var(--cyan)" contenteditable="true">Education</div>
+          <div class="timeline-role" contenteditable="true">[Degree / Certification]</div>
+          <div class="timeline-company" contenteditable="true">[Institution Name]</div>
+          <div class="timeline-desc" contenteditable="true">
+            [Your educational background, certifications, and professional development. Click to edit.]
+          </div>
+        </div>
+        <div class="timeline-empty"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Skills ──────────────────────────────────────── -->
+<section id="skills">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-label">Skills</div>
+      <h2 class="section-title">Technical Expertise</h2>
+    </div>
+    <div class="skills-grid">
+      <div class="skill-group reveal">
+        <div class="skill-group-title">
+          <div class="skill-group-icon" style="background:rgba(201,168,76,0.1)">☁️</div>
+          Cloud &amp; DevOps
+        </div>
+        <div class="skill-item"><div class="skill-header"><span>Netlify / CI&shy;CD</span><span class="skill-pct">95%</span></div><div class="skill-bar"><div class="skill-fill" data-width="95"></div></div></div>
+        <div class="skill-item"><div class="skill-header"><span>GitHub Workflows</span><span class="skill-pct">92%</span></div><div class="skill-bar"><div class="skill-fill" data-width="92"></div></div></div>
+        <div class="skill-item"><div class="skill-header"><span>Environment Config &amp; Vaults</span><span class="skill-pct">90%</span></div><div class="skill-bar"><div class="skill-fill" data-width="90"></div></div></div>
+        <div class="skill-item"><div class="skill-header"><span>API Management</span><span class="skill-pct">93%</span></div><div class="skill-bar"><div class="skill-fill" data-width="93"></div></div></div>
+      </div>
+
+      <div class="skill-group reveal" style="transition-delay:0.1s">
+        <div class="skill-group-title">
+          <div class="skill-group-icon" style="background:rgba(78,205,196,0.1)">💻</div>
+          Development
+        </div>
+        <div class="skill-item"><div class="skill-header"><span>JavaScript / Node.js</span><span class="skill-pct">92%</span></div><div class="skill-bar"><div class="skill-fill cyan" data-width="92"></div></div></div>
+        <div class="skill-item"><div class="skill-header"><span>Python</span><span class="skill-pct">85%</span></div><div class="skill-bar"><div class="skill-fill cyan" data-width="85"></div></div></div>
+        <div class="skill-item"><div class="skill-header"><span>PowerShell</span><span class="skill-pct">88%</span></div><div class="skill-bar"><div class="skill-fill cyan" data-width="88"></div></div></div>
+        <div class="skill-item"><div class="skill-header"><span>React / Modern JS</span><span class="skill-pct">78%</span></div><div class="skill-bar"><div class="skill-fill cyan" data-width="78"></div></div></div>
+      </div>
+
+      <div class="skill-group reveal" style="transition-delay:0.2s">
+        <div class="skill-group-title">
+          <div class="skill-group-icon" style="background:rgba(124,106,247,0.1)">🤖</div>
+          Agentic AI
+        </div>
+        <div class="skill-item"><div class="skill-header"><span>Claude API / Anthropic</span><span class="skill-pct">95%</span></div><div class="skill-bar"><div class="skill-fill purple" data-width="95"></div></div></div>
+        <div class="skill-item"><div class="skill-header"><span>Gemini Embedding 2</span><span class="skill-pct">88%</span></div><div class="skill-bar"><div class="skill-fill purple" data-width="88"></div></div></div>
+        <div class="skill-item"><div class="skill-header"><span>Multi-Agent Systems</span><span class="skill-pct">90%</span></div><div class="skill-bar"><div class="skill-fill purple" data-width="90"></div></div></div>
+        <div class="skill-item"><div class="skill-header"><span>RAG Pipelines</span><span class="skill-pct">85%</span></div><div class="skill-bar"><div class="skill-fill purple" data-width="85"></div></div></div>
+      </div>
+
+      <div class="skill-group reveal" style="transition-delay:0.3s">
+        <div class="skill-group-title">
+          <div class="skill-group-icon" style="background:rgba(201,168,76,0.1)">📊</div>
+          Data &amp; Domain
+        </div>
+        <div class="skill-item"><div class="skill-header"><span>Power BI</span><span class="skill-pct">90%</span></div><div class="skill-bar"><div class="skill-fill" data-width="90"></div></div></div>
+        <div class="skill-item"><div class="skill-header"><span>Marine / Fisheries Domain</span><span class="skill-pct">97%</span></div><div class="skill-bar"><div class="skill-fill" data-width="97"></div></div></div>
+        <div class="skill-item"><div class="skill-header"><span>Supply Chain Optimization</span><span class="skill-pct">92%</span></div><div class="skill-bar"><div class="skill-fill" data-width="92"></div></div></div>
+        <div class="skill-item"><div class="skill-header"><span>Technical Documentation</span><span class="skill-pct">94%</span></div><div class="skill-bar"><div class="skill-fill" data-width="94"></div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Projects ──────────────────────────────────────── -->
+<section id="projects">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-label">Projects</div>
+      <h2 class="section-title">Featured Work</h2>
+    </div>
+    <div class="projects-filters reveal">
+      <button class="filter-btn active" onclick="filterProjects('all', this)">All</button>
+      <button class="filter-btn" onclick="filterProjects('ai', this)">Agentic AI</button>
+      <button class="filter-btn" onclick="filterProjects('marine', this)">Marine Tech</button>
+      <button class="filter-btn" onclick="filterProjects('cloud', this)">Cloud</button>
+    </div>
+    <div class="projects-grid">
+      <div class="project-card reveal" data-cat="ai">
+        <div class="project-thumb">
+          <div class="project-thumb-bg" style="background:linear-gradient(135deg,#1a1040,#0d1a2e)"></div>
+          <div class="project-thumb-icon">🤖</div>
+          <div class="project-tag" style="color:var(--purple)">Agentic AI</div>
+        </div>
+        <div class="project-body">
+          <div class="project-title" contenteditable="true">SirTrav-A2A-Studio</div>
+          <div class="project-desc" contenteditable="true">
+            Marine intelligence platform using agent-to-agent (A2A) protocols. Multi-agent orchestration
+            with Claude API, Gemini Embedding 2 multimodal RAG, and composable AI stack deployed on Netlify.
+          </div>
+          <div class="project-tech">
+            <span class="tech-badge">Claude API</span>
+            <span class="tech-badge">Gemini Embed 2</span>
+            <span class="tech-badge">Node.js</span>
+            <span class="tech-badge">Netlify</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="project-card reveal" data-cat="marine" style="transition-delay:0.1s">
+        <div class="project-thumb">
+          <div class="project-thumb-bg" style="background:linear-gradient(135deg,#0d2a1a,#0a1a2e)"></div>
+          <div class="project-thumb-icon">🐟</div>
+          <div class="project-tag" style="color:var(--cyan)">Marine Tech</div>
+        </div>
+        <div class="project-body">
+          <div class="project-title" contenteditable="true">Fisheries Supply Chain Intelligence</div>
+          <div class="project-desc" contenteditable="true">
+            Power BI dashboards and data visualization platform for fisheries supply chain optimization.
+            Real-time analytics, traceability workflows, and operational efficiency metrics.
+          </div>
+          <div class="project-tech">
+            <span class="tech-badge">Power BI</span>
+            <span class="tech-badge">Python</span>
+            <span class="tech-badge">API Integration</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="project-card reveal" data-cat="cloud" style="transition-delay:0.2s">
+        <div class="project-thumb">
+          <div class="project-thumb-bg" style="background:linear-gradient(135deg,#1a1005,#2a1a05)"></div>
+          <div class="project-thumb-icon">⚙️</div>
+          <div class="project-tag" style="color:var(--gold)">Cloud/DevOps</div>
+        </div>
+        <div class="project-body">
+          <div class="project-title" contenteditable="true">Netlify AI Edge Platform</div>
+          <div class="project-desc" contenteditable="true">
+            Composable AI stack using Netlify Edge Functions with Anthropic Claude and Gemini APIs.
+            Zero cold-start inference, DDoS protection, rate limiting, and CDN-edge AI responses.
+          </div>
+          <div class="project-tech">
+            <span class="tech-badge">Netlify Edge</span>
+            <span class="tech-badge">TypeScript</span>
+            <span class="tech-badge">Deno</span>
+            <span class="tech-badge">CI/CD</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="project-card reveal" data-cat="ai" style="transition-delay:0.3s">
+        <div class="project-thumb">
+          <div class="project-thumb-bg" style="background:linear-gradient(135deg,#1a0520,#0d0520)"></div>
+          <div class="project-thumb-icon">🧠</div>
+          <div class="project-tag" style="color:var(--purple)">Agentic AI</div>
+        </div>
+        <div class="project-body">
+          <div class="project-title" contenteditable="true">Multimodal RAG Pipeline</div>
+          <div class="project-desc" contenteditable="true">
+            Gemini Embedding 2 pipeline mapping text, images, video, audio, and PDFs into a unified
+            vector space. Enables cross-modal search and multimodal knowledge base retrieval.
+          </div>
+          <div class="project-tech">
+            <span class="tech-badge">Gemini Embed 2</span>
+            <span class="tech-badge">Vector DB</span>
+            <span class="tech-badge">RAG</span>
+            <span class="tech-badge">Python</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="project-card reveal" data-cat="marine" style="transition-delay:0.4s">
+        <div class="project-thumb">
+          <div class="project-thumb-bg" style="background:linear-gradient(135deg,#051a1a,#0a2020)"></div>
+          <div class="project-thumb-icon">🌊</div>
+          <div class="project-tag" style="color:var(--cyan)">Marine Tech</div>
+        </div>
+        <div class="project-body">
+          <div class="project-title" contenteditable="true">[Project 5 Title]</div>
+          <div class="project-desc" contenteditable="true">
+            [Click to add your project description. What problem did it solve? What technologies did you use? What was the outcome?]
+          </div>
+          <div class="project-tech">
+            <span class="tech-badge" contenteditable="true">Technology</span>
+            <span class="tech-badge" contenteditable="true">Stack</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="project-card reveal" data-cat="cloud" style="transition-delay:0.5s">
+        <div class="project-thumb">
+          <div class="project-thumb-bg" style="background:linear-gradient(135deg,#1a1005,#100a00)"></div>
+          <div class="project-thumb-icon">🔧</div>
+          <div class="project-tag" style="color:var(--gold)">Cloud</div>
+        </div>
+        <div class="project-body">
+          <div class="project-title" contenteditable="true">[Project 6 Title]</div>
+          <div class="project-desc" contenteditable="true">
+            [Click to add your project description. What problem did it solve? What technologies did you use? What was the outcome?]
+          </div>
+          <div class="project-tech">
+            <span class="tech-badge" contenteditable="true">Technology</span>
+            <span class="tech-badge" contenteditable="true">Stack</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Services ──────────────────────────────────────── -->
+<section id="services">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-label">Services</div>
+      <h2 class="section-title">What I Deliver</h2>
+    </div>
+    <div class="services-grid">
+      <div class="service-card reveal">
+        <div class="service-icon">🤖</div>
+        <div class="service-title" contenteditable="true">Agentic AI Systems</div>
+        <div class="service-desc" contenteditable="true">
+          Multi-agent orchestration, A2A protocol design, Claude & Gemini API integration.
+          Production-grade agentic pipelines with automated testing and crash prevention.
+        </div>
+      </div>
+      <div class="service-card reveal" style="transition-delay:0.1s">
+        <div class="service-icon">🌊</div>
+        <div class="service-title" contenteditable="true">Marine Intelligence Platforms</div>
+        <div class="service-desc" contenteditable="true">
+          Domain-specific AI applications for fisheries supply chain, traceability,
+          and maritime operations optimization.
+        </div>
+      </div>
+      <div class="service-card reveal" style="transition-delay:0.2s">
+        <div class="service-icon">☁️</div>
+        <div class="service-title" contenteditable="true">Cloud &amp; DevOps Architecture</div>
+        <div class="service-desc" contenteditable="true">
+          Netlify composable stack, GitHub CI/CD pipelines, environment &amp; vault management,
+          API-driven infrastructure for scale.
+        </div>
+      </div>
+      <div class="service-card reveal" style="transition-delay:0.3s">
+        <div class="service-icon">📊</div>
+        <div class="service-title" contenteditable="true">Data Visualization &amp; Analytics</div>
+        <div class="service-desc" contenteditable="true">
+          Power BI dashboards, fisheries analytics, supply chain KPIs.
+          Turning complex domain data into actionable intelligence.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Testimonials ──────────────────────────────────── -->
+<section id="testimonials">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-label">Testimonials</div>
+      <h2 class="section-title">What People Say</h2>
+    </div>
+    <div class="testimonials-track reveal">
+      <div class="testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <div class="testimonial-text" contenteditable="true">"[Click to add a testimonial. Scott's ability to bridge marine domain expertise with cutting-edge AI architecture is rare and invaluable.]"</div>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">A</div>
+          <div>
+            <div class="testimonial-name" contenteditable="true">Client Name</div>
+            <div class="testimonial-role" contenteditable="true">Title, Company</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <div class="testimonial-text" contenteditable="true">"[Scott delivered a multi-agent AI system that transformed our fisheries data operations. His documentation-first approach made handoffs seamless.]"</div>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">B</div>
+          <div>
+            <div class="testimonial-name" contenteditable="true">Client Name</div>
+            <div class="testimonial-role" contenteditable="true">Title, Company</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <div class="testimonial-text" contenteditable="true">"[An exceptional technical lead. Scott's agentic AI architecture work accelerated our platform development by months.]"</div>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">C</div>
+          <div>
+            <div class="testimonial-name" contenteditable="true">Client Name</div>
+            <div class="testimonial-role" contenteditable="true">Title, Company</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <div class="testimonial-text" contenteditable="true">"[Add your fourth testimonial here. Genuine feedback from colleagues, clients, or partners.]"</div>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">D</div>
+          <div>
+            <div class="testimonial-name" contenteditable="true">Client Name</div>
+            <div class="testimonial-role" contenteditable="true">Title, Company</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Contact ──────────────────────────────────────── -->
+<section id="contact">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-label">Contact</div>
+      <h2 class="section-title">Let's Build Together</h2>
+      <p class="section-desc">Interested in agentic AI, marine intelligence, or enterprise cloud solutions? Let's talk.</p>
+    </div>
+    <div class="contact-grid">
+      <div class="contact-info reveal">
+        <div class="contact-item">
+          <div class="contact-icon">📧</div>
+          <div>
+            <div class="contact-label">Email</div>
+            <div class="contact-val" contenteditable="true">worldseafood@gmail.com</div>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">🔗</div>
+          <div>
+            <div class="contact-label">GitHub</div>
+            <div class="contact-val" contenteditable="true">github.com/WSP001</div>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">💼</div>
+          <div>
+            <div class="contact-label">LinkedIn</div>
+            <div class="contact-val" contenteditable="true">[Your LinkedIn URL]</div>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">📍</div>
+          <div>
+            <div class="contact-label">Location</div>
+            <div class="contact-val" contenteditable="true">United States</div>
+          </div>
+        </div>
+        <a href="#" onclick="downloadCV(event)" class="btn btn-secondary" style="margin-top:1rem">
+          ⬇ Download CV
+        </a>
+      </div>
+
+      <div class="reveal" style="transition-delay:0.15s">
+        <!-- Netlify form with honeypot spam protection -->
+        <form class="contact-form" name="contact" method="POST" data-netlify="true" data-netlify-honeypot="bot-field">
+          <input type="hidden" name="form-name" value="contact" />
+          <div class="hp-field"><label>Don't fill this out: <input name="bot-field" /></label></div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="fname">First Name</label>
+              <input class="form-input" type="text" id="fname" name="first-name" required placeholder="Roberto" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="lname">Last Name</label>
+              <input class="form-input" type="text" id="lname" name="last-name" required placeholder="Echols" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="email">Email</label>
+            <input class="form-input" type="email" id="email" name="email" required placeholder="you@company.com" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="subject">Subject</label>
+            <select class="form-select form-input" id="subject" name="subject">
+              <option value="">Select a topic...</option>
+              <option>Agentic AI Systems Consulting</option>
+              <option>Marine Intelligence Platform</option>
+              <option>Cloud / DevOps Architecture</option>
+              <option>Technical Leadership Role</option>
+              <option>Partnership / Collaboration</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="message">Message</label>
+            <textarea class="form-textarea" id="message" name="message" required placeholder="Tell me about your project or inquiry..."></textarea>
+          </div>
+          <button type="submit" class="form-submit">Send Message →</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Footer ──────────────────────────────────────── -->
+<footer>
+  <p class="footer-copy">© 2026 R. Scott Echols — All rights reserved</p>
+  <p class="footer-pplx"><a href="https://www.perplexity.ai/computer" target="_blank" rel="noopener noreferrer">Built with Perplexity Computer</a></p>
+</footer>
+
+<!-- ── AI Chatbot ──────────────────────────────────── -->
+<button id="chat-bubble" onclick="toggleChat()" aria-label="Open AI assistant">
+  <div class="bubble-ring"></div>
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+  </svg>
+</button>
+
+<div id="chat-window" role="dialog" aria-label="RSE Assistant">
+  <div class="chat-header">
+    <div class="chat-header-info">
+      <div class="chat-avatar">
+        RSE
+        <div class="chat-status-dot"></div>
+      </div>
+      <div>
+        <div class="chat-name">RSE-Assistant</div>
+        <div class="chat-subtitle" id="chat-subtitle">Powered by Claude · Ask me anything</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <span class="chat-tier-badge" id="tier-badge">Public Access</span>
+      <button class="chat-close" onclick="toggleChat()" aria-label="Close">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="chat-messages" id="chat-messages">
+    <!-- Welcome message injected by JS -->
+  </div>
+
+  <div class="chat-quick-actions" id="quick-actions">
+    <button class="quick-btn" onclick="sendQuick('What is Scott\'s background and expertise?')">👤 Background</button>
+    <button class="quick-btn" onclick="sendQuick('Tell me about the SirTrav marine intelligence platform.')">🌊 SirTrav Project</button>
+    <button class="quick-btn" onclick="sendQuick('How does Gemini Embedding 2 multimodal RAG work in your architecture?')">🧠 AI Architecture</button>
+    <button class="quick-btn" onclick="sendQuick('I\'m interested in hiring or collaborating with Scott. What\'s the best way to connect?')">📬 Contact</button>
+  </div>
+
+  <div class="chat-input-area">
+    <textarea id="chat-input" placeholder="Ask about Scott's work, skills, or projects..." rows="1"
+      onkeydown="handleChatKey(event)" oninput="autoResize(this)"></textarea>
+    <button id="chat-send" onclick="sendMessage()" aria-label="Send">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Business Access Gate -->
+  <div class="chat-gate">
+    <div class="gate-title">🔒 Business Access</div>
+    <div class="gate-input-row">
+      <input class="gate-input" type="password" id="access-key-input"
+        placeholder="Enter business access key..." />
+      <button class="gate-btn" onclick="verifyAccess()">Unlock</button>
+    </div>
+    <div class="gate-msg" id="gate-msg">Premium tier unlocks full knowledge base & technical deep-dives</div>
+  </div>
+</div>
+
+
+<script>
+// ── State ──────────────────────────────────────────────
+const state = {
+  chatOpen: false,
+  tier: 'public',
+  accessKey: '',
+  history: [],
+  loading: false
+};
+
+// ── Hero canvas particle animation ─────────────────────
+(function() {
+  const canvas = document.getElementById('hero-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, particles, animId;
+
+  function resize() {
+    W = canvas.width = canvas.offsetWidth;
+    H = canvas.height = canvas.offsetHeight;
+  }
+
+  function mkParticle() {
+    return {
+      x: Math.random() * W,
+      y: Math.random() * H,
+      vx: (Math.random() - 0.5) * 0.4,
+      vy: (Math.random() - 0.5) * 0.4,
+      r: Math.random() * 1.5 + 0.5,
+      alpha: Math.random() * 0.5 + 0.1
+    };
+  }
+
+  function init() {
+    resize();
+    particles = Array.from({ length: 100 }, mkParticle);
+  }
+
+  let mx = W / 2, my = H / 2;
+  document.addEventListener('mousemove', e => {
+    const rect = canvas.getBoundingClientRect();
+    mx = e.clientX - rect.left;
+    my = e.clientY - rect.top;
+  });
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    particles.forEach(p => {
+      // attract toward mouse slightly
+      const dx = mx - p.x, dy = my - p.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < 200) {
+        p.vx += dx / dist * 0.015;
+        p.vy += dy / dist * 0.015;
+      }
+      p.vx *= 0.99; p.vy *= 0.99;
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
+      if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
+
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(201,168,76,${p.alpha})`;
+      ctx.fill();
+    });
+    // draw connecting lines
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const d = Math.sqrt(dx * dx + dy * dy);
+        if (d < 80) {
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.strokeStyle = `rgba(78,205,196,${0.15 * (1 - d / 80)})`;
+          ctx.lineWidth = 0.5;
+          ctx.stroke();
+        }
+      }
+    }
+    animId = requestAnimationFrame(draw);
+  }
+
+  init(); draw();
+  window.addEventListener('resize', () => { cancelAnimationFrame(animId); init(); draw(); });
+})();
+
+// ── Typing title ───────────────────────────────────────
+(function() {
+  const titles = ['Solutions Architect', 'Marine Intelligence Expert', 'Agentic AI Builder', 'Cloud Systems Lead', 'Technical Advisor'];
+  let ti = 0, ci = 0, del = false;
+  const el = document.getElementById('typing-text');
+  function tick() {
+    const t = titles[ti];
+    if (!del) {
+      ci++;
+      el.textContent = t.slice(0, ci);
+      if (ci === t.length) { del = true; setTimeout(tick, 2000); return; }
+      setTimeout(tick, 70);
+    } else {
+      ci--;
+      el.textContent = t.slice(0, ci);
+      if (ci === 0) { del = false; ti = (ti + 1) % titles.length; setTimeout(tick, 400); return; }
+      setTimeout(tick, 40);
+    }
+  }
+  tick();
+})();
+
+// ── Reveal on scroll ───────────────────────────────────
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// ── Skill bars animate on scroll ──────────────────────
+const skillObserver = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.querySelectorAll('.skill-fill').forEach(bar => {
+        bar.style.width = bar.dataset.width + '%';
+      });
+    }
+  });
+}, { threshold: 0.3 });
+document.querySelectorAll('.skill-group').forEach(g => skillObserver.observe(g));
+
+// ── Project filter ─────────────────────────────────────
+function filterProjects(cat, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.project-card').forEach(card => {
+    const show = cat === 'all' || card.dataset.cat === cat;
+    card.style.display = show ? '' : 'none';
+  });
+}
+
+// ── Photo upload ───────────────────────────────────────
+function handlePhotoUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const photo = document.querySelector('.about-photo');
+    let img = photo.querySelector('img');
+    if (!img) { img = document.createElement('img'); photo.appendChild(img); }
+    img.src = ev.target.result;
+    photo.querySelector('svg').style.display = 'none';
+    photo.querySelector('.about-photo-label').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── Download CV ────────────────────────────────────────
+function downloadCV(e) {
+  e.preventDefault();
+  alert('To enable CV download: add your CV PDF to the repo root as "RSE-CV.pdf" and update this link.');
+}
+
+// ── Nav menu ───────────────────────────────────────────
+function toggleMenu() {
+  const links = document.querySelector('.nav-links');
+  links.style.display = links.style.display === 'flex' ? 'none' : 'flex';
+  links.style.flexDirection = 'column';
+  links.style.position = 'absolute';
+  links.style.top = '64px';
+  links.style.right = '1rem';
+  links.style.background = 'var(--bg-2)';
+  links.style.border = '1px solid var(--border-2)';
+  links.style.borderRadius = '12px';
+  links.style.padding = '1rem';
+  links.style.gap = '1rem';
+}
+
+// ── Chatbot ────────────────────────────────────────────
+function toggleChat() {
+  state.chatOpen = !state.chatOpen;
+  document.getElementById('chat-window').classList.toggle('open', state.chatOpen);
+  if (state.chatOpen && state.history.length === 0) {
+    addBotMessage("Hi! I'm RSE-Assistant, Scott's AI guide. I can tell you about his background in marine intelligence, agentic AI architecture, and enterprise cloud systems.\n\nWhat would you like to know?");
+  }
+}
+
+function addMessage(role, text) {
+  const container = document.getElementById('chat-messages');
+  const wrap = document.createElement('div');
+  wrap.className = `msg ${role}`;
+  const avatar = document.createElement('div');
+  avatar.className = 'msg-avatar';
+  avatar.textContent = role === 'bot' ? 'RSE' : 'You';
+  const bubble = document.createElement('div');
+  bubble.className = 'msg-bubble';
+  bubble.textContent = text;
+  if (role === 'bot') { wrap.appendChild(avatar); wrap.appendChild(bubble); }
+  else { wrap.appendChild(bubble); wrap.appendChild(avatar); }
+  container.appendChild(wrap);
+  container.scrollTop = container.scrollHeight;
+  return wrap;
+}
+
+function addBotMessage(text) {
+  const msg = addMessage('bot', text);
+  state.history.push({ role: 'assistant', content: text });
+  return msg;
+}
+
+function showTyping() {
+  const container = document.getElementById('chat-messages');
+  const wrap = document.createElement('div');
+  wrap.className = 'msg bot'; wrap.id = 'typing-indicator';
+  const avatar = document.createElement('div');
+  avatar.className = 'msg-avatar'; avatar.textContent = 'RSE';
+  const bubble = document.createElement('div');
+  bubble.className = 'msg-bubble';
+  const dots = document.createElement('div');
+  dots.className = 'typing-indicator';
+  [0,1,2].forEach(() => { const d = document.createElement('div'); d.className = 'typing-dot'; dots.appendChild(d); });
+  bubble.appendChild(dots);
+  wrap.appendChild(avatar); wrap.appendChild(bubble);
+  container.appendChild(wrap);
+  container.scrollTop = container.scrollHeight;
+}
+
+function removeTyping() {
+  const t = document.getElementById('typing-indicator');
+  if (t) t.remove();
+}
+
+async function sendMessage() {
+  if (state.loading) return;
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = ''; input.style.height = 'auto';
+  addMessage('user', text);
+  state.history.push({ role: 'user', content: text });
+  await callAPI(text);
+}
+
+function sendQuick(text) {
+  document.getElementById('chat-input').value = text;
+  sendMessage();
+  // Hide quick actions after first use
+  document.getElementById('quick-actions').style.display = 'none';
+}
+
+async function callAPI(message) {
+  state.loading = true;
+  document.getElementById('chat-send').disabled = true;
+  showTyping();
+
+  try {
+    const headers = { 'Content-Type': 'application/json' };
+    if (state.tier === 'business' && state.accessKey) {
+      headers['X-Access-Key'] = state.accessKey;
+    }
+    const resp = await fetch('/api/chat', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        message,
+        history: state.history.slice(-10),
+        tier: state.tier
+      })
+    });
+
+    removeTyping();
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({ error: 'Request failed' }));
+      addBotMessage(err.error || 'Something went wrong. Please try again.');
+    } else {
+      const data = await resp.json();
+      addBotMessage(data.reply || 'I couldn\'t generate a response. Please try again.');
+    }
+  } catch (err) {
+    removeTyping();
+    // Fallback for when API is not configured (local dev / preview)
+    const fallbacks = {
+      'background': "Scott is a Senior Software Developer and Technical Lead with expertise in marine/fisheries technology and agentic AI systems. He's currently building SirTrav-A2A-Studio, a marine intelligence platform.",
+      'siртrav': "SirTrav-A2A-Studio is a marine intelligence platform using agent-to-agent (A2A) protocols with Claude API and Gemini Embedding 2 multimodal RAG.",
+      'contact': "You can reach Scott at worldseafood@gmail.com or through the contact form on this page. He's open to enterprise consulting, technical leadership, and collaboration.",
+      'default': "I'm Scott's AI assistant. I can answer questions about his background, projects (like SirTrav marine intelligence platform), AI architecture work, and how to get in touch. The live AI requires the Netlify deployment with ANTHROPIC_API_KEY configured — try the contact form above to reach Scott directly."
+    };
+    const m = message.toLowerCase();
+    const key = Object.keys(fallbacks).find(k => m.includes(k)) || 'default';
+    addBotMessage(fallbacks[key]);
+  } finally {
+    state.loading = false;
+    document.getElementById('chat-send').disabled = false;
+  }
+}
+
+async function verifyAccess() {
+  const key = document.getElementById('access-key-input').value.trim();
+  if (!key) return;
+  const gateMsg = document.getElementById('gate-msg');
+  gateMsg.textContent = 'Verifying...';
+  try {
+    const resp = await fetch('/api/verify-access', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key })
+    });
+    const data = await resp.json();
+    if (data.valid) {
+      state.tier = 'business';
+      state.accessKey = key;
+      const badge = document.getElementById('tier-badge');
+      badge.textContent = 'Business Access';
+      badge.classList.add('business');
+      document.getElementById('chat-subtitle').textContent = 'Powered by Claude · Full KB Unlocked';
+      gateMsg.textContent = '✓ ' + data.message;
+      gateMsg.style.color = 'var(--cyan)';
+      document.getElementById('access-key-input').value = '';
+      addBotMessage("Business access granted. I now have full access to Scott's knowledge base including detailed technical architectures, project blueprints, and enterprise consulting frameworks. How can I help?");
+    } else {
+      gateMsg.textContent = data.message;
+      gateMsg.style.color = 'var(--red)';
+    }
+  } catch {
+    gateMsg.textContent = 'Verification unavailable — deploy to Netlify to activate.';
+  }
+}
+
+function handleChatKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+</script>
+</body>
+</html>
