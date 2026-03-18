@@ -208,6 +208,9 @@
       position: relative; z-index: 2;
       max-width: 800px;
       text-align: center;
+      background: radial-gradient(ellipse 600px 400px at center, rgba(0,0,0,0.3) 0%, transparent 70%);
+      padding: 3rem 2rem;
+      border-radius: 24px;
     }
     .hero-badge {
       display: inline-flex; align-items: center; gap: 8px;
@@ -243,10 +246,10 @@
       margin-bottom: 1.5rem;
       opacity: 0;
     }
-    .hero-title span { color: var(--cyan); font-weight: 500; }
+    .hero-title span { color: #7eddd6; font-weight: 500; text-shadow: 0 0 20px rgba(78,205,196,0.5); }
     .hero-desc {
       font-size: clamp(0.95rem, 1.8vw, 1.1rem);
-      color: var(--text-3); line-height: 1.8;
+      color: rgba(232,234,240,0.9); line-height: 1.8;
       max-width: 600px; margin: 0 auto 2.5rem;
       opacity: 0;
     }
@@ -829,10 +832,134 @@
     .gate-btn:hover { box-shadow: var(--glow-gold); }
     .gate-msg { font-size: 0.72rem; color: var(--text-3); margin-top: 6px; }
 
+
+    /* ── Logo Prism ──────────────────────────────────── */
+    .logo-prism-wrap {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 2rem;
+      perspective: 1200px;
+    }
+    .logo-prism {
+      background: rgba(255,255,255,0.04);
+      backdrop-filter: blur(24px) saturate(1.3);
+      border: 1px solid rgba(201,168,76,0.35);
+      border-radius: 50%;
+      padding: 16px;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.5), inset 0 0 24px rgba(201,168,76,0.08), 0 0 40px rgba(78,205,196,0.1);
+      transition: transform 0.12s ease-out, box-shadow 0.3s ease;
+      cursor: pointer;
+    }
+    .logo-prism:hover {
+      box-shadow: 0 32px 80px rgba(0,0,0,0.6), inset 0 0 32px rgba(201,168,76,0.15), 0 0 60px rgba(78,205,196,0.2);
+    }
+    .floating-logo {
+      width: 160px;
+      height: 160px;
+      object-fit: cover;
+      border-radius: 50%;
+      animation: float-logo 6s ease-in-out infinite;
+      display: block;
+    }
+    @keyframes float-logo {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      33% { transform: translateY(-12px) rotate(1deg); }
+      66% { transform: translateY(-6px) rotate(-1deg); }
+    }
+
+    /* ── Scroll Progress Bar ─────────────────────────── */
+    #scroll-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 0%;
+      height: 2px;
+      background: linear-gradient(90deg, var(--gold), var(--gold-2), var(--cyan));
+      z-index: 10001;
+      transition: width 0.05s linear;
+    }
+
+    /* ── Section Numbers ─────────────────────────────── */
+    .section-number {
+      font-size: 8rem;
+      opacity: 0.03;
+      position: absolute;
+      top: 1rem;
+      right: 2rem;
+      font-family: var(--font-display);
+      color: var(--gold);
+      line-height: 1;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    /* ── Question Counter ────────────────────────────── */
+    .question-counter {
+      font-size: 0.65rem;
+      color: var(--text-3);
+      background: var(--surface-2);
+      padding: 3px 8px;
+      border-radius: 100px;
+      border: 1px solid var(--border);
+    }
+
+    /* ── Chat Gate Pulsing ───────────────────────────── */
+    .chat-gate.pulsing {
+      animation: gatePulse 2s ease-in-out infinite;
+      border-color: var(--gold);
+    }
+    @keyframes gatePulse {
+      0%, 100% { border-top-color: rgba(201,168,76,0.15); }
+      50% { border-top-color: rgba(201,168,76,0.6); }
+    }
+
+    /* ── Footer Gradient Border ──────────────────────── */
+    footer {
+      position: relative;
+    }
+    footer::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), var(--cyan), var(--gold), transparent);
+      background-size: 200% 100%;
+      animation: footerGradient 4s linear infinite;
+    }
+    @keyframes footerGradient {
+      0% { background-position: 0% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    /* ── Timeline Expandable ─────────────────────────── */
+    .timeline-card {
+      overflow: hidden;
+      cursor: pointer;
+    }
+    .timeline-card .timeline-desc {
+      max-height: 4.5em;
+      overflow: hidden;
+      transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .timeline-card.expanded .timeline-desc {
+      max-height: 500px;
+    }
+    .timeline-card .expand-hint {
+      font-size: 0.7rem;
+      color: var(--text-3);
+      margin-top: 6px;
+      transition: opacity 0.3s;
+    }
+    .timeline-card.expanded .expand-hint {
+      opacity: 0;
+    }
+
     /* ── Footer ─────────────────────────────────────── */
     footer {
       background: var(--bg);
-      border-top: 1px solid var(--border);
+      border-top: none;
       padding: 2.5rem clamp(1.5rem, 5vw, 4rem);
       display: flex; align-items: center; justify-content: space-between;
       flex-wrap: wrap; gap: 1rem;
@@ -887,9 +1014,24 @@
       .projects-grid { grid-template-columns: 1fr; }
       #hero-three { opacity: 0.4; }
     }
+
+    /* ── Extra small mobile ──────────────────────────── */
+    @media (max-width: 480px) {
+      .floating-logo { width: 120px; height: 120px; }
+      .hero-name { font-size: clamp(2.2rem, 8vw, 5.5rem) !important; }
+      #chat-window {
+        width: calc(100vw - 24px) !important;
+        right: 12px !important;
+        bottom: 90px !important;
+      }
+      .section-number { font-size: 4rem; right: 1rem; }
+    }
   </style>
 </head>
 <body>
+
+<!-- ── Scroll Progress Bar ──────────────────────────── -->
+<div id="scroll-progress"></div>
 
 <!-- ── Loading Screen ─────────────────────────────────── -->
 <div id="loader">
@@ -939,6 +1081,11 @@
       <div class="hero-badge-dot"></div>
       Available for Enterprise Engagements
     </div>
+    <div class="logo-prism-wrap reveal">
+      <div class="logo-prism">
+        <img src="/wsp-logo.jpg" alt="World Seafood Producers" class="floating-logo" />
+      </div>
+    </div>
     <h1 class="hero-name">R. Scott Echols</h1>
     <p class="hero-title">
       <span id="typing-text">Solutions Architect</span>
@@ -965,6 +1112,7 @@
 
 <!-- ── About ─────────────────────────────────────────── -->
 <section id="about">
+  <div class="section-number">01</div>
   <div class="container">
     <div class="about-grid">
       <div class="about-photo-wrap reveal">
@@ -1020,6 +1168,7 @@
 
 <!-- ── Experience ──────────────────────────────────── -->
 <section id="experience">
+  <div class="section-number">02</div>
   <div class="container">
     <div class="section-header reveal">
       <div class="section-label">Experience</div>
@@ -1038,6 +1187,7 @@
             Architected Gemini Embedding 2 multimodal RAG pipelines, Claude API integrations, and multi-agent orchestration systems.
             Deployed composable AI stacks on Netlify with GitHub CI/CD automation.
           </div>
+          <div class="expand-hint">Click to expand</div>
         </div>
         <div class="timeline-empty"></div>
       </div>
@@ -1103,6 +1253,7 @@
 
 <!-- ── Skills ──────────────────────────────────────── -->
 <section id="skills">
+  <div class="section-number">03</div>
   <div class="container">
     <div class="section-header reveal">
       <div class="section-label">Skills</div>
@@ -1158,6 +1309,7 @@
 
 <!-- ── Projects ──────────────────────────────────────── -->
 <section id="projects">
+  <div class="section-number">04</div>
   <div class="container">
     <div class="section-header reveal">
       <div class="section-label">Projects</div>
@@ -1294,6 +1446,7 @@
 
 <!-- ── Services ──────────────────────────────────────── -->
 <section id="services">
+  <div class="section-number">05</div>
   <div class="container">
     <div class="section-header reveal">
       <div class="section-label">Services</div>
@@ -1338,6 +1491,7 @@
 
 <!-- ── Testimonials ──────────────────────────────────── -->
 <section id="testimonials">
+  <div class="section-number">06</div>
   <div class="container">
     <div class="section-header reveal">
       <div class="section-label">Testimonials</div>
@@ -1394,6 +1548,7 @@
 
 <!-- ── Contact ──────────────────────────────────────── -->
 <section id="contact">
+  <div class="section-number">07</div>
   <div class="container">
     <div class="section-header reveal">
       <div class="section-label">Contact</div>
@@ -1506,6 +1661,7 @@
     </div>
     <div style="display:flex;gap:8px;align-items:center">
       <span class="chat-tier-badge" id="tier-badge">Public Access</span>
+      <span id="question-counter" class="question-counter">0/3</span>
       <button class="chat-close" onclick="toggleChat()" aria-label="Close">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
@@ -1561,7 +1717,9 @@ const state = {
   tier: 'public',
   accessKey: '',
   history: [],
-  loading: false
+  loading: false,
+  questionCount: 0,
+  maxFreeQuestions: 3
 };
 
 // ── Loading Screen ─────────────────────────────────────
@@ -1806,7 +1964,8 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 function initHeroAnimations() {
   const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
   tl.to('.hero-badge', { opacity: 1, y: 0, duration: 0.8 }, 0.2)
-    .to('.hero-name', { opacity: 1, y: 0, duration: 1 }, 0.4)
+    .to('.logo-prism-wrap', { opacity: 1, y: 0, duration: 0.8 }, 0.35)
+    .to('.hero-name', { opacity: 1, y: 0, duration: 1 }, 0.5)
     .to('.hero-title', { opacity: 1, y: 0, duration: 0.8 }, 0.7)
     .to('.hero-desc', { opacity: 1, y: 0, duration: 0.8 }, 0.9)
     .to('.hero-actions', { opacity: 1, y: 0, duration: 0.8 }, 1.1)
@@ -2066,6 +2225,14 @@ async function sendMessage() {
   const text = input.value.trim();
   if (!text) return;
   input.value = ''; input.style.height = 'auto';
+  // Free tier limit check
+  if (state.tier === 'public' && state.questionCount >= state.maxFreeQuestions) {
+    addMessage('user', text);
+    state.history.push({ role: 'user', content: text });
+    addBotMessage("You've used your 3 free questions. To continue exploring Scott's full background and business solutions, enter an invitation key below — or reach out at worldseafood@gmail.com to request access.");
+    showInvitationPrompt();
+    return;
+  }
   addMessage('user', text);
   state.history.push({ role: 'user', content: text });
   await callAPI(text);
@@ -2093,7 +2260,8 @@ async function callAPI(message) {
       body: JSON.stringify({
         message,
         history: state.history.slice(-10),
-        tier: state.tier
+        tier: state.tier,
+        questionCount: state.questionCount
       })
     });
 
@@ -2104,6 +2272,13 @@ async function callAPI(message) {
     } else {
       const data = await resp.json();
       addBotMessage(data.reply || 'I couldn\'t generate a response. Please try again.');
+      if (state.tier === 'public') {
+        state.questionCount++;
+        updateQuestionCounter();
+      }
+      if (data.limit_reached) {
+        showInvitationPrompt();
+      }
     }
   } catch (err) {
     removeTyping();
@@ -2116,6 +2291,10 @@ async function callAPI(message) {
     const m = message.toLowerCase();
     const key = Object.keys(fallbacks).find(k => m.includes(k)) || 'default';
     addBotMessage(fallbacks[key]);
+    if (state.tier === 'public') {
+      state.questionCount++;
+      updateQuestionCounter();
+    }
   } finally {
     state.loading = false;
     document.getElementById('chat-send').disabled = false;
@@ -2145,6 +2324,7 @@ async function verifyAccess() {
       gateMsg.style.color = 'var(--cyan)';
       document.getElementById('access-key-input').value = '';
       addBotMessage("Business access granted. I now have full access to Scott's knowledge base including detailed technical architectures, project blueprints, and enterprise consulting frameworks. How can I help?");
+      updateTierUI();
     } else {
       gateMsg.textContent = data.message;
       gateMsg.style.color = 'var(--red)';
@@ -2162,6 +2342,100 @@ function autoResize(el) {
   el.style.height = 'auto';
   el.style.height = Math.min(el.scrollHeight, 120) + 'px';
 }
+
+// ── Show Invitation Prompt ────────────────────────────
+function showInvitationPrompt() {
+  const gate = document.querySelector('.chat-gate');
+  gate.classList.add('pulsing');
+  const gateMsg = document.getElementById('gate-msg');
+  gateMsg.innerHTML = '🔑 Request your invitation key at <strong>worldseafood@gmail.com</strong>';
+}
+
+// ── Update Question Counter Display ───────────────────
+function updateQuestionCounter() {
+  const counter = document.getElementById('question-counter');
+  if (counter) {
+    counter.textContent = state.questionCount + '/' + state.maxFreeQuestions;
+    if (state.questionCount >= state.maxFreeQuestions) {
+      counter.style.borderColor = 'var(--gold)';
+      counter.style.color = 'var(--gold)';
+    }
+  }
+}
+
+// ── Hide Question Counter for Business Tier ───────────
+function updateTierUI() {
+  const counter = document.getElementById('question-counter');
+  if (counter) {
+    counter.style.display = state.tier === 'public' ? 'inline-block' : 'none';
+  }
+}
+
+// ── Logo Prism 3D Tilt ────────────────────────────────
+(function() {
+  const prism = document.querySelector('.logo-prism');
+  if (!prism || window.matchMedia('(max-width: 768px)').matches) return;
+  prism.addEventListener('mousemove', e => {
+    const rect = prism.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    const rotateX = ((y - centerY) / centerY) * -8;
+    const rotateY = ((x - centerX) / centerX) * 8;
+    prism.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+  });
+  prism.addEventListener('mouseleave', () => {
+    prism.style.transform = 'rotateX(0) rotateY(0)';
+  });
+})();
+
+// ── Scroll Progress Bar ───────────────────────────────
+(function() {
+  const progressBar = document.getElementById('scroll-progress');
+  if (!progressBar) return;
+  function updateProgress() {
+    const scrollTop = window.scrollY || document.documentElement.scrollTop;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+    progressBar.style.width = progress + '%';
+  }
+  window.addEventListener('scroll', updateProgress, { passive: true });
+  updateProgress();
+})();
+
+// ── Magnetic Buttons ──────────────────────────────────
+(function() {
+  if (window.matchMedia('(max-width: 768px)').matches) return;
+  const magneticBtns = document.querySelectorAll('.hero-actions .btn');
+  magneticBtns.forEach(btn => {
+    btn.addEventListener('mousemove', e => {
+      const rect = btn.getBoundingClientRect();
+      const x = e.clientX - rect.left - rect.width / 2;
+      const y = e.clientY - rect.top - rect.height / 2;
+      const dist = Math.sqrt(x * x + y * y);
+      if (dist < 60) {
+        const pull = 1 - (dist / 60);
+        btn.style.transform = `translate(${x * pull * 0.3}px, ${y * pull * 0.3}px)`;
+      }
+    });
+    btn.addEventListener('mouseleave', () => {
+      btn.style.transform = '';
+    });
+  });
+})();
+
+// ── Timeline Card Expand/Collapse ─────────────────────
+(function() {
+  document.querySelectorAll('.timeline-card').forEach(card => {
+    card.addEventListener('click', e => {
+      // Don't toggle if user is editing contenteditable
+      if (e.target.getAttribute('contenteditable') === 'true' && document.activeElement === e.target) return;
+      card.classList.toggle('expanded');
+    });
+  });
+})();
+
 </script>
 </body>
 </html>

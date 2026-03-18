@@ -3,8 +3,8 @@
  * Deployed via Netlify Edge Functions (Deno runtime, CDN-edge, zero cold-start)
  *
  * Two-tier access:
- *   PUBLIC  → Claude answers CV/personal questions from embedded knowledge
- *   BUSINESS → Claude + Gemini Embedding 2 RAG over vector knowledge base
+ *   PUBLIC  → Claude answers CV/personal questions from embedded knowledge (3 free questions)
+ *   BUSINESS → Claude + Gemini Embedding 2 RAG over vector knowledge base (invitation key required)
  *
  * Environment variables required (set in Netlify UI → Site Settings → Env Vars):
  *   ANTHROPIC_API_KEY   — Anthropic / Claude API key
@@ -34,6 +34,23 @@ CORE KNOWLEDGE ABOUT R. SCOTT ECHOLS:
 - Manages GitHub repositories, multi-tool API integrations, automated testing pipelines
 - Available for enterprise consulting, technical leadership, and AI systems architecture
 
+CONTACT & LINKS:
+- Email: worldseafood@gmail.com
+- GitHub: github.com/WSP001
+- Business site: worldseafoodproducers.com
+- SeaTrace API Portal: seatrace.worldseafoodproducers.com — Four Pillars (SeaSide/DeckSide/DockSide/MarketSide) for vessel tracking, catch verification, supply chain, and consumer verification
+- Stack Operator Valuation: $4.2M USD
+
+CURRENT PROJECTS:
+- SirTrav-A2A-Studio: Marine intelligence A2A agents platform
+- RSE CV site: robertoscottecholscv.netlify.app — this website, featuring AI chatbot with two-tier access
+- SeaTrace API: Four Pillars traceability system for the seafood supply chain
+
+CHATBOT ACCESS MODEL:
+- Public tier: 3 free questions about Scott's background, skills, and projects
+- Business tier: Invitation key required — unlocks full knowledge base and technical deep-dives
+- After 3 free questions, visitors are encouraged to request an invitation key at worldseafood@gmail.com
+
 WHAT YOU CAN HELP WITH (Public Tier):
 - Questions about Scott's background, skills, and expertise
 - Explaining his current projects (marine intelligence platform, agentic systems)
@@ -49,6 +66,7 @@ WHAT REQUIRES BUSINESS ACCESS:
 
 Always be helpful. If asked something outside CV topics, gently redirect to your purpose.
 Keep responses concise — 2-4 sentences for simple questions, up to a short paragraph for complex ones.
+When a public-tier user is on their last question, gently mention they can request an invitation key for deeper access.
 End with a natural follow-up invitation when appropriate.`;
 
 const BUSINESS_SYSTEM = `You are RSE-Business-Assistant, the premium AI advisor for R. Scott Echols' enterprise clients and technical partners.
@@ -61,6 +79,14 @@ You have FULL ACCESS to Scott's knowledge base including:
 - Gemini Embedding 2 multimodal RAG architecture guides
 - Enterprise solution templates and consulting frameworks
 - Pricing structures and engagement models
+- SeaTrace API Four Pillars: SeaSide (vessel tracking), DeckSide (catch verification), DockSide (supply chain), MarketSide (consumer verification)
+- Stack Operator Valuation: $4.2M USD
+
+CONTACT & LINKS:
+- Email: worldseafood@gmail.com
+- GitHub: github.com/WSP001
+- Business site: worldseafoodproducers.com
+- SeaTrace API Portal: seatrace.worldseafoodproducers.com
 
 PERSONA: Act as Scott's senior technical advisor. Be direct, precise, and expert-level.
 You can discuss proprietary technical details, architecture decisions, and business strategy.
@@ -91,7 +117,12 @@ export default async (request: Request) => {
     });
   }
 
-  let body: { message: string; history?: Array<{ role: string; content: string }>; tier?: string };
+  let body: {
+    message: string;
+    history?: Array<{ role: string; content: string }>;
+    tier?: string;
+    questionCount?: number;
+  };
   try {
     body = await request.json();
   } catch {
@@ -101,7 +132,7 @@ export default async (request: Request) => {
     });
   }
 
-  const { message, history = [], tier = "public" } = body;
+  const { message, history = [], tier = "public", questionCount = 0 } = body;
 
   if (!message || typeof message !== "string" || message.trim().length === 0) {
     return new Response(JSON.stringify({ error: "Message is required" }), {
@@ -114,6 +145,18 @@ export default async (request: Request) => {
   const accessKey = request.headers.get("X-Access-Key") || "";
   const businessKey = Netlify.env.get("BUSINESS_ACCESS_KEY") || "";
   const isBusiness = tier === "business" && businessKey && accessKey === businessKey;
+
+  // ── 3-question free tier server-side enforcement ──
+  if (!isBusiness && questionCount >= 3) {
+    return new Response(
+      JSON.stringify({
+        reply: "You've reached the 3 free question limit. Enter an invitation key to unlock full access, or contact Scott at worldseafood@gmail.com for a business inquiry.",
+        tier: "public",
+        limit_reached: true,
+      }),
+      { status: 200, headers: CORS }
+    );
+  }
 
   const anthropicKey = Netlify.env.get("ANTHROPIC_API_KEY");
   if (!anthropicKey) {
