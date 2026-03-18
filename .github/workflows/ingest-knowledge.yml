@@ -1,0 +1,105 @@
+# .github/workflows/ingest-knowledge.yml
+# Auto-re-ingest knowledge base into ChromaDB when docs/ changes
+# FOR THE COMMONS GOOD — reusable pattern across WSP001 repos
+#
+# Triggers on push to main when docs/**/*.md files are changed
+# Runs embed_engine.py for all public partitions
+# Note: ChromaDB runs ephemerally in CI — for persistent storage,
+#       swap to Supabase pgvector or Weaviate Cloud (see design.md)
+
+name: Ingest Knowledge Base
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'docs/**/*.md'
+      - 'docs/**/*.txt'
+      - 'docs/**/*.json'
+
+  # Allow manual trigger from GitHub Actions UI
+  workflow_dispatch:
+    inputs:
+      partition:
+        description: 'Partition to ingest (leave empty for all)'
+        required: false
+        default: ''
+
+jobs:
+  ingest:
+    name: Ingest Knowledge into ChromaDB
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install chromadb google-generativeai
+
+      - name: Validate GEMINI_API_KEY
+        run: |
+          if [ -z "$GEMINI_API_KEY" ]; then
+            echo "✗ GEMINI_API_KEY secret not set in GitHub Actions"
+            echo "  Go to: Settings → Secrets → Actions → New repository secret"
+            exit 1
+          fi
+          echo "✓ GEMINI_API_KEY is set"
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+
+      - name: Validate Gemini model env vars
+        run: |
+          python scripts/embed_engine.py --list-partitions
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+
+      - name: Ingest cv_personal partition
+        if: ${{ github.event.inputs.partition == '' || github.event.inputs.partition == 'cv_personal' }}
+        run: |
+          echo "Ingesting cv_personal partition..."
+          python scripts/embed_engine.py --ingest --partition cv_personal --source docs/
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+
+      - name: Ingest cv_projects partition
+        if: ${{ github.event.inputs.partition == '' || github.event.inputs.partition == 'cv_projects' }}
+        run: |
+          echo "Ingesting cv_projects partition..."
+          python scripts/embed_engine.py --ingest --partition cv_projects --source docs/
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+
+      - name: Show ingestion stats
+        run: |
+          python scripts/embed_engine.py --stats
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+
+      - name: Upload ChromaDB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: chromadb-snapshot-${{ github.sha }}
+          path: scripts/.chromadb/
+          retention-days: 7
+          if-no-files-found: warn
+
+      - name: Summary
+        run: |
+          echo "## Knowledge Ingestion Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Partitions:** cv_personal, cv_projects" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "For persistent vector storage, configure Supabase pgvector or" >> $GITHUB_STEP_SUMMARY
+          echo "Weaviate Cloud as described in \`design.md\`." >> $GITHUB_STEP_SUMMARY
