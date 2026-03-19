@@ -202,15 +202,83 @@
       opacity: 0.6;
     }
     #hero-three {
-      position: absolute; inset: 0; z-index: 1;
+      position: fixed; inset: 0; z-index: 1;
+      pointer-events: none; overflow: hidden;
     }
+    #hero-three canvas { width: 100%; height: 100%; display: block; }
+    #glass-lens {
+      position: fixed; inset: 0; z-index: 2;
+      pointer-events: none; opacity: 0;
+      backdrop-filter: blur(11px) saturate(118%);
+      background:
+        radial-gradient(circle at 20% 18%, rgba(255,255,255,0.1), transparent 26%),
+        radial-gradient(circle at 78% 24%, rgba(126,221,214,0.08), transparent 22%),
+        linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01) 25%, rgba(10,11,13,0.05) 100%);
+      transition: opacity 0.35s ease;
+    }
+    #glass-lens::after {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 120px 120px, 120px 120px;
+      mask-image: linear-gradient(180deg, rgba(0,0,0,0.9), rgba(0,0,0,0.45));
+      opacity: 0.5;
+    }
+    body.webgl-stage-ready #glass-lens { opacity: 1; }
     .hero-content {
-      position: relative; z-index: 2;
+      position: relative; z-index: 4;
       max-width: 800px;
       text-align: center;
       background: radial-gradient(ellipse 600px 400px at center, rgba(0,0,0,0.3) 0%, transparent 70%);
       padding: 3rem 2rem;
       border-radius: 24px;
+    }
+    #scroll-progress {
+      position: fixed; top: 0; left: 0; z-index: 220;
+      width: 0; height: 2px;
+      background: linear-gradient(90deg, var(--cyan), var(--gold-2));
+      box-shadow: 0 0 18px rgba(78,205,196,0.55);
+    }
+    .logo-prism-wrap {
+      width: 132px; height: 132px; margin: 0 auto 1.6rem;
+      opacity: 0; transform: translateY(18px);
+      perspective: 1000px;
+    }
+    .logo-prism {
+      width: 100%; height: 100%;
+      border-radius: 32px;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,0.18), transparent 38%),
+        linear-gradient(145deg, rgba(201,168,76,0.16), rgba(78,205,196,0.08));
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 30px 80px rgba(0,0,0,0.45);
+      backdrop-filter: blur(16px);
+      display: flex; align-items: center; justify-content: center;
+      transform-style: preserve-3d;
+      transition: transform 0.18s ease;
+      position: relative; overflow: hidden;
+    }
+    .logo-prism::before,
+    .logo-prism::after {
+      content: '';
+      position: absolute; border-radius: 50%;
+    }
+    .logo-prism::before {
+      inset: 18px;
+      border: 1px solid rgba(201,168,76,0.25);
+      transform: translateZ(30px);
+    }
+    .logo-prism::after {
+      inset: 28px;
+      border: 1px solid rgba(78,205,196,0.2);
+      transform: translateZ(18px);
+    }
+    .logo-prism svg {
+      width: 62px; height: 62px;
+      transform: translateZ(42px);
+      filter: drop-shadow(0 10px 22px rgba(0,0,0,0.35));
     }
     .hero-badge {
       display: inline-flex; align-items: center; gap: 8px;
@@ -470,113 +538,821 @@
       display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.5rem;
     }
     .project-card {
-      background: var(--surface); border: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(37,42,56,0.92), rgba(28,32,43,0.92));
+      border: 1px solid var(--border);
       border-radius: var(--radius); overflow: hidden;
       cursor: pointer; transition: all var(--transition);
       transform-style: preserve-3d;
       position: relative;
+      box-shadow: 0 18px 38px rgba(0,0,0,0.26);
     }
     .project-card::before {
       content: '';
       position: absolute; inset: 0; z-index: 1;
       border-radius: var(--radius);
       border: 1px solid transparent;
-      transition: border-color 0.4s ease;
+      transition: border-color 0.4s ease, box-shadow 0.4s ease;
       pointer-events: none;
     }
-    .project-card:hover::before {
-      border-color: rgba(201,168,76,0.4);
-      box-shadow: 0 0 30px rgba(201,168,76,0.1);
+    .project-card:hover::before,
+    .project-card.expanded::before {
+      border-color: rgba(201,168,76,0.36);
+      box-shadow: 0 0 40px rgba(201,168,76,0.08);
     }
-    /* Glossy reflection sweep */
     .project-card::after {
       content: '';
       position: absolute; inset: 0; z-index: 2;
-      background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.05) 45%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 55%, transparent 60%);
-      transform: translateX(-100%);
-      transition: transform 0.6s ease;
+      background: linear-gradient(108deg, transparent 38%, rgba(255,255,255,0.03) 45%, rgba(255,255,255,0.14) 50%, rgba(255,255,255,0.03) 56%, transparent 63%);
+      transform: translateX(-115%);
+      transition: transform 0.75s ease;
       pointer-events: none;
       border-radius: var(--radius);
     }
     .project-card:hover::after {
-      transform: translateX(100%);
+      transform: translateX(110%);
+    }
+    .project-card:hover,
+    .project-card.expanded {
+      border-color: rgba(255,255,255,0.16);
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-lg);
     }
     .project-thumb {
-      height: 180px; background: var(--bg-3);
+      height: 220px;
       position: relative; overflow: hidden;
       display: flex; align-items: center; justify-content: center;
+      isolation: isolate;
     }
     .project-thumb-bg {
       position: absolute; inset: 0;
       background: var(--bg-3);
     }
-    .project-emblem {
-      width: 80px;
-      height: 80px;
+    .project-thumb-bg::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(circle at top, rgba(255,255,255,0.12), transparent 42%);
+      mix-blend-mode: screen;
+    }
+    .project-emblem-stage {
+      width: 118px; height: 118px;
+      border-radius: 30px;
       object-fit: contain;
       position: relative;
       z-index: 1;
-      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5));
+      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.03));
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 25px 50px rgba(0,0,0,0.32);
+      backdrop-filter: blur(8px);
+      transform: translateZ(24px);
+    }
+    .project-emblem-stage::before {
+      content: '';
+      position: absolute; inset: 12px;
+      border-radius: 24px;
+      border: 1px solid rgba(255,255,255,0.08);
+      opacity: 0.7;
+    }
+    .project-emblem-fallback {
+      width: 74%;
+      height: 74%;
+      object-fit: contain;
+      filter: drop-shadow(0 12px 22px rgba(0,0,0,0.35));
       animation: float-logo 4s ease-in-out infinite;
-      transform-style: preserve-3d;
+      transition: opacity 0.25s ease, transform 0.25s ease, filter 0.25s ease;
+      will-change: transform, opacity;
     }
-    .project-card:hover .project-emblem {
-      transform: scale(1.1) translateZ(20px);
-      filter: drop-shadow(0 8px 24px rgba(78,205,196,0.6));
+    .project-card:hover .project-emblem-fallback {
+      transform: scale(1.08);
+      filter: drop-shadow(0 16px 28px rgba(78,205,196,0.34));
     }
-    /* ... */
+    body.webgl-stage-ready .project-card.webgl-live .project-emblem-fallback {
+      opacity: 0.06;
+      transform: scale(0.92);
+    }
+    @keyframes float-logo {
+      0%, 100% { transform: translateY(0) rotate(-1deg); }
+      50% { transform: translateY(-10px) rotate(1deg); }
+    }
+    .project-tag {
+      position: absolute; top: 12px; right: 12px; z-index: 3;
+      background: rgba(0,0,0,0.58); backdrop-filter: blur(10px);
+      padding: 4px 12px; border-radius: 999px;
+      font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .project-body {
+      padding: 1.5rem;
+      position: relative; z-index: 3;
+    }
+    .project-title {
+      font-family: var(--font-display); font-size: 1.08rem;
+      font-weight: 600; margin-bottom: 10px;
+      letter-spacing: -0.015em;
+    }
+    .project-desc {
+      font-size: 0.9rem; color: var(--text-2); line-height: 1.72;
+      margin-bottom: 1rem;
+    }
+    .project-tech {
+      display: flex; gap: 6px; flex-wrap: wrap;
+    }
+    .tech-badge {
+      background: rgba(10,11,13,0.42); color: var(--text-2);
+      padding: 4px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: 500;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .project-expand {
+      max-height: 0; overflow: hidden; opacity: 0;
+      transition: max-height 0.35s ease, opacity 0.25s ease, margin-top 0.25s ease;
+      margin-top: 0;
+      color: var(--text-2);
+    }
+    .project-card.expanded .project-expand {
+      max-height: 280px;
+      opacity: 1;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+    }
+    .project-expand ul {
+      padding-left: 1rem;
+      margin-top: 0.75rem;
+      line-height: 1.75;
+    }
+    .project-expand li + li { margin-top: 0.35rem; }
+    .project-live-link {
+      display: inline-flex; align-items: center; gap: 6px;
+      color: var(--gold-2); text-decoration: none; font-weight: 600;
+      margin-top: 1rem;
+    }
+    .project-live-link:hover { color: var(--cyan-2); }
+    .expand-cta {
+      display: inline-flex; align-items: center; gap: 6px;
+      margin-top: 1rem;
+      color: var(--text-3); font-size: 0.78rem; letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .project-card.expanded .expand-cta { color: var(--cyan-2); }
+
+    /* ── Services ───────────────────────────────────── */
+    #services { background: var(--bg-2); }
+    .services-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem;
+    }
+    .service-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 2rem;
+      transition: all var(--transition);
+    }
+    .service-card:hover { border-color: var(--gold); transform: translateY(-3px); box-shadow: var(--shadow); }
+    .service-icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem; margin-bottom: 1.25rem;
+    }
+    .service-title {
+      font-family: var(--font-display); font-size: 1.05rem;
+      font-weight: 600; margin-bottom: 8px;
+    }
+    .service-desc { font-size: 0.875rem; color: var(--text-2); line-height: 1.75; }
+
+    /* ── Testimonials ────────────────────────────────── */
+    #testimonials { background: var(--bg); overflow: hidden; }
+    .testimonials-track {
+      display: flex; gap: 1.5rem; overflow-x: auto;
+      padding-bottom: 1rem; scrollbar-width: thin;
+      scrollbar-color: var(--border-2) transparent;
+    }
+    .testimonial-card {
+      flex-shrink: 0; width: 360px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 2rem;
+    }
+    .testimonial-stars { color: var(--gold); margin-bottom: 1rem; font-size: 0.9rem; }
+    .testimonial-text { font-size: 0.95rem; color: var(--text-2); line-height: 1.8; margin-bottom: 1.25rem; font-style: italic; }
+    .testimonial-author { display: flex; align-items: center; gap: 12px; }
+    .testimonial-avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: var(--surface-2); border: 2px solid var(--border-2);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; color: var(--gold);
+    }
+    .testimonial-name { font-weight: 600; font-size: 0.9rem; }
+    .testimonial-role { font-size: 0.78rem; color: var(--text-3); }
+
+    /* ── Contact ────────────────────────────────────── */
+    #contact { background: var(--bg-2); }
+    .contact-grid { display: grid; grid-template-columns: 1fr 1.4fr; gap: 5rem; align-items: start; }
+    .contact-info { display: flex; flex-direction: column; gap: 1.5rem; }
+    .contact-item {
+      display: flex; align-items: flex-start; gap: 14px;
+    }
+    .contact-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      background: var(--surface); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; flex-shrink: 0;
+    }
+    .contact-label { font-size: 0.75rem; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.1em; }
+    .contact-val { font-size: 0.95rem; color: var(--text); margin-top: 2px; }
+    .contact-form { display: flex; flex-direction: column; gap: 1rem; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-label { font-size: 0.8rem; font-weight: 500; color: var(--text-2); }
+    .form-input, .form-textarea, .form-select {
+      background: var(--surface); border: 1px solid var(--border);
+      color: var(--text); padding: 12px 16px; border-radius: var(--radius);
+      font-family: var(--font-body); font-size: 0.9rem;
+      transition: border-color var(--transition);
+      width: 100%; resize: none;
+    }
+    .form-input:focus, .form-textarea:focus, .form-select:focus {
+      outline: none; border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(201,168,76,0.1);
+    }
+    .form-textarea { min-height: 120px; }
+    .form-submit {
+      background: linear-gradient(135deg, var(--gold), var(--gold-2));
+      color: var(--bg); padding: 14px 32px; border-radius: var(--radius);
+      font-weight: 700; font-size: 0.95rem; cursor: pointer;
+      border: none; transition: all var(--transition); align-self: flex-start;
+    }
+    .form-submit:hover { box-shadow: var(--glow-gold); transform: translateY(-2px); }
+    .hp-field { display: none !important; }
+
+    /* ── Footer ─────────────────────────────────────── */
+    footer {
+      background: var(--bg);
+      border-top: 1px solid var(--border);
+      padding: 2.5rem clamp(1.5rem, 5vw, 4rem);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 1rem;
+    }
+    .footer-copy { color: var(--text-3); font-size: 0.85rem; }
+    .footer-pplx a {
+      color: var(--text-3); text-decoration: none; font-size: 0.8rem;
+      transition: color var(--transition);
+    }
+    .footer-pplx a:hover { color: var(--gold); }
+
+    /* ── Animations ──────────────────────────────────── */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; } to { opacity: 1; }
+    }
+    .reveal {
+      opacity: 0; transform: translateY(24px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    [contenteditable] {
+      cursor: text;
+      border-radius: 4px;
+      transition: outline var(--transition);
+    }
+    [contenteditable]:hover { outline: 2px dashed rgba(201,168,76,0.3); }
+    [contenteditable]:focus { outline: 2px solid rgba(78,205,196,0.5); }
+
+    /* ── Chatbot ────────────────────────────────────── */
+    #chat-bubble {
+      position: fixed; bottom: 28px; right: 28px; z-index: 1000;
+      width: 60px; height: 60px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold), var(--gold-2));
+      cursor: pointer; border: none;
+      box-shadow: 0 4px 20px rgba(201,168,76,0.5);
+      display: flex; align-items: center; justify-content: center;
+      animation: bubblePop 0.4s 2s cubic-bezier(0.34,1.56,0.64,1) both;
+      transition: transform var(--transition), box-shadow var(--transition);
+    }
+    #chat-bubble:hover { transform: scale(1.08); box-shadow: 0 8px 30px rgba(201,168,76,0.6); }
+    #chat-bubble svg { color: var(--bg); }
+    @keyframes bubblePop {
+      from { transform: scale(0); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .bubble-ring,
+    .bubble-ring-2 {
+      position: absolute; border-radius: 50%;
+      inset: -6px; border: 2px solid rgba(201,168,76,0.4);
+      animation: ringPulse 3s infinite;
+    }
+    .bubble-ring-2 {
+      inset: -12px;
+      border-width: 1px;
+      border-color: rgba(78,205,196,0.28);
+      animation-duration: 4s;
+      animation-direction: reverse;
+    }
+    @keyframes ringPulse {
+      0%,100% { transform: scale(1); opacity: 0.6; }
+      50% { transform: scale(1.2); opacity: 0; }
+    }
+
+    #chat-window {
+      position: fixed; bottom: 104px; right: 28px; z-index: 1000;
+      width: min(420px, calc(100vw - 56px));
+      height: min(580px, calc(100vh - 160px));
+      background: var(--bg-2);
+      border: 1px solid var(--border-2);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      display: flex; flex-direction: column;
+      overflow: hidden;
+      transform: scale(0.9) translateY(20px);
+      opacity: 0; pointer-events: none;
+      transform-origin: bottom right;
+      transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+    }
+    #chat-window.open {
+      transform: scale(1) translateY(0);
+      opacity: 1; pointer-events: all;
+    }
+
+    .chat-header {
+      background: var(--surface);
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .chat-header-info { display: flex; align-items: center; gap: 10px; }
+    .chat-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold), var(--gold-2));
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 0.85rem; color: var(--bg);
+      position: relative;
+    }
+    .chat-status-dot {
+      position: absolute; bottom: 1px; right: 1px;
+      width: 9px; height: 9px; border-radius: 50%;
+      background: #22c55e; border: 2px solid var(--surface);
+    }
+    .chat-name { font-weight: 600; font-size: 0.9rem; }
+    .chat-subtitle { font-size: 0.72rem; color: var(--text-3); margin-top: 1px; }
+    .chat-tier-badge {
+      font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; padding: 3px 10px; border-radius: 100px;
+      background: rgba(78,205,196,0.12); color: var(--cyan); border: 1px solid rgba(78,205,196,0.3);
+    }
+    .chat-tier-badge.business {
+      background: rgba(201,168,76,0.15); color: var(--gold-2); border-color: rgba(201,168,76,0.4);
+    }
+    .question-counter {
+      font-size: 0.68rem; font-weight: 700;
+      color: var(--text-2);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 4px 8px;
+      min-width: 38px;
+      text-align: center;
+      transition: border-color var(--transition), color var(--transition);
+    }
+    .chat-close {
+      background: none; border: none; color: var(--text-3);
+      cursor: pointer; padding: 4px; border-radius: 6px;
+      transition: color var(--transition);
+    }
+    .chat-close:hover { color: var(--text); }
+
+    .chat-messages {
+      flex: 1; overflow-y: auto; padding: 1rem;
+      display: flex; flex-direction: column; gap: 1rem;
+      scrollbar-width: thin; scrollbar-color: var(--border) transparent;
+    }
+    .msg { display: flex; gap: 10px; max-width: 85%; }
+    .msg.user { align-self: flex-end; flex-direction: row-reverse; }
+    .msg-bubble {
+      padding: 10px 14px; border-radius: 16px;
+      font-size: 0.875rem; line-height: 1.6;
+    }
+    .msg.bot .msg-bubble {
+      background: var(--surface); border-radius: 4px 16px 16px 16px;
+      color: var(--text);
+    }
+    .msg.user .msg-bubble {
+      background: linear-gradient(135deg, var(--gold), var(--gold-2));
+      color: var(--bg); font-weight: 500;
+      border-radius: 16px 4px 16px 16px;
+    }
+    .msg-avatar {
+      width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--gold), var(--gold-2));
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 0.7rem; color: var(--bg);
+      align-self: flex-end;
+    }
+    .typing-indicator {
+      display: flex; gap: 4px; align-items: center;
+      padding: 10px 14px;
+    }
+    .typing-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--text-3); animation: typingBounce 1.4s infinite;
+    }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes typingBounce {
+      0%,60%,100% { transform: translateY(0); }
+      30% { transform: translateY(-6px); }
+    }
+    .chat-quick-actions {
+      padding: 0 1rem 0.75rem;
+      display: flex; gap: 6px; flex-wrap: wrap;
+      flex-shrink: 0;
+    }
+    .quick-btn {
+      background: var(--surface-2); border: 1px solid var(--border);
+      color: var(--text-2); padding: 6px 12px; border-radius: 20px;
+      font-size: 0.75rem; cursor: pointer;
+      transition: all var(--transition);
+      white-space: nowrap;
+    }
+    .quick-btn:hover { border-color: var(--gold); color: var(--gold-2); background: rgba(201,168,76,0.08); }
+    .chat-input-area {
+      padding: 0.75rem 1rem;
+      border-top: 1px solid var(--border);
+      display: flex; gap: 8px; align-items: flex-end;
+      flex-shrink: 0;
+    }
+    #chat-input {
+      flex: 1; background: var(--surface);
+      border: 1px solid var(--border); color: var(--text);
+      padding: 10px 14px; border-radius: 12px;
+      font-family: var(--font-body); font-size: 0.875rem;
+      resize: none; max-height: 120px; min-height: 40px;
+      transition: border-color var(--transition);
+      line-height: 1.5;
+    }
+    #chat-input:focus { outline: none; border-color: var(--gold); }
+    #chat-send {
+      width: 40px; height: 40px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--gold), var(--gold-2));
+      border: none; cursor: pointer; color: var(--bg);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: all var(--transition);
+    }
+    #chat-send:hover { transform: scale(1.05); box-shadow: var(--glow-gold); }
+    #chat-send:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .chat-gate {
+      padding: 1rem;
+      background: rgba(201,168,76,0.05);
+      border-top: 1px solid rgba(201,168,76,0.15);
+      border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+      flex-shrink: 0;
+      transition: box-shadow var(--transition), border-color var(--transition);
+    }
+    .chat-gate.pulsing {
+      box-shadow: 0 0 0 1px rgba(201,168,76,0.12), 0 0 24px rgba(201,168,76,0.12);
+    }
+    .gate-title {
+      font-size: 0.75rem; font-weight: 600; color: var(--gold);
+      text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px;
+    }
+    .gate-input-row { display: flex; gap: 8px; }
+    .gate-input {
+      flex: 1; background: var(--surface); border: 1px solid var(--border);
+      color: var(--text); padding: 8px 12px; border-radius: 8px;
+      font-size: 0.8rem; font-family: var(--font-body);
+    }
+    .gate-input:focus { outline: none; border-color: var(--gold); }
+    .gate-btn {
+      background: linear-gradient(135deg, var(--gold), var(--gold-2));
+      color: var(--bg); padding: 8px 16px; border-radius: 8px;
+      font-size: 0.8rem; font-weight: 600; border: none; cursor: pointer;
+      transition: all var(--transition); white-space: nowrap;
+    }
+    .gate-btn:hover { box-shadow: var(--glow-gold); }
+    .gate-msg { font-size: 0.72rem; color: var(--text-3); margin-top: 6px; }
+
+    /* ── Mobile ──────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .hamburger { display: flex; }
+      .about-grid { grid-template-columns: 1fr; gap: 2rem; }
+      .about-stats { grid-template-columns: repeat(2,1fr); }
+      .timeline::before { left: 0; }
+      .timeline-item { grid-template-columns: 1fr; }
+      .timeline-item .timeline-card,
+      .timeline-item .timeline-empty,
+      .timeline-item:nth-child(even) .timeline-card,
+      .timeline-item:nth-child(even) .timeline-empty { grid-column: 1; order: unset; }
+      .timeline-dot { left: 0; }
+      .contact-grid { grid-template-columns: 1fr; gap: 2rem; }
+      .form-row { grid-template-columns: 1fr; }
+      .logo-prism-wrap { width: 108px; height: 108px; }
+      #hero-three, #glass-lens { display: none; }
+      #chat-window {
+        right: 12px; bottom: 88px;
+        width: calc(100vw - 24px);
+        height: min(70vh, 520px);
+      }
+      body.webgl-stage-ready .project-card.webgl-live .project-emblem-fallback {
+        opacity: 1;
+        transform: none;
+      }
+    }
 </style>
-<!-- ... -->
-<div class="projects-grid">
-  <div class="project-card reveal" data-cat="ai" data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.15">
-    <div class="project-thumb">
-      <div class="project-thumb-bg" style="background:linear-gradient(135deg,#1a1040,#0d1a2e)"></div>
-      <img src="/sir-travis-emblem.png" class="project-emblem" alt="SirTrav Emblem" />
-      <div class="project-tag" style="color:var(--purple)">Agentic AI</div>
-    </div>
-    <!-- ... -->
+</head>
+<body>
+<div id="loader">
+  <div class="loader-logo">
+    <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="RSE loader">
+      <polygon points="32,4 58,18 58,46 32,60 6,46 6,18" stroke="#c9a84c" stroke-width="2" fill="rgba(201,168,76,0.08)"/>
+      <polygon points="32,14 47,22 47,42 32,50 17,42 17,22" stroke="#4ecdc4" stroke-width="1.5" fill="none" opacity="0.7"/>
+      <circle cx="32" cy="32" r="6" fill="#c9a84c"/>
+    </svg>
   </div>
-
-  <div class="project-card reveal" data-cat="marine" data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.15">
-    <div class="project-thumb">
-      <div class="project-thumb-bg" style="background:linear-gradient(135deg,#051a1a,#0a2020)"></div>
-      <img src="/seatrace-logo-alt.png" class="project-emblem" alt="SeaTrace Logo" />
-      <div class="project-tag" style="color:var(--cyan)">Marine Tech</div>
-    </div>
-    <!-- ... -->
-  </div>
-
-  <div class="project-card reveal" data-cat="cloud" data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.15">
-    <div class="project-thumb">
-      <div class="project-thumb-bg" style="background:linear-gradient(135deg,#1a1005,#100a00)"></div>
-      <img src="/sir-travis-emblem.png" class="project-emblem" alt="SirTrav Emblem" />
-      <div class="project-tag" style="color:var(--gold)">Cloud / AI</div>
-    </div>
-    <!-- ... -->
-  </div>
-  <!-- ... -->
+  <div class="loader-text">Booting Glass Interface</div>
+  <div class="loader-bar"><div class="loader-bar-fill"></div></div>
 </div>
-<!-- ... -->
-            — Codex (frontend), Claude Code (backend), Antigravity (QA) — work in concert to build, test, and deploy.
+
+<div id="cursor-dot" class="cursor-dot"></div>
+<div id="cursor-ring" class="cursor-ring"></div>
+<div id="scroll-progress" aria-hidden="true"></div>
+<div id="hero-three" aria-hidden="true"></div>
+<div id="glass-lens" aria-hidden="true"></div>
+
+<nav>
+  <a href="#hero" class="nav-logo">
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="RSE logo">
+      <polygon points="16,2 30,10 30,22 16,30 2,22 2,10" stroke="#c9a84c" stroke-width="1.5" fill="rgba(201,168,76,0.08)"/>
+      <polygon points="16,7 25,12 25,20 16,25 7,20 7,12" stroke="#4ecdc4" stroke-width="1" fill="none" opacity="0.6"/>
+      <circle cx="16" cy="16" r="3" fill="#c9a84c"/>
+    </svg>
+    <span>R. Scott Echols</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#services">Services</a></li>
+    <li><a href="#contact" class="nav-cta">Contact</a></li>
+  </ul>
+  <button class="hamburger" aria-label="Menu" onclick="toggleMenu()">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<section id="hero">
+  <canvas id="hero-canvas"></canvas>
+  <div class="hero-content">
+    <div class="hero-badge">
+      <div class="hero-badge-dot"></div>
+      Available for Enterprise Engagements
+    </div>
+    <div class="logo-prism-wrap">
+      <div class="logo-prism">
+        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <polygon points="32,6 54,18 54,46 32,58 10,46 10,18" stroke="#c9a84c" stroke-width="2" fill="rgba(201,168,76,0.08)"/>
+          <polygon points="32,16 44,22 44,42 32,48 20,42 20,22" stroke="#4ecdc4" stroke-width="1.5" fill="none" opacity="0.7"/>
+          <circle cx="32" cy="32" r="6" fill="#c9a84c"/>
+        </svg>
+      </div>
+    </div>
+    <h1 class="hero-name">R. Scott Echols</h1>
+    <p class="hero-title"><span id="typing-text">Solutions Architect</span></p>
+    <p class="hero-desc">
+      Senior Software Developer and Technical Lead building intelligent systems at the intersection
+      of marine technology, agentic AI, and enterprise cloud infrastructure.
+    </p>
+    <div class="hero-actions">
+      <a href="#projects" class="btn btn-primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4A2 2 0 0 0 13 20l7-4A2 2 0 0 0 21 16z"/>
+        </svg>
+        View Projects
+      </a>
+      <a href="#contact" class="btn btn-secondary">Get In Touch</a>
+    </div>
+  </div>
+  <div class="hero-scroll">
+    <div class="scroll-line"></div>
+    <span>Scroll</span>
+  </div>
+</section>
+
+<section id="about">
+  <div class="container">
+    <div class="about-grid">
+      <div class="about-photo-wrap reveal">
+        <div class="about-photo" onclick="document.getElementById('photo-upload').click()" title="Click to upload your photo">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1.5">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+          </svg>
+          <span class="about-photo-label">Click to upload photo</span>
+        </div>
+        <input type="file" id="photo-upload" accept="image/*" onchange="handlePhotoUpload(event)" />
+        <div class="about-photo-badge">Open to Work</div>
+      </div>
+      <div class="reveal" style="transition-delay:0.1s">
+        <div class="about-stats">
+          <div class="stat-card"><div class="stat-num" data-count="12" contenteditable="true">12+</div><div class="stat-label">Years Experience</div></div>
+          <div class="stat-card"><div class="stat-num" data-count="40" contenteditable="true">40+</div><div class="stat-label">Projects Delivered</div></div>
+          <div class="stat-card"><div class="stat-num" data-count="15" contenteditable="true">15+</div><div class="stat-label">Enterprise Clients</div></div>
+          <div class="stat-card"><div class="stat-num" data-count="30" contenteditable="true">30+</div><div class="stat-label">Technologies</div></div>
+        </div>
+        <div class="section-label">About</div>
+        <h2 class="section-title">Marine Intelligence<br>Meets AI Architecture</h2>
+        <div class="about-bio">
+          <p contenteditable="true">
+            I build production-grade software where domain expertise and modern AI infrastructure actually meet.
+            Marine operations, retrieval-backed interfaces, and enterprise delivery all show up in the same stack.
+          </p>
+          <br />
+          <p contenteditable="true">
+            The current focus is a grounded, premium CV and chatbot experience that looks expensive while remaining truthful,
+            fast, and supportable.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="experience">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-label">Experience</div>
+      <h2 class="section-title">Career Timeline</h2>
+      <p class="section-desc">Click any card to edit. Add your roles, companies, and achievements.</p>
+    </div>
+    <div class="timeline">
+      <div class="timeline-item reveal">
+        <div class="timeline-dot"></div>
+        <div class="timeline-card">
+          <div class="timeline-period" contenteditable="true">2022 — Present</div>
+          <div class="timeline-role" contenteditable="true">Technical Lead &amp; AI Systems Architect</div>
+          <div class="timeline-company" contenteditable="true">WSP001 / SirTrav</div>
+          <div class="timeline-desc" contenteditable="true">Leading agentic AI systems, grounded retrieval pipelines, and cinematic interfaces for marine intelligence and enterprise operations.</div>
+        </div>
+        <div class="timeline-empty"></div>
+      </div>
+      <div class="timeline-item reveal" style="transition-delay:0.1s">
+        <div class="timeline-dot"></div>
+        <div class="timeline-empty"></div>
+        <div class="timeline-card">
+          <div class="timeline-period" contenteditable="true">2019 — 2022</div>
+          <div class="timeline-role" contenteditable="true">Senior Software Developer</div>
+          <div class="timeline-company" contenteditable="true">Data / Platform Delivery</div>
+          <div class="timeline-desc" contenteditable="true">Built full-stack products with JavaScript, Node.js, and Python while delivering analytics, automation, and production deployment pipelines.</div>
+        </div>
+      </div>
+      <div class="timeline-item reveal" style="transition-delay:0.2s">
+        <div class="timeline-dot"></div>
+        <div class="timeline-card">
+          <div class="timeline-period" contenteditable="true">2012 — 2019</div>
+          <div class="timeline-role" contenteditable="true">Marine Technology Specialist</div>
+          <div class="timeline-company" contenteditable="true">Fisheries Operations</div>
+          <div class="timeline-desc" contenteditable="true">Developed the operating knowledge across fisheries supply chains, traceability, and maritime process improvement that now grounds the software work.</div>
+        </div>
+        <div class="timeline-empty"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="skills">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-label">Skills</div>
+      <h2 class="section-title">Technical Expertise</h2>
+    </div>
+    <div class="skills-grid">
+      <div class="skill-group reveal">
+        <div class="skill-group-title"><div class="skill-group-icon" style="background:rgba(201,168,76,0.1)">☁️</div>Cloud &amp; DevOps</div>
+        <div class="skill-item"><div class="skill-header"><span>Netlify / CI/CD</span><span class="skill-pct">95%</span></div><div class="skill-bar"><div class="skill-fill" data-width="95"></div></div></div>
+        <div class="skill-item"><div class="skill-header"><span>GitHub Workflows</span><span class="skill-pct">92%</span></div><div class="skill-bar"><div class="skill-fill" data-width="92"></div></div></div>
+        <div class="skill-item"><div class="skill-header"><span>Environment &amp; Vaults</span><span class="skill-pct">90%</span></div><div class="skill-bar"><div class="skill-fill" data-width="90"></div></div></div>
+      </div>
+      <div class="skill-group reveal" style="transition-delay:0.1s">
+        <div class="skill-group-title"><div class="skill-group-icon" style="background:rgba(78,205,196,0.1)">💻</div>Development</div>
+        <div class="skill-item"><div class="skill-header"><span>JavaScript / Node.js</span><span class="skill-pct">92%</span></div><div class="skill-bar"><div class="skill-fill cyan" data-width="92"></div></div></div>
+        <div class="skill-item"><div class="skill-header"><span>Python</span><span class="skill-pct">85%</span></div><div class="skill-bar"><div class="skill-fill cyan" data-width="85"></div></div></div>
+        <div class="skill-item"><div class="skill-header"><span>Frontend Systems</span><span class="skill-pct">82%</span></div><div class="skill-bar"><div class="skill-fill cyan" data-width="82"></div></div></div>
+      </div>
+      <div class="skill-group reveal" style="transition-delay:0.2s">
+        <div class="skill-group-title"><div class="skill-group-icon" style="background:rgba(124,106,247,0.1)">🤖</div>Agentic AI</div>
+        <div class="skill-item"><div class="skill-header"><span>Claude API</span><span class="skill-pct">95%</span></div><div class="skill-bar"><div class="skill-fill purple" data-width="95"></div></div></div>
+        <div class="skill-item"><div class="skill-header"><span>Gemini Embeddings</span><span class="skill-pct">88%</span></div><div class="skill-bar"><div class="skill-fill purple" data-width="88"></div></div></div>
+        <div class="skill-item"><div class="skill-header"><span>RAG Pipelines</span><span class="skill-pct">85%</span></div><div class="skill-bar"><div class="skill-fill purple" data-width="85"></div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="projects">
+  <div class="section-number">04</div>
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-label">Projects</div>
+      <h2 class="section-title">High-Velocity Portfolio</h2>
+      <p class="section-desc">A single shared WebGL stage tracks these emblems as true 3D planes, stretching light along the scroll axis without spawning extra canvases per card.</p>
+    </div>
+    <div class="projects-filters reveal">
+      <button class="filter-btn active" onclick="filterProjects('all', this)">All</button>
+      <button class="filter-btn" onclick="filterProjects('ai', this)">Agentic AI</button>
+      <button class="filter-btn" onclick="filterProjects('marine', this)">Marine Tech</button>
+      <button class="filter-btn" onclick="filterProjects('cloud', this)">Cloud</button>
+    </div>
+    <div class="projects-grid">
+      <div class="project-card reveal" data-cat="ai" data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.15" data-testid="repo-card-sirtrav-a2a-studio">
+        <div class="project-thumb">
+          <div class="project-thumb-bg" style="background:linear-gradient(135deg,#1a1040,#0d1a2e)"></div>
+          <div class="project-emblem-stage" data-emblem-plane data-testid="emblem-harness" data-texture="/sir-travis-emblem.png" data-accent="#7c6af7" data-depth="1.08">
+            <img src="/sir-travis-emblem.png" class="project-emblem-fallback" alt="SirTrav Emblem" />
           </div>
+          <div class="project-tag" style="color:var(--purple)">Agentic AI</div>
+        </div>
+        <div class="project-body">
+          <div class="project-title" contenteditable="true">SirTrav-A2A-Studio</div>
+          <div class="project-desc" contenteditable="true">Marine intelligence platform using A2A orchestration, grounded chatbot contracts, and cinematic operator tooling. The interface is designed to feel premium without faking capability.</div>
           <div class="project-tech">
             <span class="tech-badge">A2A Protocol</span>
             <span class="tech-badge">Claude API</span>
-            <span class="tech-badge">GitHub Actions</span>
-            <span class="tech-badge">ElevenLabs</span>
+            <span class="tech-badge">Netlify</span>
+            <span class="tech-badge">Three.js</span>
           </div>
           <div class="project-expand">
-            <strong>Agent Roles:</strong>
+            <strong>Phase stack:</strong>
             <ul>
-              <li><strong>Codex</strong> — Frontend generation, UI/UX systems, Three.js 3D</li>
-              <li><strong>Claude Code</strong> — Backend logic, API wiring, TypeScript edge functions</li>
-              <li><strong>Antigravity</strong> — QA, regression testing, crash prevention</li>
+              <li>Codex owns the cinematic interface, glass layer, and emblem rendering path.</li>
+              <li>Claude Code owns the edge routing, RAG contracts, and business access path.</li>
+              <li>Antigravity gates the whole lane with regression checks.</li>
             </ul>
-            <a href="https://sirtrav-a2a-studio.netlify.app" target="_blank" rel="noopener" class="project-live-link">
-              🔗 sirtrav-a2a-studio.netlify.app →
-            </a>
+            <a href="https://sirtrav-a2a-studio.netlify.app" target="_blank" rel="noopener" class="project-live-link">Live reference →</a>
           </div>
-          <span class="expand-cta">↓ Click to see agent breakdown</span>
+          <span class="expand-cta">Click for agent breakdown</span>
+        </div>
+      </div>
+
+      <div class="project-card reveal" data-cat="marine" data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.15" style="transition-delay:0.1s" data-testid="repo-card-seatrace">
+        <div class="project-thumb">
+          <div class="project-thumb-bg" style="background:linear-gradient(135deg,#051a1a,#0a2020)"></div>
+          <div class="project-emblem-stage" data-emblem-plane data-testid="emblem-harness" data-texture="/seatrace-logo-alt.png" data-accent="#4ecdc4" data-depth="1.02">
+            <img src="/seatrace-logo-alt.png" class="project-emblem-fallback" alt="SeaTrace Logo" />
+          </div>
+          <div class="project-tag" style="color:var(--cyan)">Marine Tech</div>
+        </div>
+        <div class="project-body">
+          <div class="project-title" contenteditable="true">SeaTrace Four Pillars</div>
+          <div class="project-desc" contenteditable="true">A traceability architecture spanning vessel intelligence, catch verification, dock operations, and market-facing trust. The motion language is meant to feel like instrumentation, not portfolio filler.</div>
+          <div class="project-tech">
+            <span class="tech-badge">SeaSide</span>
+            <span class="tech-badge">DockSide</span>
+            <span class="tech-badge">MarketSide</span>
+            <span class="tech-badge">RAG</span>
+          </div>
+          <div class="project-expand">
+            <strong>What stands out:</strong>
+            <ul>
+              <li>Business identity is carried by a real mark, not an emoji placeholder.</li>
+              <li>The glass tracer exaggerates scroll velocity without DOM churn.</li>
+              <li>Fallback imagery remains live if WebGL is unavailable.</li>
+            </ul>
+          </div>
+          <span class="expand-cta">Click for implementation notes</span>
+        </div>
+      </div>
+
+      <div class="project-card reveal" data-cat="cloud" data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.15" style="transition-delay:0.2s" data-testid="repo-card-wsp-command-bridge">
+        <div class="project-thumb">
+          <div class="project-thumb-bg" style="background:linear-gradient(135deg,#1a1005,#100a00)"></div>
+          <div class="project-emblem-stage" data-emblem-plane data-testid="emblem-harness" data-texture="/wsp-logo-2.jpg" data-accent="#c9a84c" data-depth="1.12">
+            <img src="/wsp-logo-2.jpg" class="project-emblem-fallback" alt="WSP Logo" />
+          </div>
+          <div class="project-tag" style="color:var(--gold)">Cloud / AI</div>
+        </div>
+        <div class="project-body">
+          <div class="project-title" contenteditable="true">WSP Command Bridge</div>
+          <div class="project-desc" contenteditable="true">The orchestration layer that connects content systems, deployment rails, and AI-assisted workflows into one operating surface. The same premium motion language scales across personal and enterprise brands.</div>
+          <div class="project-tech">
+            <span class="tech-badge">Netlify Edge</span>
+            <span class="tech-badge">Automation</span>
+            <span class="tech-badge">Cloud Ops</span>
+            <span class="tech-badge">Governance</span>
+          </div>
+          <div class="project-expand">
+            <strong>Visual rule:</strong>
+            <ul>
+              <li>One fixed renderer handles all emblem planes.</li>
+              <li>Hover lifts the plane in depth while the shader intensifies edge glow.</li>
+              <li>ScrollTrigger feeds velocity into the shader so the trace follows user intent.</li>
+            </ul>
+          </div>
+          <span class="expand-cta">Click for render notes</span>
         </div>
       </div>
     </div>
@@ -948,117 +1724,326 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
   });
 });
 
-// ── Three.js Globe ──────────────────────────────────────
+// ── Shared WebGL Glass Stage ────────────────────────────
 (function() {
   const container = document.getElementById('hero-three');
-  if (!container) return;
+  const anchors = Array.from(document.querySelectorAll('[data-emblem-plane]'));
+  if (!container || anchors.length === 0 || !window.WebGLRenderingContext) return;
+
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const mobile = window.matchMedia('(max-width: 768px)').matches;
+  const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  if (prefersReducedMotion || mobile || connection?.saveData || (navigator.deviceMemory && navigator.deviceMemory <= 4)) {
+    return;
+  }
+
+  let renderer;
+  try {
+    renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: 'high-performance' });
+  } catch {
+    return;
+  }
 
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(50, container.offsetWidth / container.offsetHeight, 0.1, 1000);
-  camera.position.z = 5;
+  const viewport = { width: window.innerWidth, height: window.innerHeight };
+  const camera = new THREE.OrthographicCamera(
+    viewport.width / -2,
+    viewport.width / 2,
+    viewport.height / 2,
+    viewport.height / -2,
+    0.1,
+    2000
+  );
+  camera.position.z = 800;
 
-  const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-  renderer.setSize(container.offsetWidth, container.offsetHeight);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
+  renderer.setSize(viewport.width, viewport.height);
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  renderer.domElement.setAttribute('aria-hidden', 'true');
   container.appendChild(renderer.domElement);
 
-  // Outer icosahedron (gold wireframe)
-  const geometry = new THREE.IcosahedronGeometry(2, 2);
-  const material = new THREE.MeshBasicMaterial({
-    color: 0xc9a84c, wireframe: true, transparent: true, opacity: 0.18
+  const body = document.body;
+  const markFallback = (enabled) => {
+    body.classList.toggle('webgl-stage-ready', enabled);
+    document.querySelectorAll('.project-card.webgl-live').forEach((card) => {
+      if (!enabled) card.classList.remove('webgl-live');
+    });
+  };
+
+  let frameId = 0;
+  const disableStage = () => {
+    cancelAnimationFrame(frameId);
+    markFallback(false);
+  };
+
+  renderer.domElement.addEventListener('webglcontextlost', (event) => {
+    event.preventDefault();
+    disableStage();
+  }, { passive: false });
+
+  const heroGroup = new THREE.Group();
+  scene.add(heroGroup);
+
+  const outer = new THREE.Mesh(
+    new THREE.IcosahedronGeometry(1, 1),
+    new THREE.MeshBasicMaterial({ color: 0xc9a84c, wireframe: true, transparent: true, opacity: 0.16 })
+  );
+  const mid = new THREE.Mesh(
+    new THREE.IcosahedronGeometry(0.76, 1),
+    new THREE.MeshBasicMaterial({ color: 0x4ecdc4, wireframe: true, transparent: true, opacity: 0.1 })
+  );
+  const inner = new THREE.Mesh(
+    new THREE.IcosahedronGeometry(0.52, 0),
+    new THREE.MeshBasicMaterial({ color: 0x7c6af7, wireframe: true, transparent: true, opacity: 0.08 })
+  );
+  const ringA = new THREE.Mesh(
+    new THREE.TorusGeometry(1.26, 0.012, 8, 80),
+    new THREE.MeshBasicMaterial({ color: 0xc9a84c, transparent: true, opacity: 0.18 })
+  );
+  const ringB = new THREE.Mesh(
+    new THREE.TorusGeometry(1.44, 0.01, 8, 80),
+    new THREE.MeshBasicMaterial({ color: 0x4ecdc4, transparent: true, opacity: 0.12 })
+  );
+  ringA.rotation.x = Math.PI / 2;
+  ringB.rotation.z = Math.PI / 6;
+  ringB.rotation.x = Math.PI / 3;
+  heroGroup.add(outer, mid, inner, ringA, ringB);
+
+  const pointerTarget = new THREE.Vector2();
+  const pointer = new THREE.Vector2();
+  document.addEventListener('mousemove', (event) => {
+    pointerTarget.set(
+      (event.clientX / viewport.width - 0.5) * 2,
+      (0.5 - event.clientY / viewport.height) * 2
+    );
   });
-  const icosahedron = new THREE.Mesh(geometry, material);
-  scene.add(icosahedron);
 
-  // Mid icosahedron (cyan)
-  const midGeo = new THREE.IcosahedronGeometry(1.6, 1);
-  const midMat = new THREE.MeshBasicMaterial({
-    color: 0x4ecdc4, wireframe: true, transparent: true, opacity: 0.10
-  });
-  const midIco = new THREE.Mesh(midGeo, midMat);
-  scene.add(midIco);
-
-  // Inner icosahedron (gold, slow counter-rotation)
-  const innerGeo = new THREE.IcosahedronGeometry(1.1, 0);
-  const innerMat = new THREE.MeshBasicMaterial({
-    color: 0xc9a84c, wireframe: true, transparent: true, opacity: 0.08
-  });
-  const innerIco = new THREE.Mesh(innerGeo, innerMat);
-  scene.add(innerIco);
-
-  // Orbit ring 1 (horizontal)
-  const ringGeo1 = new THREE.TorusGeometry(2.5, 0.008, 8, 80);
-  const ringMat1 = new THREE.MeshBasicMaterial({ color: 0xc9a84c, transparent: true, opacity: 0.25 });
-  const ring1 = new THREE.Mesh(ringGeo1, ringMat1);
-  ring1.rotation.x = Math.PI / 2;
-  scene.add(ring1);
-
-  // Orbit ring 2 (tilted)
-  const ringGeo2 = new THREE.TorusGeometry(2.8, 0.006, 8, 80);
-  const ringMat2 = new THREE.MeshBasicMaterial({ color: 0x4ecdc4, transparent: true, opacity: 0.18 });
-  const ring2 = new THREE.Mesh(ringGeo2, ringMat2);
-  ring2.rotation.x = Math.PI / 3;
-  ring2.rotation.z = Math.PI / 6;
-  scene.add(ring2);
-
-  // Orbit ring 3 (vertical)
-  const ringGeo3 = new THREE.TorusGeometry(3.1, 0.004, 6, 80);
-  const ringMat3 = new THREE.MeshBasicMaterial({ color: 0x7c6af7, transparent: true, opacity: 0.12 });
-  const ring3 = new THREE.Mesh(ringGeo3, ringMat3);
-  ring3.rotation.y = Math.PI / 4;
-  scene.add(ring3);
-
-  // Vertex dots on outer icosahedron
-  const dotGeo = new THREE.SphereGeometry(0.025, 6, 6);
-  const dotMat = new THREE.MeshBasicMaterial({ color: 0xc9a84c, transparent: true, opacity: 0.7 });
-  const positions = geometry.attributes.position;
-  const seen = new Set();
-  for (let i = 0; i < positions.count; i++) {
-    const key = `${positions.getX(i).toFixed(2)},${positions.getY(i).toFixed(2)},${positions.getZ(i).toFixed(2)}`;
-    if (!seen.has(key)) {
-      seen.add(key);
-      const dot = new THREE.Mesh(dotGeo, dotMat);
-      dot.position.set(positions.getX(i), positions.getY(i), positions.getZ(i));
-      icosahedron.add(dot);
+  const vertexShader = `
+    uniform float uScrollVelocity;
+    uniform float uHover;
+    uniform vec2 uPointer;
+    varying vec2 vUv;
+    varying float vVelocity;
+    void main() {
+      vUv = uv;
+      vVelocity = clamp(abs(uScrollVelocity), 0.0, 1.0);
+      vec3 pos = position;
+      pos.y += sin((uv.x + 0.15) * 3.14159) * vVelocity * 18.0;
+      pos.z += (1.0 - uv.y) * vVelocity * 65.0;
+      pos.x += uPointer.x * uHover * 14.0;
+      pos.y += uPointer.y * uHover * 10.0;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
     }
-  }
+  `;
 
-  let targetRotX = 0, targetRotY = 0;
-  document.addEventListener('mousemove', e => {
-    targetRotX = (e.clientY / window.innerHeight - 0.5) * 0.4;
-    targetRotY = (e.clientX / window.innerWidth - 0.5) * 0.4;
+  const fragmentShader = `
+    uniform sampler2D uTexture;
+    uniform float uScrollVelocity;
+    uniform float uHover;
+    uniform float uTime;
+    uniform float uOpacity;
+    uniform vec3 uAccent;
+    varying vec2 vUv;
+    varying float vVelocity;
+    void main() {
+      float dir = uScrollVelocity >= 0.0 ? 1.0 : -1.0;
+      float stretch = vVelocity * 0.18;
+      vec4 accum = vec4(0.0);
+      float total = 0.0;
+      for (int i = 0; i < 6; i++) {
+        float fi = float(i);
+        float weight = 1.0 - fi / 6.0;
+        vec2 sampleUv = vUv - vec2(0.0, dir) * stretch * fi * 0.22;
+        accum += texture2D(uTexture, sampleUv) * weight;
+        total += weight;
+      }
+      vec4 base = texture2D(uTexture, vUv);
+      vec4 blur = accum / max(total, 0.0001);
+      float glow = smoothstep(0.12, 1.0, blur.a) * (0.2 + vVelocity * 0.8 + uHover * 0.3);
+      vec3 color = mix(base.rgb, blur.rgb, 0.48 + vVelocity * 0.18);
+      color += uAccent * glow * (0.34 + 0.26 * sin(uTime * 2.0 + vUv.y * 18.0));
+      gl_FragColor = vec4(color, max(base.a, blur.a) * uOpacity);
+      if (gl_FragColor.a < 0.03) discard;
+    }
+  `;
+
+  const textureLoader = new THREE.TextureLoader();
+  const planeGeometry = new THREE.PlaneGeometry(1, 1, 32, 32);
+  const entries = anchors.map((anchor) => {
+    const card = anchor.closest('.project-card');
+    const accent = anchor.dataset.accent || '#c9a84c';
+    const uniforms = {
+      uTexture: { value: null },
+      uScrollVelocity: { value: 0 },
+      uHover: { value: 0 },
+      uTime: { value: 0 },
+      uOpacity: { value: 0 },
+      uAccent: { value: new THREE.Color(accent) },
+      uPointer: { value: new THREE.Vector2() }
+    };
+
+    const material = new THREE.ShaderMaterial({
+      uniforms,
+      vertexShader,
+      fragmentShader,
+      transparent: true,
+      depthWrite: false,
+      depthTest: false
+    });
+
+    const mesh = new THREE.Mesh(planeGeometry, material);
+    mesh.renderOrder = 8;
+    const group = new THREE.Group();
+    group.visible = false;
+    group.add(mesh);
+    scene.add(group);
+
+    const entry = {
+      anchor,
+      card,
+      group,
+      mesh,
+      uniforms,
+      depth: parseFloat(anchor.dataset.depth || '1'),
+      opacity: 0,
+      targetOpacity: 0,
+      hover: 0,
+      hoverTarget: 0,
+      pointer: new THREE.Vector2(),
+      pointerTarget: new THREE.Vector2(),
+      ready: false
+    };
+
+    textureLoader.load(anchor.dataset.texture, (texture) => {
+      texture.encoding = THREE.sRGBEncoding;
+      entry.uniforms.uTexture.value = texture;
+      entry.ready = true;
+      card.classList.add('webgl-live');
+      markFallback(true);
+      layoutDirty = true;
+    });
+
+    card.addEventListener('mouseenter', () => { entry.hoverTarget = 1; });
+    card.addEventListener('mouseleave', () => {
+      entry.hoverTarget = 0;
+      entry.pointerTarget.set(0, 0);
+    });
+    card.addEventListener('mousemove', (event) => {
+      const rect = card.getBoundingClientRect();
+      entry.pointerTarget.set(
+        ((event.clientX - rect.left) / rect.width - 0.5) * 2,
+        (0.5 - (event.clientY - rect.top) / rect.height) * 2
+      );
+    });
+
+    return entry;
   });
 
-  function animate() {
-    requestAnimationFrame(animate);
-    const t = Date.now() * 0.001;
+  let sectionActive = false;
+  let velocityTarget = 0;
+  let velocity = 0;
+  let layoutDirty = true;
 
-    icosahedron.rotation.x += 0.0015;
-    icosahedron.rotation.y += 0.002;
-    midIco.rotation.x -= 0.001;
-    midIco.rotation.y += 0.0015;
-    innerIco.rotation.x -= 0.0008;
-    innerIco.rotation.y -= 0.001;
+  const requestLayout = () => { layoutDirty = true; };
+  window.__phase4Glass = { requestLayout };
 
-    // Rings orbit independently
-    ring1.rotation.z += 0.003;
-    ring2.rotation.z -= 0.002;
-    ring3.rotation.y += 0.0015;
+  ScrollTrigger.create({
+    trigger: '#projects',
+    start: 'top bottom',
+    end: 'bottom top',
+    onEnter: () => { sectionActive = true; requestLayout(); },
+    onEnterBack: () => { sectionActive = true; requestLayout(); },
+    onLeave: () => { sectionActive = false; velocityTarget = 0; },
+    onLeaveBack: () => { sectionActive = false; velocityTarget = 0; },
+    onUpdate: (self) => {
+      velocityTarget = THREE.MathUtils.clamp(self.getVelocity() / 2200, -1.25, 1.25);
+      requestLayout();
+    }
+  });
 
-    // Parallax tilt from mouse
-    icosahedron.rotation.x += (targetRotX - icosahedron.rotation.x * 0.1) * 0.015;
-    icosahedron.rotation.y += (targetRotY - icosahedron.rotation.y * 0.1) * 0.015;
+  const syncViewport = () => {
+    viewport.width = window.innerWidth;
+    viewport.height = window.innerHeight;
+    camera.left = viewport.width / -2;
+    camera.right = viewport.width / 2;
+    camera.top = viewport.height / 2;
+    camera.bottom = viewport.height / -2;
+    camera.updateProjectionMatrix();
+    renderer.setSize(viewport.width, viewport.height);
+
+    const ambientScale = Math.min(viewport.width, viewport.height) * 0.16;
+    heroGroup.scale.setScalar(ambientScale);
+    heroGroup.position.set(0, viewport.height * 0.1, -240);
+    requestLayout();
+  };
+
+  const updateLayout = () => {
+    entries.forEach((entry) => {
+      if (!entry.ready) return;
+      const rect = entry.anchor.getBoundingClientRect();
+      const hidden = entry.card.style.display === 'none' || rect.width === 0 || rect.height === 0;
+      const visible = !hidden && rect.bottom > -120 && rect.top < viewport.height + 120;
+      entry.targetOpacity = sectionActive && visible ? 1 : 0;
+      if (!visible) return;
+
+      entry.group.position.set(
+        rect.left + rect.width / 2 - viewport.width / 2,
+        viewport.height / 2 - (rect.top + rect.height / 2),
+        0
+      );
+      entry.group.scale.set(rect.width * entry.depth, rect.height * entry.depth, 1);
+    });
+  };
+
+  syncViewport();
+  window.addEventListener('resize', syncViewport);
+  window.addEventListener('scroll', requestLayout, { passive: true });
+  lenis.on('scroll', requestLayout);
+
+  const animate = (now) => {
+    frameId = requestAnimationFrame(animate);
+    const time = now * 0.001;
+
+    if (layoutDirty) {
+      updateLayout();
+      layoutDirty = false;
+    }
+
+    velocity += (velocityTarget - velocity) * 0.08;
+    velocityTarget *= 0.92;
+    pointer.lerp(pointerTarget, 0.08);
+
+    heroGroup.rotation.x += ((-pointer.y * 0.18) - heroGroup.rotation.x) * 0.06;
+    heroGroup.rotation.y += ((pointer.x * 0.22) - heroGroup.rotation.y) * 0.06;
+    outer.rotation.y += 0.002;
+    mid.rotation.x -= 0.0014;
+    mid.rotation.y += 0.0011;
+    inner.rotation.x += 0.0012;
+    ringA.rotation.z += 0.0024;
+    ringB.rotation.z -= 0.0017;
+
+    entries.forEach((entry) => {
+      if (!entry.ready) return;
+      entry.opacity += (entry.targetOpacity - entry.opacity) * 0.12;
+      entry.hover += (entry.hoverTarget - entry.hover) * 0.12;
+      entry.pointer.lerp(entry.pointerTarget, 0.16);
+      entry.group.visible = entry.opacity > 0.01;
+      if (!entry.group.visible) return;
+
+      entry.group.rotation.x += ((-entry.pointer.y * 0.18) - entry.group.rotation.x) * 0.12;
+      entry.group.rotation.y += ((entry.pointer.x * 0.22) - entry.group.rotation.y) * 0.12;
+      entry.group.position.z = 80 + Math.abs(velocity) * 120 + entry.hover * 70;
+      entry.uniforms.uTime.value = time;
+      entry.uniforms.uScrollVelocity.value = velocity;
+      entry.uniforms.uHover.value = entry.hover;
+      entry.uniforms.uOpacity.value = entry.opacity;
+      entry.uniforms.uPointer.value.copy(entry.pointer);
+    });
 
     renderer.render(scene, camera);
-  }
-  animate();
+  };
 
-  window.addEventListener('resize', () => {
-    const w = container.offsetWidth, h = container.offsetHeight;
-    camera.aspect = w / h;
-    camera.updateProjectionMatrix();
-    renderer.setSize(w, h);
-  });
+  animate(0);
 })();
 
 // ── Hero canvas particle animation ─────────────────────
@@ -1272,6 +2257,7 @@ if (window.VanillaTilt && !window.matchMedia('(max-width: 768px)').matches) {
   const titles = ['Solutions Architect', 'Marine Intelligence Expert', 'Agentic AI Builder', 'SeaTrace Founder', 'Cloud Systems Lead', 'Technical Advisor', 'A2A Protocol Designer'];
   let ti = 0, ci = 0, del = false;
   const el = document.getElementById('typing-text');
+  if (!el) return;
   function tick() {
     const t = titles[ti];
     if (!del) {
@@ -1302,6 +2288,8 @@ function filterProjects(cat, btn) {
       card.style.display = 'none';
     }
   });
+  if (window.__phase4Glass) window.__phase4Glass.requestLayout();
+  ScrollTrigger.refresh();
 }
 
 // ── Photo upload ───────────────────────────────────────
