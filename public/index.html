@@ -510,8 +510,85 @@
       position: absolute; inset: 0;
       background: var(--bg-3);
     }
-    .project-thumb-icon {
-      font-size: 3rem; position: relative; z-index: 1;
+    /* ── Project Emblem Stage (replaces emoji icons) ─── */
+    .project-thumb-icon { display: none; } /* legacy — hidden, replaced by emblem-stage */
+
+    .emblem-stage {
+      position: relative; z-index: 2;
+      width: 108px; height: 108px;
+      border-radius: 26px;
+      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(160deg, rgba(255,255,255,0.11) 0%, rgba(255,255,255,0.03) 100%);
+      border: 1px solid rgba(255,255,255,0.13);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.1),
+        0 24px 48px rgba(0,0,0,0.38),
+        0 0 0 1px rgba(255,255,255,0.04);
+      backdrop-filter: blur(12px) saturate(130%);
+      transform-style: preserve-3d;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      animation: emblemFloat 5s ease-in-out infinite;
+    }
+    .emblem-stage::before {
+      content: '';
+      position: absolute; inset: 10px;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.07);
+      pointer-events: none;
+    }
+    /* Glass highlight sweep on hover */
+    .emblem-stage::after {
+      content: '';
+      position: absolute; inset: 0;
+      border-radius: 26px;
+      background: linear-gradient(110deg,
+        transparent 30%,
+        rgba(255,255,255,0.06) 45%,
+        rgba(255,255,255,0.18) 50%,
+        rgba(255,255,255,0.06) 55%,
+        transparent 70%);
+      transform: translateX(-120%);
+      transition: transform 0.7s ease;
+      pointer-events: none;
+    }
+    .project-card:hover .emblem-stage::after { transform: translateX(120%); }
+    .project-card:hover .emblem-stage {
+      transform: translateY(-6px) translateZ(12px) scale(1.04);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.15),
+        0 32px 64px rgba(0,0,0,0.45),
+        0 0 40px rgba(78,205,196,0.12);
+    }
+    .emblem-stage svg {
+      width: 62px; height: 62px;
+      filter: drop-shadow(0 6px 14px rgba(0,0,0,0.4));
+      transition: filter 0.3s ease;
+    }
+    .project-card:hover .emblem-stage svg {
+      filter: drop-shadow(0 10px 22px rgba(78,205,196,0.35));
+    }
+    @keyframes emblemFloat {
+      0%,100% { transform: translateY(0) rotate(-0.5deg); }
+      50%      { transform: translateY(-9px) rotate(0.5deg); }
+    }
+
+    /* ── Glass thumb overlay layer ──────────────────── */
+    .project-thumb {
+      position: relative;
+    }
+    .thumb-glass-layer {
+      position: absolute; inset: 0; z-index: 1;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 25% 20%, rgba(255,255,255,0.07), transparent 38%),
+        radial-gradient(circle at 75% 80%, rgba(78,205,196,0.04), transparent 30%),
+        linear-gradient(180deg, rgba(255,255,255,0.04) 0%, transparent 50%, rgba(0,0,0,0.08) 100%);
+      backdrop-filter: blur(0px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      transition: backdrop-filter 0.4s ease;
+    }
+    .project-card:hover .thumb-glass-layer {
+      backdrop-filter: blur(2px) saturate(110%);
     }
     .project-tag {
       position: absolute; top: 12px; right: 12px;
@@ -1471,7 +1548,25 @@
       <div class="project-card reveal" data-cat="ai" data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.15">
         <div class="project-thumb">
           <div class="project-thumb-bg" style="background:linear-gradient(135deg,#1a1040,#0d1a2e)"></div>
-          <div class="project-thumb-icon">🤖</div>
+          <div class="thumb-glass-layer"></div>
+          <!-- SirTrav A2A Studio Emblem: three interlocked agent rings + central node -->
+          <div class="emblem-stage">
+            <svg viewBox="0 0 62 62" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="SirTrav A2A Studio">
+              <!-- Outer orbit ring -->
+              <circle cx="31" cy="31" r="27" stroke="rgba(124,106,247,0.5)" stroke-width="1" stroke-dasharray="4 3"/>
+              <!-- Three agent nodes on orbit -->
+              <circle cx="31" cy="5" r="5" fill="rgba(124,106,247,0.85)" />
+              <circle cx="53" cy="43" r="5" fill="rgba(78,205,196,0.85)" />
+              <circle cx="9" cy="43" r="5" fill="rgba(201,168,76,0.85)" />
+              <!-- Connector lines: A2A protocol -->
+              <line x1="31" y1="10" x2="31" y2="22" stroke="rgba(124,106,247,0.4)" stroke-width="1"/>
+              <line x1="48" y1="40" x2="37" y2="34" stroke="rgba(78,205,196,0.4)" stroke-width="1"/>
+              <line x1="14" y1="40" x2="25" y2="34" stroke="rgba(201,168,76,0.4)" stroke-width="1"/>
+              <!-- Central WSP node -->
+              <circle cx="31" cy="31" r="9" fill="rgba(20,14,40,0.9)" stroke="rgba(124,106,247,0.7)" stroke-width="1.5"/>
+              <text x="31" y="35" text-anchor="middle" font-size="7" font-family="monospace" font-weight="700" fill="rgba(255,255,255,0.9)">A2A</text>
+            </svg>
+          </div>
           <div class="project-tag" style="color:var(--purple)">Agentic AI</div>
         </div>
         <div class="project-body">
@@ -1501,7 +1596,30 @@
       <div class="project-card reveal" data-cat="marine" data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.15">
         <div class="project-thumb">
           <div class="project-thumb-bg" style="background:linear-gradient(135deg,#0d2a1a,#0a1a2e)"></div>
-          <div class="project-thumb-icon">🐟</div>
+          <div class="thumb-glass-layer"></div>
+          <!-- Fisheries Supply Chain Emblem: compass rose + fish tail silhouette -->
+          <div class="emblem-stage">
+            <svg viewBox="0 0 62 62" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Fisheries Supply Chain">
+              <!-- Compass outer ring -->
+              <circle cx="31" cy="31" r="26" stroke="rgba(78,205,196,0.4)" stroke-width="1"/>
+              <!-- Compass cardinal points -->
+              <polygon points="31,7 34,20 28,20" fill="rgba(78,205,196,0.9)"/>
+              <polygon points="31,55 34,42 28,42" fill="rgba(78,205,196,0.4)"/>
+              <polygon points="7,31 20,28 20,34" fill="rgba(78,205,196,0.4)"/>
+              <polygon points="55,31 42,28 42,34" fill="rgba(78,205,196,0.7)"/>
+              <!-- Fish body -->
+              <ellipse cx="31" cy="31" rx="9" ry="6" fill="rgba(78,205,196,0.2)" stroke="rgba(78,205,196,0.7)" stroke-width="1"/>
+              <!-- Fish tail -->
+              <path d="M40,31 L46,25 L46,37 Z" fill="rgba(78,205,196,0.6)"/>
+              <!-- Fish eye -->
+              <circle cx="26" cy="30" r="1.5" fill="rgba(255,255,255,0.9)"/>
+              <!-- Supply chain dots -->
+              <circle cx="14" cy="14" r="2" fill="rgba(201,168,76,0.6)"/>
+              <circle cx="48" cy="14" r="2" fill="rgba(201,168,76,0.6)"/>
+              <circle cx="14" cy="48" r="2" fill="rgba(201,168,76,0.6)"/>
+              <circle cx="48" cy="48" r="2" fill="rgba(201,168,76,0.6)"/>
+            </svg>
+          </div>
           <div class="project-tag" style="color:var(--cyan)">Marine Tech</div>
         </div>
         <div class="project-body">
@@ -1527,7 +1645,22 @@
       <div class="project-card reveal" data-cat="cloud" data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.15">
         <div class="project-thumb">
           <div class="project-thumb-bg" style="background:linear-gradient(135deg,#1a1005,#2a1a05)"></div>
-          <div class="project-thumb-icon">⚙️</div>
+          <div class="thumb-glass-layer"></div>
+          <!-- Netlify Edge Platform Emblem: lightning bolt inside hexagon grid -->
+          <div class="emblem-stage">
+            <svg viewBox="0 0 62 62" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Netlify Edge Platform">
+              <!-- Hexagon frame -->
+              <polygon points="31,4 54,17.5 54,44.5 31,58 8,44.5 8,17.5" stroke="rgba(201,168,76,0.5)" stroke-width="1" fill="rgba(201,168,76,0.04)"/>
+              <!-- Inner hexagon -->
+              <polygon points="31,14 46,22.5 46,39.5 31,48 16,39.5 16,22.5" stroke="rgba(201,168,76,0.25)" stroke-width="1" fill="none"/>
+              <!-- Lightning bolt: CDN edge speed -->
+              <path d="M34,12 L26,32 L33,32 L28,50 L38,28 L31,28 Z" fill="rgba(201,168,76,0.9)" stroke="rgba(201,168,76,0.4)" stroke-width="0.5"/>
+              <!-- Corner CDN nodes -->
+              <circle cx="31" cy="4" r="2" fill="rgba(201,168,76,0.7)"/>
+              <circle cx="54" cy="17.5" r="2" fill="rgba(201,168,76,0.5)"/>
+              <circle cx="54" cy="44.5" r="2" fill="rgba(201,168,76,0.5)"/>
+            </svg>
+          </div>
           <div class="project-tag" style="color:var(--gold)">Cloud/DevOps</div>
         </div>
         <div class="project-body">
@@ -1557,7 +1690,25 @@
       <div class="project-card reveal" data-cat="ai" data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.15">
         <div class="project-thumb">
           <div class="project-thumb-bg" style="background:linear-gradient(135deg,#1a0520,#0d0520)"></div>
-          <div class="project-thumb-icon">🧠</div>
+          <div class="thumb-glass-layer"></div>
+          <!-- Multimodal RAG Emblem: stacked vector rings (tree rings = embedded knowledge) -->
+          <div class="emblem-stage">
+            <svg viewBox="0 0 62 62" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Multimodal RAG Pipeline">
+              <!-- Stacked knowledge rings (tree ring / vector layer analogy) -->
+              <circle cx="31" cy="31" r="26" stroke="rgba(124,106,247,0.2)" stroke-width="1"/>
+              <circle cx="31" cy="31" r="21" stroke="rgba(124,106,247,0.3)" stroke-width="1"/>
+              <circle cx="31" cy="31" r="16" stroke="rgba(124,106,247,0.45)" stroke-width="1"/>
+              <circle cx="31" cy="31" r="11" stroke="rgba(124,106,247,0.6)" stroke-width="1.5"/>
+              <circle cx="31" cy="31" r="6"  stroke="rgba(124,106,247,0.8)" stroke-width="1.5"/>
+              <!-- Central core: the embedding point -->
+              <circle cx="31" cy="31" r="3" fill="rgba(124,106,247,1)"/>
+              <!-- Radiating query spokes -->
+              <line x1="31" y1="5"  x2="31" y2="14" stroke="rgba(124,106,247,0.5)" stroke-width="1" stroke-dasharray="2 2"/>
+              <line x1="31" y1="48" x2="31" y2="57" stroke="rgba(124,106,247,0.5)" stroke-width="1" stroke-dasharray="2 2"/>
+              <line x1="5"  y1="31" x2="14" y2="31" stroke="rgba(124,106,247,0.5)" stroke-width="1" stroke-dasharray="2 2"/>
+              <line x1="48" y1="31" x2="57" y2="31" stroke="rgba(124,106,247,0.5)" stroke-width="1" stroke-dasharray="2 2"/>
+            </svg>
+          </div>
           <div class="project-tag" style="color:var(--purple)">Agentic AI</div>
         </div>
         <div class="project-body">
@@ -1589,7 +1740,30 @@
       <div class="project-card reveal" data-cat="marine" data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.15">
         <div class="project-thumb">
           <div class="project-thumb-bg" style="background:linear-gradient(135deg,#051a1a,#0a2020)"></div>
-          <div class="project-thumb-icon">🐟</div>
+          <div class="thumb-glass-layer"></div>
+          <!-- SeaTrace Four Pillars Emblem: anchor + four-quadrant shield (coat of arms) -->
+          <div class="emblem-stage">
+            <svg viewBox="0 0 62 62" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="SeaTrace Four Pillars">
+              <!-- Shield outline -->
+              <path d="M31,4 L54,14 L54,36 Q54,52 31,60 Q8,52 8,36 L8,14 Z" stroke="rgba(78,205,196,0.6)" stroke-width="1.5" fill="rgba(78,205,196,0.04)"/>
+              <!-- Four-quadrant dividers -->
+              <line x1="31" y1="8" x2="31" y2="56" stroke="rgba(78,205,196,0.3)" stroke-width="1"/>
+              <line x1="10" y1="32" x2="52" y2="32" stroke="rgba(78,205,196,0.3)" stroke-width="1"/>
+              <!-- Q1: SeaSide wave -->
+              <path d="M13,20 Q17,16 21,20 Q25,24 19,24" stroke="rgba(78,205,196,0.8)" stroke-width="1.5" fill="none"/>
+              <!-- Q2: DeckSide anchor -->
+              <circle cx="42" cy="20" r="3" stroke="rgba(201,168,76,0.8)" stroke-width="1.5" fill="none"/>
+              <line x1="42" y1="23" x2="42" y2="28" stroke="rgba(201,168,76,0.8)" stroke-width="1.5"/>
+              <line x1="38" y1="27" x2="46" y2="27" stroke="rgba(201,168,76,0.8)" stroke-width="1.5"/>
+              <!-- Q3: DockSide box -->
+              <rect x="14" y="38" width="10" height="8" rx="1" stroke="rgba(124,106,247,0.7)" stroke-width="1.5" fill="none"/>
+              <!-- Q4: MarketSide QR dot grid -->
+              <rect x="35" y="38" width="3" height="3" fill="rgba(78,205,196,0.7)"/>
+              <rect x="40" y="38" width="3" height="3" fill="rgba(78,205,196,0.7)"/>
+              <rect x="35" y="43" width="3" height="3" fill="rgba(78,205,196,0.7)"/>
+              <rect x="40" y="43" width="3" height="3" fill="rgba(78,205,196,0.3)"/>
+            </svg>
+          </div>
           <div class="project-tag" style="color:var(--cyan)">Marine Tech</div>
         </div>
         <div class="project-body">
@@ -1635,7 +1809,33 @@
       <div class="project-card reveal" data-cat="cloud" data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.15">
         <div class="project-thumb">
           <div class="project-thumb-bg" style="background:linear-gradient(135deg,#1a1005,#100a00)"></div>
-          <div class="project-thumb-icon">🤝</div>
+          <div class="thumb-glass-layer"></div>
+          <!-- WSP001 Orchestration Emblem: crown above interlocked gears = enterprise leadership -->
+          <div class="emblem-stage">
+            <svg viewBox="0 0 62 62" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="WSP001 Agent Orchestration">
+              <!-- Crown top -->
+              <path d="M16,24 L16,18 L22,23 L31,12 L40,23 L46,18 L46,24 L16,24 Z" fill="rgba(201,168,76,0.85)" stroke="rgba(201,168,76,0.4)" stroke-width="0.5"/>
+              <!-- Crown base band -->
+              <rect x="16" y="24" width="30" height="5" rx="1" fill="rgba(201,168,76,0.6)"/>
+              <!-- Three gem dots in crown -->
+              <circle cx="24" cy="20" r="2" fill="rgba(255,255,255,0.9)"/>
+              <circle cx="31" cy="17" r="2.5" fill="rgba(78,205,196,0.9)"/>
+              <circle cx="38" cy="20" r="2" fill="rgba(124,106,247,0.9)"/>
+              <!-- Gear teeth for the three agent lanes below crown -->
+              <!-- Codex gear (left) -->
+              <circle cx="20" cy="42" r="6" stroke="rgba(124,106,247,0.6)" stroke-width="1.5" fill="none"/>
+              <circle cx="20" cy="42" r="2" fill="rgba(124,106,247,0.5)"/>
+              <!-- Claude Code gear (center) -->
+              <circle cx="31" cy="44" r="7" stroke="rgba(78,205,196,0.6)" stroke-width="1.5" fill="none"/>
+              <circle cx="31" cy="44" r="2.5" fill="rgba(78,205,196,0.5)"/>
+              <!-- Antigravity gear (right) -->
+              <circle cx="42" cy="42" r="6" stroke="rgba(201,168,76,0.6)" stroke-width="1.5" fill="none"/>
+              <circle cx="42" cy="42" r="2" fill="rgba(201,168,76,0.5)"/>
+              <!-- Mesh connectors -->
+              <line x1="26" y1="42" x2="24" y2="42" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+              <line x1="36" y1="44" x2="38" y2="43" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+            </svg>
+          </div>
           <div class="project-tag" style="color:var(--gold)">Cloud / AI</div>
         </div>
         <div class="project-body">
@@ -2354,7 +2554,25 @@ if (window.VanillaTilt && !window.matchMedia('(max-width: 768px)').matches) {
 
 // ── Typing title ───────────────────────────────────────
 (function() {
-  const titles = ['Solutions Architect', 'Marine Intelligence Expert', 'Agentic AI Builder', 'SeaTrace Founder', 'Cloud Systems Lead', 'Technical Advisor', 'A2A Protocol Designer'];
+  const titles = [
+    'Solutions Architect',
+    'Marine Intelligence Expert',
+    'Agentic AI Builder',
+    'SeaTrace Founder',
+    'Cloud Systems Lead',
+    'Technical Advisor',
+    'A2A Protocol Designer',
+    'WSP001 Systems Architect',
+    'Fisheries Domain Expert',
+    'RAG Pipeline Engineer',
+    'Netlify Edge Specialist',
+    'Multi-Agent Orchestrator',
+    'Supply Chain Innovator',
+    'Vector Embedding Architect',
+    'Enterprise DevOps Lead',
+    'Marine Tech Visionary',
+    'Composable AI Architect'
+  ];
   let ti = 0, ci = 0, del = false;
   const el = document.getElementById('typing-text');
   function tick() {
