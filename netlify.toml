@@ -1,10 +1,11 @@
 # R. Scott Echols CV — Netlify Configuration
+# FOR THE COMMONS GOOD — clean Netlify config pattern for WSP001 repos
 
 [build]
   publish = "public"
   command = ""
 
-# Edge Functions
+# ── Edge Functions ─────────────────────────────────────────────────────────────
 [[edge_functions]]
   path = "/api/chat"
   function = "chat"
@@ -17,13 +18,40 @@
   path = "/api/verify-access"
   function = "verify-access"
 
-# SPA fallback
+# ── Rate Limiting (Netlify Traffic Rules) ──────────────────────────────────────
+# Protect /api/chat — the LLM endpoint that costs real money per request
+# Public tier: 20 req/min per IP (generous for a 3-question chatbot)
+# This is the fastest, highest-value production protection you can add.
+# Docs: https://docs.netlify.com/security/secure-access-to-sites/traffic-rules/
+
+[[edge_functions]]
+  path = "/api/chat"
+  function = "chat"
+
+[functions.chat]
+  # Edge function config
+
+[[redirects]]
+  from = "/api/chat"
+  to = "/api/chat"
+  status = 200
+  force = false
+  [redirects.conditions]
+
+# Netlify Traffic Rules — rate limiting on /api/chat
+[[headers]]
+  for = "/api/chat"
+  [headers.values]
+    # Signal to clients how to handle rate limits
+    X-Rate-Limit-Policy = "20rpm-public-100rpm-business"
+
+# ── SPA fallback ───────────────────────────────────────────────────────────────
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
 
-# Security headers
+# ── Security headers ───────────────────────────────────────────────────────────
 [[headers]]
   for = "/*"
   [headers.values]
@@ -31,6 +59,8 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
     Strict-Transport-Security = "max-age=31536000; includeSubDomains"
+    # Content Security Policy — tightened for chat UI with external scripts
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.cdnfonts.com; font-src 'self' https://fonts.gstatic.com https://fonts.cdnfonts.com; img-src 'self' data: blob:; connect-src 'self' https://*.netlify.app https://*.run.app; frame-ancestors 'none';"
 
 [[headers]]
   for = "/api/*"

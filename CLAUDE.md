@@ -4,6 +4,37 @@
 > MUST read this file before touching any code. This is the master orientation map.
 > Read your lane. Read the other lanes READ-ONLY. Then write only in your own lane.
 
+## PHASE 1 GOAL (current)
+
+> Ship a truthful RAG-backed CV chatbot before expanding anything else.
+> One clean production path. Three non-overlapping lanes. Zero collisions.
+
+```
+public/index.html         ← Codex
+    ↓ user chat
+/api/chat (Netlify Edge)  ← Claude Code
+    ↓ business tier RAG
+Cloud Run /retrieve       ← Claude Code
+    ↓ vector search
+ChromaDB                  ← Claude Code
+    ↓ grounded answer
+Claude Opus 4.6           ← non-negotiable
+```
+
+**ALSO READ:** MASTER_AGENT_IMPLEMENTATION_HANDOFF.md — full lane ownership,
+task checklists, phase gates, and Scott's manual checklist.
+
+**ALSO READ:** AGENT_HANDOFFS.md — cross-lane async notes from other agents
+before starting any write.
+
+## GLOBAL LANE RULE
+
+```
+AGENTS MAY CROSS LANES TO READ.
+AGENTS MAY NOT CROSS LANES TO WRITE.
+```
+
+
 ---
 
 ## Repository Structure

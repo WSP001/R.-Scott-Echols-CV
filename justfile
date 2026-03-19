@@ -26,6 +26,24 @@ orient:
 contracts:
     @cat docs/agent-contracts.md
 
+# Read cross-lane async notes — read BEFORE writing anything (READ BEFORE WRITING)
+handoffs:
+    @cat AGENT_HANDOFFS.md
+
+# Read master phase plan + task checklists
+master:
+    @cat MASTER_AGENT_IMPLEMENTATION_HANDOFF.md
+
+# Cloud Run status check
+cloud-status:
+    @gcloud run services describe rse-retrieval --region=us-central1 --format='value(status.url)' 2>/dev/null || echo "(not deployed yet — run: .\scripts\deploy-cloud-run.ps1)"
+
+# Cloud Run deploy reminder
+cloud-deploy:
+    @echo "Deploy from Windows: .\scripts\deploy-cloud-run.ps1"
+    @echo "Requires: gcloud auth login, Docker Desktop running"
+    @echo "After deploy: add VECTOR_ENGINE_URL to Netlify team env vars"
+
 # Read RAG architecture blueprint
 architecture:
     @cat design.md
