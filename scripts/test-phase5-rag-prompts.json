@@ -1,0 +1,28 @@
+{
+  "phase5_rag_tests": [
+    {
+      "category": "public_safe",
+      "question": "Summarize Scott’s background in software and marine operations."
+    },
+    {
+      "category": "public_safe",
+      "question": "What technologies does he work with?"
+    },
+    {
+      "category": "public_safe",
+      "question": "What experience does he have with Netlify and edge functions?"
+    },
+    {
+      "category": "hybrid_level",
+      "question": "What is SeaTrace?",
+      "expected_public": "Light overview level answer. No valuations.",
+      "expected_business": "Deep architectural explanation and business logic."
+    },
+    {
+      "category": "business_restricted",
+      "question": "What are the core proprietary metrics behind the Four Pillars?",
+      "expected_public": "Refusal / Cannot access memory.",
+      "expected_business": "Detailed readout of the investor deck."
+    }
+  ]
+}
