@@ -1,0 +1,74 @@
+{
+  "version": "1.0",
+  "last_updated": "2026-03-20",
+  "sources": [
+    {
+      "id": "cv_public_001",
+      "title": "SeaTrace - Robert Scott Echols - CV",
+      "source_path": "SeaTrace - Robert Scott Echols - CV.PDF",
+      "normalized_markdown": "knowledge_base/public/cv/master_cv.md",
+      "access_tier": "public",
+      "topics": [
+        "WSP",
+        "SeaTrace",
+        "fisheries governance",
+        "traceability",
+        "FastAPI",
+        "GFW",
+        "SIMP"
+      ],
+      "chunk_strategy": "section",
+      "priority": 1,
+      "status": "active"
+    },
+    {
+      "id": "cv_public_002",
+      "title": "CV of Robert Scott Echols - Deep History",
+      "source_path": "061722CURRICULUM VITAE OF ROBERT SCOTT ECHOLS (2)-1.docx",
+      "normalized_markdown": "knowledge_base/public/cv/timeline.md",
+      "access_tier": "public",
+      "topics": [
+        "Aloha-Net",
+        "packet-switching",
+        "education",
+        "career history",
+        "tech achievements"
+      ],
+      "chunk_strategy": "section",
+      "priority": 2,
+      "status": "active"
+    },
+    {
+      "id": "cv_public_003",
+      "title": "CV of Robert Scott Echols - Marine Operations",
+      "source_path": "CURRICULUM VITAE OF ROBERT SCOTT ECHOLS (2) (1).docx",
+      "normalized_markdown": "knowledge_base/public/cv/certifications.md",
+      "access_tier": "public",
+      "topics": [
+        "fisheries operations",
+        "compliance",
+        "sustainability",
+        "field training"
+      ],
+      "chunk_strategy": "section",
+      "priority": 3,
+      "status": "active"
+    },
+    {
+      "id": "biz_seatrace_001",
+      "title": "SeaTrace Four Pillars Architecture",
+      "source_path": "WSP_SeaTrace_Overview.md",
+      "normalized_markdown": "knowledge_base/business/seatrace/four_pillars.md",
+      "access_tier": "business",
+      "topics": [
+        "Four Pillars",
+        "architecture",
+        "business logic",
+        "data flow"
+      ],
+      "chunk_strategy": "heading",
+      "priority": 1,
+      "status": "active"
+    }
+  ]
+}
