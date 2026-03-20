@@ -150,6 +150,7 @@ data-testid="chat-response"       <!-- latest response text -->
 data-testid="question-count"      <!-- current question count -->
 data-testid="access-gate"         <!-- invitation key gate (shown at limit) -->
 data-testid="tier-badge"          <!-- 'public' or 'business' indicator -->
+data-testid="source-pill"      <!-- per-message source attribution pill (mode: public|business|fallback) -->
 ```
 
 ---

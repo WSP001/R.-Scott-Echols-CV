@@ -3024,7 +3024,8 @@ function addMessage(role, text, meta = null) {
     metaRow.appendChild(modePill);
 
     const sourcePill = document.createElement('span');
-    sourcePill.className = 'msg-meta-pill source';
+    sourcePill.className = `msg-meta-pill source ${metaInfo.mode}`;
+    sourcePill.setAttribute('data-testid', 'source-pill');
     sourcePill.textContent = metaInfo.sourceLabel;
     metaRow.appendChild(sourcePill);
 
