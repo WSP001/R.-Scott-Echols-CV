@@ -33,6 +33,10 @@ X-Access-Key: <BUSINESS_ACCESS_KEY value>
   reply: string;             // Claude Opus 4.6 response text
   tier: 'public' | 'business';
   tokens_used: number;       // output tokens consumed
+  rag_context_used: boolean; // true when Cloud Run RAG retrieval was used
+  answer_source: string;     // Codex uses this as source attribution pill text
+                             // "RAG — CV Corpus" | "RAG — Business Corpus"
+                             // "Embedded CV — Public Profile" | "Embedded Knowledge — Business"
 }
 ```
 
@@ -58,6 +62,8 @@ X-Access-Key: <BUSINESS_ACCESS_KEY value>
 - `reply` MUST be non-empty string for all 200 responses
 - Business tier: `max_tokens` is 2048; public tier: 512
 - Model: ALWAYS `claude-opus-4-6` — Antigravity MUST assert this in mock
+- `answer_source` MUST be a non-empty string on all 200 success responses
+- `answer_source` MUST be one of the 4 defined values above — no other strings allowed
 
 ---
 

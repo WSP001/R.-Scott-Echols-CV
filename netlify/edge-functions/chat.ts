@@ -362,7 +362,10 @@ export default async (request: Request) => {
         reply: text,
         tier: effectiveTier,
         tokens_used: response.usage?.output_tokens ?? 0,
-        rag_context_used: ragActive,  // Codex: show "RAG Active" badge when true
+        rag_context_used: ragActive,
+        answer_source: ragActive
+          ? (isBusiness ? "RAG — Business Corpus" : "RAG — CV Corpus")
+          : (isBusiness ? "Embedded Knowledge — Business" : "Embedded CV — Public Profile"),
       }),
       {
         status: 200,
