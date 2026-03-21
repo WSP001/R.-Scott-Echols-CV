@@ -25,9 +25,12 @@ Dependencies:
 
 import argparse
 import os
+import re
 import sys
 import hashlib
 import json
+import zipfile
+import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import Optional
 
@@ -92,7 +95,7 @@ def embed_text(genai, text: str) -> list[float]:
 
 
 def chunk_text(text: str, chunk_size: int = CHUNK_SIZE, overlap: int = CHUNK_OVERLAP) -> list[str]:
-    """Split text into overlapping chunks."""
+    """Split text into overlapping character chunks (fixed strategy)."""
     chunks = []
     start = 0
     while start < len(text):
@@ -106,20 +109,86 @@ def chunk_text(text: str, chunk_size: int = CHUNK_SIZE, overlap: int = CHUNK_OVE
     return chunks
 
 
-def ingest_file(genai, collection, file_path: str, partition: str) -> int:
-    """Ingest a single file into ChromaDB."""
+def chunk_by_sections(text: str, min_chars: int = 80) -> list[str]:
+    """Split text on markdown # headers for section-based chunking.
+    Falls back to chunk_text() if no headers found."""
+    parts = re.split(r"(?m)^(#{1,3} )", text)
+    chunks, current = [], ""
+    for part in parts:
+        if re.match(r"^#{1,3} $", part):
+            if current.strip() and len(current.strip()) >= min_chars:
+                chunks.append(current.strip())
+            current = part
+        else:
+            current += part
+    if current.strip() and len(current.strip()) >= min_chars:
+        chunks.append(current.strip())
+    return chunks if chunks else chunk_text(text)
+
+
+def extract_text_from_docx(path: Path) -> str:
+    """Extract plain text from DOCX using stdlib only (no python-docx needed)."""
+    ns = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
+    try:
+        with zipfile.ZipFile(path) as z:
+            with z.open("word/document.xml") as f:
+                tree = ET.parse(f)
+        paragraphs = []
+        for para in tree.iter(f"{ns}p"):
+            texts = [node.text for node in para.iter(f"{ns}t") if node.text]
+            if texts:
+                paragraphs.append("".join(texts))
+        return "\n\n".join(paragraphs)
+    except Exception as e:
+        print(f"  ✗ DOCX extract failed: {e}")
+        return ""
+
+
+def extract_text_from_pdf(path: Path) -> str:
+    """Extract plain text from PDF using pypdf."""
+    try:
+        from pypdf import PdfReader
+    except ImportError:
+        print("  ✗ pypdf not installed — run: pip install pypdf")
+        return ""
+    try:
+        reader = PdfReader(str(path))
+        pages = [page.extract_text() or "" for page in reader.pages]
+        return "\n\n".join(p for p in pages if p.strip())
+    except Exception as e:
+        print(f"  ✗ PDF extract failed: {e}")
+        return ""
+
+
+def ingest_file(genai, collection, file_path: str, partition: str, chunk_strategy: str = "fixed") -> int:
+    """Ingest a single file into ChromaDB. Supports .md .txt .json .docx .pdf"""
     path = Path(file_path)
     if not path.exists():
         print(f"  ✗ File not found: {file_path}")
         return 0
 
     suffix = path.suffix.lower()
-    if suffix not in [".md", ".txt", ".json"]:
+    supported = [".md", ".txt", ".json", ".docx", ".pdf"]
+    if suffix not in supported:
         print(f"  → Skipping {path.name} (unsupported type: {suffix})")
         return 0
 
-    text = path.read_text(encoding="utf-8")
-    chunks = chunk_text(text)
+    if suffix == ".docx":
+        text = extract_text_from_docx(path)
+    elif suffix == ".pdf":
+        text = extract_text_from_pdf(path)
+    else:
+        text = path.read_text(encoding="utf-8")
+
+    if not text.strip():
+        print(f"  ✗ No text extracted from {path.name}")
+        return 0
+
+    if chunk_strategy == "section":
+        chunks = chunk_by_sections(text)
+        print(f"  → Section chunking: {len(chunks)} sections")
+    else:
+        chunks = chunk_text(text)
     
     ingested = 0
     for i, chunk in enumerate(chunks):
@@ -151,6 +220,52 @@ def ingest_file(genai, collection, file_path: str, partition: str) -> int:
         print(f"  ✓ Chunk {i+1}/{len(chunks)} ingested (id: {doc_id[:12]}...)")
     
     return ingested
+
+
+MANIFEST_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "rse_cv_manifest.json")
+KB_ROOT = os.path.join(os.path.dirname(__file__), "..", "knowledge_base")
+
+
+def cmd_ingest_manifest(args):
+    """Ingest all active sources listed in data/rse_cv_manifest.json."""
+    manifest_path = Path(MANIFEST_PATH)
+    if not manifest_path.exists():
+        print(f"✗ Manifest not found: {manifest_path}")
+        sys.exit(1)
+
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    sources = [s for s in manifest.get("sources", []) if s.get("status") == "active"]
+    print(f"Manifest v{manifest.get('version','?')} — {len(sources)} active sources\n")
+
+    genai = get_gemini_client()
+    collection = get_chroma_collection()
+    total = 0
+
+    for src in sources:
+        tier = src.get("access_tier", "public")
+        chunk_strategy = src.get("chunk_strategy", "section")
+        source_file = src.get("source_path", "")
+        title = src.get("title", source_file)
+        partition = "cv_personal" if tier == "public" else "business_seatrace"
+
+        # Search: knowledge_base/{tier}/cv/ first, then docs/
+        candidates = [
+            Path(KB_ROOT) / tier / "cv" / source_file,
+            Path(os.path.dirname(__file__), "..", "docs") / source_file,
+        ]
+        file_path = next((p for p in candidates if p.exists()), None)
+
+        if not file_path:
+            print(f"✗ [{src['id']}] '{source_file}' not found — skipping")
+            continue
+
+        print(f"\n[{src['id']}] {title}")
+        print(f"  File: {file_path.name}  |  Partition: {partition}  |  Strategy: {chunk_strategy}")
+        count = ingest_file(genai, collection, str(file_path), partition, chunk_strategy)
+        total += count
+
+    print(f"\n✓ Manifest ingest complete — {total} new chunks added to '{COLLECTION_NAME}'")
+    print(f"  DB path: {DB_PATH}")
 
 
 def cmd_ingest(args):
@@ -274,6 +389,7 @@ def main():
     
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--ingest", action="store_true", help="Ingest documents into ChromaDB")
+    group.add_argument("--from-manifest", action="store_true", help="Ingest all active sources from data/rse_cv_manifest.json")
     group.add_argument("--query", type=str, metavar="QUERY", help="Semantic search query")
     group.add_argument("--list-partitions", action="store_true", help="List all partitions")
     group.add_argument("--stats", action="store_true", help="Show collection statistics")
@@ -284,7 +400,9 @@ def main():
     
     args = parser.parse_args()
     
-    if args.ingest:
+    if args.from_manifest:
+        cmd_ingest_manifest(args)
+    elif args.ingest:
         cmd_ingest(args)
     elif args.query:
         cmd_query(args)
