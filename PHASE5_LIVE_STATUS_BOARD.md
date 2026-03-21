@@ -1,23 +1,45 @@
 # Phase 5 Live Status Board
-> Last updated: 2026-03-20 — Claude Code session
+> Last updated: 2026-03-20 — reconciled to local repo state
 > Branch: `feat/phase5-ui-trust-layer`
 > Rule: Each agent reads only their own section.
 
 ---
 
-## 🔴 CURRENT BLOCKER
+## Current Truth
 
-**Scott must copy 1 file before anything else moves.**
+- The Phase 5 trust-layer UI is already built on this branch.
+- `answer_source` is already wired into `/api/chat`.
+- Manifest-based ingest is already wired into `scripts/embed_engine.py`.
+- Section-based chunking is already wired into `scripts/embed_engine.py`.
+- PDF and DOCX extraction are already wired into `scripts/embed_engine.py`.
+- All 3 public CV files are now present in `knowledge_base/public/cv/`.
+- The manifest ingest run reached the Gemini embedding call and failed only because `GEMINI_API_KEY` was not set in the current shell.
+- Windows console encoding also needs UTF-8 forced for clean manifest output.
+
+This means the main code work is ahead of the old board. The live blocker is now runtime environment, not missing files.
+
+---
+
+## Current Blocker
+
+Scott must run the ingest from a shell that has:
+
+- Python 3.13, not the default Python 3.14 shell interpreter
+- `PYTHONIOENCODING=utf-8`
+- `GEMINI_API_KEY` set to a valid Google AI Studio key
+
+Exact PowerShell sequence:
 
 ```powershell
-Copy-Item "C:\Users\Roberto002\OneDrive\Scott CV\092322CURRICULUM VITAE OF ROBERT SCOTT ECHOLS drive.docx" `
-  "C:\WSP001\R.-Scott-Echols-CV\knowledge_base\public\cv\CURRICULUM VITAE OF ROBERT SCOTT ECHOLS (2) (1).docx" -Force
+cd C:\WSP001\R.-Scott-Echols-CV
+$env:PYTHONIOENCODING = "utf-8"
+$env:GEMINI_API_KEY = "your_key_here"
+& "C:\Python313\python.exe" scripts\embed_engine.py --from-manifest
+& "C:\Python313\python.exe" scripts\embed_engine.py --stats
+& "C:\Python313\python.exe" scripts\embed_engine.py --query "Who is Scott and what does he specialize in?" --partition cv_personal
 ```
 
-If that filename doesn't match, inspect first:
-```powershell
-Get-ChildItem "C:\Users\Roberto002\OneDrive\Scott CV" | Select-Object Name
-```
+If the key is invalid, the run will fail at Google embeddings again.
 
 ---
 
@@ -25,94 +47,128 @@ Get-ChildItem "C:\Users\Roberto002\OneDrive\Scott CV" | Select-Object Name
 
 | Agent | Status | Blocker |
 |-------|--------|---------|
-| **Scott** | ⚠️ ACTIVE BLOCKER | Must copy file #3 |
-| **Claude Code** | 🟡 IN PROGRESS | Waiting on file #3 |
-| **Antigravity** | 🔴 BLOCKED | Waiting on ingest |
+| **Scott** | ⚠️ ACTIVE BLOCKER | Must run ingest with valid `GEMINI_API_KEY` in the current shell |
+| **Claude Code** | 🟡 CODE COMPLETE / STANDBY | Waiting for env-backed ingest proof or runtime bug report |
+| **Antigravity** | 🔴 BLOCKED | Waiting for successful ingest + stats + query proof |
 | **Codex #2** | 🟢 DONE / HOLD | Waiting on QA pass |
 
 ---
 
 ## Scott — Human Ops
 
-Copy the file above. Then send Claude Code this dispatch:
+Your job is no longer file copy. Your job is runtime activation.
 
-> `Claude Code: Scott has placed file #3. Proceed with Phase 5.5 manifest-based ingest.`
+Do this now:
+
+```powershell
+cd C:\WSP001\R.-Scott-Echols-CV
+$env:PYTHONIOENCODING = "utf-8"
+$env:GEMINI_API_KEY = "your_key_here"
+& "C:\Python313\python.exe" scripts\embed_engine.py --from-manifest
+& "C:\Python313\python.exe" scripts\embed_engine.py --stats
+& "C:\Python313\python.exe" scripts\embed_engine.py --query "What experience does Scott have in software, AI, and marine operations?" --partition cv_personal
+```
+
+Then send this dispatch:
+
+> `Claude Code: ingest was run with Python 3.13 + UTF-8 + GEMINI_API_KEY. Report whether the vector store populated cleanly.`
+
+Note:
+- `.chromadb/` is currently untracked local runtime output. Do not commit it casually.
 
 ---
 
 ## Claude Code — Backend
 
-**Done this session:**
-- `answer_source` added to all `/api/chat` 200 responses
-- `verify-access.ts` and `embed.ts` confirmed complete
-- `docs/agent-contracts.md` updated (answer_source + Antigravity assertions)
-- `knowledge_base/public/cv/` created with 2 of 3 files:
-  - ✅ `SeaTrace - Robert Scott Echols - CV.PDF`
-  - ✅ `061722CURRICULUM VITAE OF ROBERT SCOTT ECHOLS (2)-1.docx`
-  - ⏳ `CURRICULUM VITAE OF ROBERT SCOTT ECHOLS (2) (1).docx` — waiting on Scott
+Done:
+- `answer_source` added to `/api/chat`
+- `docs/agent-contracts.md` updated with `answer_source`
+- Manifest ingestion added to `scripts/embed_engine.py`
+- `--from-manifest` flag added
+- Section-based chunking added
+- PDF extraction added
+- DOCX extraction added
+- Public CV corpus files are present locally
 
-**Next session (after file #3 lands):**
-1. Read `docs/RSE_CV_SOURCE_MAP_TEMPLATE.md` + `data/rse_cv_manifest.json`
-2. Update `scripts/embed_engine.py` — ingest from manifest, not hardcoded paths
-3. Implement section-based chunking (split on `##` headers, not token counts)
-4. Preserve `access_tier` from manifest into ChromaDB metadata
-5. Run ingest + stats + proof query:
-   ```bash
-   python scripts/embed_engine.py --ingest --partition cv_personal --source knowledge_base/public/cv/
-   python scripts/embed_engine.py --stats
-   python scripts/embed_engine.py --query "SeaTrace Four Pillars" --partition cv_personal
-   ```
-6. Report chunk count, query sample, next command for Antigravity
+Still responsible for:
+1. Confirm ingest succeeds once Scott provides a valid `GEMINI_API_KEY`
+2. Review the resulting chunk count and query proof
+3. Fix any runtime bug if ingest still fails after the env is correct
+4. Hand Antigravity an exact QA-ready command sequence
 
-**Lane rule:** Do not touch `public/index.html` or any frontend file.
+Nice-to-have, not blocker:
+- Replace deprecated `google.generativeai` with `google.genai` in a later cleanup pass
+- Remove Unicode arrow output if Windows shell compatibility remains a problem without UTF-8 forcing
+
+Do not:
+- Touch `public/index.html`
+- Rework frontend trust-layer behavior
 
 ---
 
 ## Antigravity — QA
 
-**Wait for:** Claude Code to confirm ingest + query proof.
+Wait for this exact proof from Scott or Claude:
 
-**Then run 5 checks:**
+- manifest ingest succeeded
+- `--stats` succeeded
+- at least one `--query ... --partition cv_personal` succeeded
 
-1. **Preload questions** — query with each of the 3 preload questions. Each must return a non-empty, section-complete chunk (no mid-sentence cuts).
-2. **Chunk integrity** — verify chunks start at a `##` section boundary.
-3. **`answer_source` assertion** — every 200 response must contain one of exactly 4 values: `"RAG — CV Corpus"` / `"RAG — Business Corpus"` / `"Embedded CV — Public Profile"` / `"Embedded Knowledge — Business"`.
-4. **Public limit** — 4 questions with `questionCount >= 3`, no key. Must return `limit_reached: true`.
-5. **Fallback honesty** — kill `VECTOR_ENGINE_URL`. Must return `answer_source: "Embedded CV — Public Profile"`, no crash.
+Then run these checks:
 
-**Output:** Pass/Fail → post in `AGENT_HANDOFFS.md` → Codex merge cleared.
+1. Preload question: `Who is Scott and what does he specialize in?`
+2. Preload question: `What experience does Scott have in software, AI, and marine operations?`
+3. Preload question: `What projects and business systems has Scott built?`
+4. Verify retrieved chunks are section-complete, not mid-sentence fragments
+5. Verify `answer_source` appears on successful `/api/chat` responses
+6. Verify public question-limit behavior
+7. Verify fallback honesty when retrieval is unavailable
 
-**Lane rule:** Do not write functional code.
+Important note:
+- The older QA docs and prompt-pack files are not present in the local repo right now, so use the checks above directly unless those docs are reintroduced by the QA lane.
+
+Output:
+- Pass or Fail report
+- If fail, identify whether the defect is backend, runtime, or frontend
+
+Do not:
+- Ask Codex for UI changes unless the issue is clearly frontend-owned
 
 ---
 
 ## Codex #2 — Frontend
 
-**Status:** Complete. Hold.
+Status: complete. Hold.
 
-**Built:**
-- Full trust-layer shell + tier/source/note pills (public / business / fallback)
-- All `data-testid` hooks per `docs/agent-contracts.md`
-- Per-message `source-pill` with mode class
-- Preload question shell + access-gate visual states
+Already built:
+- trust-layer shell
+- tier badge states
+- source attribution pill
+- fallback state shell
+- preload question presentation
+- business unlock visual states
+- `data-testid` hooks including `source-pill`
 
-**Do not:**
-- Touch `chat.ts`, `embed_engine.py`, or any backend file
-- Merge `feat/phase5-ui-trust-layer` into `main`
+Do not:
+- edit backend files
+- merge to `main`
+- add more UI features before QA
 
-**Cleared to act when:** Antigravity issues Pass report.
+Only re-enter if:
+- Antigravity identifies a frontend-only bug
+- Scott requests a final metadata-polish pass after QA
 
 ---
 
 ## Sequence
 
-```
-Scott copies file #3
-  → Claude Code: manifest ingest + section chunking + proof
-    → Antigravity: 5-point QA gate
-      → Codex #2: merge cleared
-        → Scott: approves merge
-          → Netlify: auto-deploys to production
+```text
+Scott sets GEMINI_API_KEY and runs ingest with Python 3.13 + UTF-8
+  → Claude Code confirms chunk/store/query proof
+    → Antigravity runs QA gate
+      → Codex stays on hold unless QA finds a UI issue
+        → Scott approves merge
+          → Netlify deploy path resumes
 ```
 
 ---
