@@ -1,181 +1,120 @@
 # Phase 5 Live Status Board
+> Last updated: 2026-03-20 — Claude Code session
+> Branch: `feat/phase5-ui-trust-layer`
+> Rule: Each agent reads only their own section.
 
-Verified from the local CV repo on 2026-03-20.
+---
 
-## Current Truth
+## 🔴 CURRENT BLOCKER
 
-- Branch in play: `feat/phase5-ui-trust-layer`
-- Current HEAD: `744e395` `docs: add Phase 5 live status board`
-- Latest backend change on this branch: `3973d84` `feat(backend): add answer_source field to /api/chat response [CC-PHASE5]`
-- `answer_source` is present in `netlify/edge-functions/chat.ts`
-- `answer_source` is registered in `docs/agent-contracts.md`
-- `data/rse_cv_manifest.json` exists and expects 3 public CV source files
-- `knowledge_base/public/cv/` currently contains 2 files, not 3
-
-This means the backend contract is moving, but the public CV corpus is not complete enough for final ingest and QA.
-
-## Lane Board
-
-### Codex #2
-
-Status: DONE / HOLD
-
-Verified complete:
-- Phase 5 trust-layer UI is on this branch
-- Chat trust shell is ready for `Public Profile`, `Business Knowledge`, and `Fallback Mode`
-- Source-aware answer container is live
-- Business unlock states are visually clearer
-- Antigravity selectors are present in the chat UI
-- Per-message `source-pill` selector is present for Antigravity assertions
-
-Do not do now:
-- Do not edit `chat.ts`
-- Do not edit `embed_engine.py`
-- Do not merge yet
-
-Next move:
-- Hold position until Claude finishes ingest proof and Antigravity issues a pass
-- Only re-enter if QA finds a frontend-only issue
-
-### Claude Code
-
-Status: PARTIALLY DONE / BLOCKED BY FILE #3
-
-Verified complete:
-- Added `answer_source` to `/api/chat` responses
-- Registered the field in `docs/agent-contracts.md`
-- `data/rse_cv_manifest.json` exists on `main`
-- `docs/RSE_CV_SOURCE_MAP_TEMPLATE.md` exists on `main`
-- `knowledge_base/public/cv/` has 2 of the 3 planned files
-
-Still required:
-- Get the 3rd CV file into `knowledge_base/public/cv/`
-- Update `scripts/embed_engine.py` to ingest from `data/rse_cv_manifest.json`
-- Implement section-based chunking by document heading/section map
-- Run ingest for `cv_personal`
-- Run stats and query proof
-- Hand off to Antigravity with exact QA-ready commands
-
-### Antigravity
-
-Status: READY / BLOCKED BY INGEST
-
-Ready inputs:
-- Phase 5 QA docs exist
-- Prompt pack exists at `scripts/test-phase5-rag-prompts.json`
-- Trust-layer selectors are now in the frontend
-- `source-pill` selector is now in the frontend
-- `answer_source` contract now exists
-
-Do not start yet:
-- Do not run Phase 5 vector QA until Claude confirms ingest completed
-
-Next QA targets after ingest:
-- Preload-question truthfulness
-- Section-complete chunk retrieval
-- `answer_source` assertions
-- Public question-limit behavior
-- Fallback honesty
-
-### Scott
-
-Status: CRITICAL PATH
-
-Immediate task:
-- Copy the 3rd CV file into `knowledge_base/public/cv/`
-
-Exact command:
+**Scott must copy 1 file before anything else moves.**
 
 ```powershell
-Copy-Item "C:\Users\Roberto002\OneDrive\Scott CV\092322CURRICULUM VITAE OF ROBERT SCOTT ECHOLS drive.docx" "C:\WSP001\R.-Scott-Echols-CV\knowledge_base\public\cv\CURRICULUM VITAE OF ROBERT SCOTT ECHOLS (2) (1).docx" -Force
+Copy-Item "C:\Users\Roberto002\OneDrive\Scott CV\092322CURRICULUM VITAE OF ROBERT SCOTT ECHOLS drive.docx" `
+  "C:\WSP001\R.-Scott-Echols-CV\knowledge_base\public\cv\CURRICULUM VITAE OF ROBERT SCOTT ECHOLS (2) (1).docx" -Force
 ```
 
-If that fails:
-
+If that filename doesn't match, inspect first:
 ```powershell
 Get-ChildItem "C:\Users\Roberto002\OneDrive\Scott CV" | Select-Object Name
 ```
 
-Then match the real filename and copy it manually.
+---
 
-## Strict Sequence
+## Board
 
-1. Scott copies file #3 into `knowledge_base/public/cv/`
-2. Claude updates `scripts/embed_engine.py` for manifest-based section chunking
-3. Claude runs ingest and stats
-4. Claude reports ingest success and query proof
-5. Antigravity runs Phase 5 QA
-6. Codex stays on hold unless QA finds a frontend-only issue
-7. Scott approves merge
+| Agent | Status | Blocker |
+|-------|--------|---------|
+| **Scott** | ⚠️ ACTIVE BLOCKER | Must copy file #3 |
+| **Claude Code** | 🟡 IN PROGRESS | Waiting on file #3 |
+| **Antigravity** | 🔴 BLOCKED | Waiting on ingest |
+| **Codex #2** | 🟢 DONE / HOLD | Waiting on QA pass |
 
-## Dispatches
+---
 
-### Dispatch to Scott
+## Scott — Human Ops
 
-Human-Ops assignment:
+Copy the file above. Then send Claude Code this dispatch:
 
-- Copy the 3rd CV file into `knowledge_base/public/cv/`
-- If the exact command fails, list the OneDrive filenames and copy the correct file manually
-- This is the only blocker before Claude can finish ingest
+> `Claude Code: Scott has placed file #3. Proceed with Phase 5.5 manifest-based ingest.`
 
-### Dispatch to Claude Code
+---
 
-Claude Code: Scott has cleared the file blocker once the 3rd CV file is present.
+## Claude Code — Backend
 
-Your next mission:
+**Done this session:**
+- `answer_source` added to all `/api/chat` 200 responses
+- `verify-access.ts` and `embed.ts` confirmed complete
+- `docs/agent-contracts.md` updated (answer_source + Antigravity assertions)
+- `knowledge_base/public/cv/` created with 2 of 3 files:
+  - ✅ `SeaTrace - Robert Scott Echols - CV.PDF`
+  - ✅ `061722CURRICULUM VITAE OF ROBERT SCOTT ECHOLS (2)-1.docx`
+  - ⏳ `CURRICULUM VITAE OF ROBERT SCOTT ECHOLS (2) (1).docx` — waiting on Scott
 
-1. Read `docs/RSE_CV_SOURCE_MAP_TEMPLATE.md`
-2. Read `data/rse_cv_manifest.json`
-3. Update `scripts/embed_engine.py` to ingest from the manifest
-4. Implement section-based chunking by document headings or section map, not raw token limits alone
-5. Preserve access tier metadata in the vector records
-6. Run:
+**Next session (after file #3 lands):**
+1. Read `docs/RSE_CV_SOURCE_MAP_TEMPLATE.md` + `data/rse_cv_manifest.json`
+2. Update `scripts/embed_engine.py` — ingest from manifest, not hardcoded paths
+3. Implement section-based chunking (split on `##` headers, not token counts)
+4. Preserve `access_tier` from manifest into ChromaDB metadata
+5. Run ingest + stats + proof query:
+   ```bash
+   python scripts/embed_engine.py --ingest --partition cv_personal --source knowledge_base/public/cv/
+   python scripts/embed_engine.py --stats
+   python scripts/embed_engine.py --query "SeaTrace Four Pillars" --partition cv_personal
+   ```
+6. Report chunk count, query sample, next command for Antigravity
 
-```powershell
-python scripts/embed_engine.py --ingest --partition cv_personal --source knowledge_base/public/cv/
+**Lane rule:** Do not touch `public/index.html` or any frontend file.
+
+---
+
+## Antigravity — QA
+
+**Wait for:** Claude Code to confirm ingest + query proof.
+
+**Then run 5 checks:**
+
+1. **Preload questions** — query with each of the 3 preload questions. Each must return a non-empty, section-complete chunk (no mid-sentence cuts).
+2. **Chunk integrity** — verify chunks start at a `##` section boundary.
+3. **`answer_source` assertion** — every 200 response must contain one of exactly 4 values: `"RAG — CV Corpus"` / `"RAG — Business Corpus"` / `"Embedded CV — Public Profile"` / `"Embedded Knowledge — Business"`.
+4. **Public limit** — 4 questions with `questionCount >= 3`, no key. Must return `limit_reached: true`.
+5. **Fallback honesty** — kill `VECTOR_ENGINE_URL`. Must return `answer_source: "Embedded CV — Public Profile"`, no crash.
+
+**Output:** Pass/Fail → post in `AGENT_HANDOFFS.md` → Codex merge cleared.
+
+**Lane rule:** Do not write functional code.
+
+---
+
+## Codex #2 — Frontend
+
+**Status:** Complete. Hold.
+
+**Built:**
+- Full trust-layer shell + tier/source/note pills (public / business / fallback)
+- All `data-testid` hooks per `docs/agent-contracts.md`
+- Per-message `source-pill` with mode class
+- Preload question shell + access-gate visual states
+
+**Do not:**
+- Touch `chat.ts`, `embed_engine.py`, or any backend file
+- Merge `feat/phase5-ui-trust-layer` into `main`
+
+**Cleared to act when:** Antigravity issues Pass report.
+
+---
+
+## Sequence
+
+```
+Scott copies file #3
+  → Claude Code: manifest ingest + section chunking + proof
+    → Antigravity: 5-point QA gate
+      → Codex #2: merge cleared
+        → Scott: approves merge
+          → Netlify: auto-deploys to production
 ```
 
-7. Run:
+---
 
-```powershell
-python scripts/embed_engine.py --stats
-```
-
-8. Report back:
-- ingest success or failure
-- query success or failure
-- exact next QA command for Antigravity
-
-Do not touch frontend files.
-
-### Dispatch to Antigravity
-
-Antigravity: Hold until Claude confirms ingest completed.
-
-When Claude reports ready:
-
-1. Test the 3 preload questions
-2. Verify section-complete chunk retrieval
-3. Assert `answer_source` on successful responses
-4. Assert question-limit behavior
-5. Assert fallback honesty
-6. Issue a Pass or Fail report for Phase 5
-
-Do not request frontend changes unless the backend contract is stable and the issue is actually frontend-owned.
-
-### Dispatch to Codex #2
-
-Codex: Hold position.
-
-Your trust-layer work is complete enough for Phase 5 backend/QA to proceed.
-
-Do not add more UI work until:
-
-1. Claude completes ingest and retrieval proof
-2. Antigravity passes Phase 5 QA
-
-Only return if QA exposes a frontend-only bug or a final metadata-label polish task.
-
-## One-Line Master Summary
-
-File #3 is still the blocker. Once Scott copies it, Claude finishes manifest-based ingest, Antigravity runs Phase 5 QA, and Codex remains on hold unless QA finds a frontend-only issue.
+*For the Commons Good* 🎬
