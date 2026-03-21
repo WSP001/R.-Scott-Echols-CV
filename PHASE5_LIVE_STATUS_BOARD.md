@@ -5,7 +5,8 @@ Verified from the local CV repo on 2026-03-20.
 ## Current Truth
 
 - Branch in play: `feat/phase5-ui-trust-layer`
-- Current HEAD: `3973d84` `feat(backend): add answer_source field to /api/chat response [CC-PHASE5]`
+- Current HEAD: `744e395` `docs: add Phase 5 live status board`
+- Latest backend change on this branch: `3973d84` `feat(backend): add answer_source field to /api/chat response [CC-PHASE5]`
 - `answer_source` is present in `netlify/edge-functions/chat.ts`
 - `answer_source` is registered in `docs/agent-contracts.md`
 - `data/rse_cv_manifest.json` exists and expects 3 public CV source files
@@ -25,6 +26,7 @@ Verified complete:
 - Source-aware answer container is live
 - Business unlock states are visually clearer
 - Antigravity selectors are present in the chat UI
+- Per-message `source-pill` selector is present for Antigravity assertions
 
 Do not do now:
 - Do not edit `chat.ts`
@@ -62,6 +64,7 @@ Ready inputs:
 - Phase 5 QA docs exist
 - Prompt pack exists at `scripts/test-phase5-rag-prompts.json`
 - Trust-layer selectors are now in the frontend
+- `source-pill` selector is now in the frontend
 - `answer_source` contract now exists
 
 Do not start yet:
