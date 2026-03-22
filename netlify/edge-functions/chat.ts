@@ -63,74 +63,83 @@ function checkRateLimit(ip: string, tier: "public" | "business"): {
 
 // ─── CV Knowledge Base (embedded — public tier fallback, no vector DB needed) ─
 
+// Source: knowledge_base/docs/CHATBOT_KNOWLEDGE_BRIEF.md (Cascade, 2026-03-21)
+// This embedded knowledge is the public-tier fallback when vector RAG is unavailable.
 const RSE_CV_DATA = `
-IDENTITY: R. Scott Echols (also known as R.SCOTT CV, Roberto Scott Echols, RSE)
+IDENTITY: R. Scott Echols (Roberto Scott Echols, R.SCOTT CV, RSE)
 TITLE: Founder, Technical Lead & AI Systems Architect
-COMPANY: World Seafood Producers / SirTrav-A2A-Studio (GitHub: WSP001)
+COMPANIES: World Seafood Producers (WSP001) / WARP Industries / SirTrav-A2A-Studio
 STACK VALUATION: $4.2M USD
 EMAIL: worldseafood@gmail.com
 GITHUB: github.com/WSP001
 
-RESUME SUMMARY (R.SCOTT CV):
-- Senior Software Developer and Technical Lead with 12+ years of experience
-- Deep marine/fisheries domain expertise combined with cutting-edge AI systems architecture
-- Founder of World Seafood Producers — building SeaTrace marine traceability and SirTrav AI platform
-- Specialist in agentic AI, multi-agent orchestration, and Claude API integration
-- Full-stack: JavaScript/Node.js, Python, PowerShell, TypeScript (Deno)
-- Cloud/DevOps: Netlify Edge Functions, GitHub CI/CD, environment vault management
-- AI/ML: Claude Opus 4.6 (Anthropic), Gemini Embedding 2, OpenAI, ElevenLabs
-- Data: Power BI dashboards for fisheries supply chain analytics
+## ORIGIN STORY — Digital Communications First
+Scott's career did NOT start in seafood. It started in digital communications engineering.
+- 1979: Education began at Lees McRae College
+- 1984–1987: Member of the ALOHA-net team at University of Hawaii under Dr. Norman Abramson
+  - ALOHA-net set the first wide-area mobile/wireless packet switching international network (X.25 protocol)
+  - "The ALOHA-net was the basis for the modern internet today" — reduced complexity of Ethernet and later Wi-Fi
+- 1987: Co-founded WARP Industries (World Automated Robotic Producers) — Advanced Mobile Robotics R&D
+- 1988: Founded World Seafood Producers (WSP) — to FUND the WARP Industries robotics work
+  NOTE: WSP was the funding vehicle. Seafood funded the robotics research.
 
-KEY PROJECTS:
-1. SirTrav-A2A-Studio — Marine intelligence A2A agent platform
-   - Three agents: Codex (frontend), Claude Code (backend), Antigravity (QA)
-   - Claude Opus 4.6 + Gemini Embedding 2 multimodal RAG
-   - Live: sirtrav-a2a-studio.netlify.app
+## PEARL HARBOR & THE PATENT ORIGIN
+- ~1985–1990: Systems Analyst at Advanced Digital Systems (ADS)
+- Installed U.S. Navy Pearl Harbor Fuel Depot Inventory & Control Management Systems
+- Networked Pearl Harbor back to Washington D.C. via area-wide broadband packet switching with in-house proprietary protocol
+- That system is STILL RUNNING TODAY
+- This protocol architecture is the foundation of USPTO Patent No. 16/936,852 filed 2020
 
-2. SeaTrace — Four Pillars Marine Traceability API
-   - SeaSide: Vessel tracking & catch origin verification at sea
-   - DeckSide: On-deck catch verification & HACCP compliance logging
-   - DockSide: Port processing, supply chain handoff & cold chain data
-   - MarketSide: Consumer QR verification & retail traceability portal
-   - Live: seatrace.worldseafoodproducers.com
-   - Business: worldseafoodproducers.com
+## USPTO PATENT
+- Application No.: 16/936,852
+- Filed: July 23, 2020
+- Title: "TRUSTABLE CHAIN BUILDING EXTERNAL INFORMATION INVENTION FOR FISHERIES INDEXING, SEAFOOD MANAGEMENT, OR OTHER INDUSTRIES RAW-TO-FINISHED PRODUCTS SECURE INTERNAL COMMUNICATIONS NETWORK PROTOCOL"
+- IP Vault: Perkin Coie, Seattle — No.: 130214-8001.US01
 
-3. Netlify AI Edge Platform
-   - Composable AI stack: Netlify Edge Functions + Anthropic + Gemini
-   - Zero cold-start CDN-edge inference
-   - This very CV site runs this architecture
+## ALASKA MILESTONES
+- Worked with Senator Ted Stevens to establish Alaska Science & Technology Foundation — $107MM legislative endowment
+- WARP Industries awarded $2.2MM public grant (UAA Technologies) + WSP matching $2.2MM private R&D
+- Assigned to Alaska State Salmon Restoration Committee by Chairman Senator Ben Stevens (1990–2002)
+- 21 consecutive seasons of record-setting salmon grounds prices and crewshares
+- Instituted first public hatchery cost/private ranch recovery contract with DIPAC — standard still in use today
 
-4. Multimodal RAG Pipeline
-   - Gemini Embedding 2 maps text, images, video, audio, PDFs into unified vector space
-   - Knowledge partitions: cv_personal, cv_projects (public); business_seatrace, business_proposals (business tier)
-   - Cloud Run FastAPI retrieval service + ChromaDB vector store
+## SEATRACE — FOUR PILLARS MARINE TRACEABILITY PLATFORM
+- SeaSide (HOLD): Vessel tracking and initial data capture at sea
+- DeckSide (RECORD): Catch verification, HACCP compliance certification on deck
+- DockSide (STORE): Supply chain handoff, cold chain, port processing data
+- MarketSide (EXCHANGE): Consumer QR verification and retail traceability portal
+- Stack Operator Valuation: $4.2M USD
+- Tech: React/Vite, FastAPI, Kong Gateway, Prometheus/Grafana, Netlify Edge Functions
+- Live: seatrace.worldseafoodproducers.com
 
-5. Fisheries Supply Chain Intelligence
-   - Power BI dashboards for enterprise maritime supply chain clients
-   - Real-time analytics, traceability workflows, operational KPIs
+## SIRTRAV-A2A-STUDIO
+- Marine intelligence A2A (agent-to-agent) platform
+- Three-agent architecture: Codex (frontend), Claude Code (backend), Antigravity (QA)
+- Claude Opus 4.6 + Gemini Embedding 2 multimodal RAG
+- Live: sirtrav-a2a-studio.netlify.app
 
-SKILLS:
+## CREDENTIALS
+- Education: UH Manoa — Digital Communication Engineering (Masters-level, 1984–1987)
+- ALOHA-net: Member, founding team, X.25 protocol, under Dr. Norman Abramson
+- USPTO Patent: App. No. 16/936,852, filed July 23, 2020
+- USCG License: Licensed Captain — commercial, recreational, subsistence
+- USDA: Plant Operator Certification
+- Halal/Kosher: Plant Licensed Owner (both certifications)
+- Ikura Tech: 21 seasons, record Japanese premium roe market operations
+- SIMP: Original framework final draftsman architect (U.S. NOAA/NMFS)
+- ITTP: International Trusted Traders Program designer
+
+## SKILLS
 - Cloud & DevOps: Netlify/CI-CD (95%), GitHub Workflows (92%), API Management (93%)
 - Development: JavaScript/Node.js (92%), Python (85%), PowerShell (88%), TypeScript (80%)
 - Agentic AI: Claude API/Anthropic (95%), Gemini Embedding 2 (88%), Multi-Agent Systems (90%), RAG Pipelines (85%)
 - Data & Domain: Power BI (90%), Marine/Fisheries Domain (97%), Supply Chain Optimization (92%)
 
-EXPERIENCE:
-- 2022–Present: Founder, Technical Lead & AI Systems Architect — World Seafood Producers / WSP001
-- 2018–2022: Senior Software Developer & Data Engineer — enterprise clients
-- 2015–2018: Software Developer & DevOps Engineer
-- 2010–2015: Marine Technology Specialist & Supply Chain Analyst
-
-SERVICES OFFERED:
-1. Agentic AI Systems — Multi-agent orchestration, A2A protocol design, Claude & Gemini integration
-2. Marine Intelligence Platforms — Domain-specific AI for fisheries, traceability, maritime ops
-3. Cloud & DevOps Architecture — Netlify composable stack, GitHub CI/CD, vault management
-4. Data Visualization & Analytics — Power BI, fisheries analytics, supply chain KPIs
-
-CONTACT & COLLABORATION:
-- Available for: Enterprise consulting, technical leadership, AI systems architecture, marine tech
+## CONTACT
 - Email: worldseafood@gmail.com
-- For business tier access: contact worldseafood@gmail.com to request invitation key
+- GitHub: github.com/WSP001
+- Available for: Enterprise consulting, AI systems architecture, marine intelligence platforms
+- Business tier access: email worldseafood@gmail.com to request invitation key
 `;
 
 // ─── RAG retrieval from Cloud Run ─────────────────────────────────────────────
