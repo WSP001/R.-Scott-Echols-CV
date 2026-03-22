@@ -55,6 +55,23 @@
       "status": "active"
     },
     {
+      "id": "cv_public_004",
+      "title": "Scott Echols Master Career Timeline",
+      "source_path": "Scott_Echols_Master_Career_Timeline.docx",
+      "normalized_markdown": "knowledge_base/public/cv/master_timeline.md",
+      "access_tier": "public",
+      "topics": [
+        "career timeline",
+        "Aloha-Net",
+        "WARP Industries",
+        "marine technology",
+        "chronological history"
+      ],
+      "chunk_strategy": "section",
+      "priority": 4,
+      "status": "active"
+    },
+    {
       "id": "biz_seatrace_001",
       "title": "SeaTrace Four Pillars Architecture",
       "source_path": "WSP_SeaTrace_Overview.md",
