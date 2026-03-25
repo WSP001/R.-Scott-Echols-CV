@@ -117,25 +117,97 @@ Scott's career did NOT start in seafood. It started in digital communications en
 - Live: sirtrav-a2a-studio.netlify.app
 
 ## SIR JAMES ADVENTURES
-- Creative platform: Sir James Adventures Books (Book001 live — 80 scenes)
-- Children's interactive story with AI narrator and music
+- Creative children's book platform: Book001 live — 80 scenes, AI narrator and music
 - Part of the WSP001 creative portfolio
 
+## COMPLETE CAREER HISTORY (newest to oldest)
+
+### 2018–2022 | Senior Full-Stack Developer & Data Engineer | World Seafood Producers / Maritime Consulting
+- JavaScript/Node.js, Python, TypeScript full-stack development
+- Power BI dashboards for fisheries supply chain analytics
+- GitHub CI/CD, API vault management, multi-service integration stacks
+- Automated testing reduced production incidents by 70%
+
+### 2015–2018 | Software Developer & DevOps Engineer | World Seafood Producers / Maritime Tech
+- Cloud infrastructure design, API lifecycle management
+- CI/CD pipelines, PowerShell automation, DevOps toolchain optimization
+- Predictive data analytics for institutional fisheries monitoring
+
+### 2010–2015 | SIMP Framework Architect & Fisheries Technology Consultant | NOAA/NMFS / WSP
+- ORIGINAL DRAFTSMAN and architect of U.S. Seafood Import Monitoring Program (SIMP) digital components
+- Designer of the International Trusted Traders Program (ITTP)
+- Electronic monitoring (EM) and electronic reporting (ER) systems for global seafood chain management
+- MSY (Maximum Sustainable Yield) activity analysis and biomass effort surveys
+- HACCP compliance, IUU fishing prevention, maritime logistics
+
+### 2003–2006 | Salmon Category Manager | Pacific Seafood Group (PSG)
+- Managed wild salmon production — F/V fleets, QC training, procurement, processing, cold storage, distribution
+- INCREASED REVENUES FROM $1M TO $20M IN TWO SEASONS
+- Authored "Salmon Book 101–201" quality control manual — ADOPTED BY ALASKA SEAFOOD MARKETING INSTITUTE (ASMI) as industry-wide standard still used today
+
+### 1998–2003 | Owner/Operator R/V Pioneer | Micronesia
+- Conducted biomass surveys for bottom fish and deep cold-water shrimp/lobsters in Micronesia
+- Developed new viable fisheries and trained the Yap Fishing fleet
+- U.S. Flag Research/Mission Vessel operations — USCG Licensed Captain
+
+### 1990–2002 | Fleet Commander & Alaska State Salmon Restoration Representative | WSP / State of Alaska
+- Assigned to Alaska State Salmon Restoration Committee by Chairman Senator Ben Stevens
+- 21 CONSECUTIVE SEASONS of record-setting salmon grounds prices and crew shares
+- Instituted FIRST public hatchery cost/private ranch recovery contract with DIPAC — standard STILL IN USE TODAY
+- Represented Governor Murkowski's Wild Salmon program using WSP as statewide QC model
+- Managed $5–$20M seasonal fleet budgets; trained 300+ fishing crews
+- Ikura Master Technician: 21 seasons Japanese premium roe market record operations
+
+### 1988–Present | Founder & CEO | World Seafood Producers (WSP001), Auke Bay, Alaska
+- Co-founded WSP in 1988 as FUNDING VEHICLE for WARP Industries robotics R&D — seafood funded robotics
+- Worked with Senator Ted Stevens to establish Alaska Science & Technology Foundation — $107M legislative endowment
+- Secured $2.2M public grant (UAA Technologies) + $2.2M WSP private matching R&D investment
+- Today operates SeaTrace, SirTrav-A2A-Studio, and WAFC Business Intelligence System
+- Bilingual: English (native) / Spanish (fluent) — multicultural and indigenous community experience
+
+### 1987–Present | Co-Founder & R&D Lead | WARP Industries (World Automated Robotic Producers)
+- Co-founded WARP Industries and designed the ROCC-BART hexapod robot
+- ROCC-BART: tandem S-100 bus, 12x Motorola 68000 processors, RAM-based stereo vision, air-drop capable
+- PREDATES BOSTON DYNAMICS BY 17 YEARS
+- $2.2M Alaska S&T Foundation grant + $2.2M WSP private match = $4.4M total R&D
+- Prototype series 001–003 manufactured
+
+### 1985–1990 | Systems Analyst & Network Protocol Designer | Advanced Digital Systems (ADS), Honolulu, HI
+- Installed U.S. NAVY PEARL HARBOR FUEL DEPOT Inventory & Control Management Systems
+- NETWORKED PEARL HARBOR TO WASHINGTON D.C. via broadband packet switching with in-house proprietary protocol
+- That system IS STILL RUNNING TODAY (40+ years)
+- This protocol architecture is the FOUNDATION OF USPTO PATENT No. 16/936,852 filed 2020
+
+### 1984–1987 | ALOHA-net Research Team Member | University of Hawaii at Manoa, Dr. Norman Abramson
+- Member of ALOHA-net FOUNDING TEAM under Dr. Norman Abramson
+- ALOHA-net established the FIRST wide-area mobile/wireless packet switching international network (X.25 protocol)
+- THE ALOHA-NET IS THE BASIS FOR THE MODERN INTERNET — reduced complexity of Ethernet and Wi-Fi
+- Masters-level Digital Communication Engineering coursework
+
+### 1979–1984 | Education Foundation
+- Dodge County High School, Eastman, Georgia — Graduated 1979
+- Lees McRae College, Banner Elk, NC — Football Scholarship, 1979–1982
+- University of Georgia, Athens — International Business, 1982–1984
+- University of Hawaii at Manoa — Digital Communication Engineering (Masters-level), 1984–1987
+
 ## CREDENTIALS
-- Education: Lees McRae College (1979); UH Manoa — Digital Communication Engineering (1984–1987)
-- ALOHA-net: Member, founding team, X.25 protocol, under Dr. Norman Abramson
-- USPTO Patent: App. No. 16/936,852, filed July 23, 2020
+- Education: DCHS 1979 → Lees McRae (Football Scholarship) → UGA Int'l Business → UH Manoa Digital Comm. Engineering
+- ALOHA-net: Member, founding team, X.25 protocol, under Dr. Norman Abramson, 1984–1987
+- USPTO Patent: App. No. 16/936,852, filed July 23, 2020 — Perkin Coie, Seattle (IP vault 130214-8001.US01)
 - USCG License: Licensed Captain — commercial, recreational, subsistence
 - USDA: Plant Operator Certification
 - Halal/Kosher: Plant Licensed Owner (both certifications)
+- HACCP: Certified Inspector
 - Ikura Tech: 21 seasons, record Japanese premium roe market operations
 - SIMP: Original framework final draftsman architect (U.S. NOAA/NMFS)
 - ITTP: International Trusted Traders Program designer
+- ASMI: PSG Salmon Book author — adopted as industry-wide quality standard
+- Languages: English (native) · Spanish (fluent)
 
 ## SKILLS
 - Cloud & DevOps: Netlify/CI-CD (95%), GitHub Workflows (92%), API Management (93%)
 - Development: JavaScript/Node.js (92%), Python (85%), PowerShell (88%), TypeScript (80%)
-- Agentic AI: Gemini API (95%), Multi-Agent Systems (90%), RAG Pipelines (85%), Claude API (95%)
+- Agentic AI: Gemini API (95%), Multi-Agent Systems (90%), RAG Pipelines (85%)
 - Data & Domain: Power BI (90%), Marine/Fisheries Domain (97%), Supply Chain Optimization (92%)
 
 ## CONTACT
