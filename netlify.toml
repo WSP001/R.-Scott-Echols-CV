@@ -5,11 +5,12 @@
 # FastAPI (Cloud Run) is called SERVER-SIDE from edge functions, not proxied here.
 #
 # Required env vars → Netlify Dashboard → Site Settings → Environment Variables:
-#   ANTHROPIC_API_KEY      Claude Opus 4.6 (chat.ts edge function)
+#   GEMINI_API_KEY         Gemini 2.0 Flash (chat.ts) + Gemini Embedding 2 (embed.ts)
 #   BUSINESS_ACCESS_KEY    Business tier unlock passphrase
-#   GEMINI_API_KEY         Gemini Embedding 2 (embed.ts edge function)
 #   VECTOR_ENGINE_URL      (optional) Cloud Run retrieval URL, enables live RAG
 #                          e.g. https://rse-retrieval-abc123-uc.a.run.app
+#
+# NOTE: ANTHROPIC_API_KEY no longer needed — chat.ts migrated to Gemini 2.0 Flash (2026-03-23)
 #
 # NOTE: VITE_API_BASE_URL is NOT needed — /api/* routes are handled by edge functions
 

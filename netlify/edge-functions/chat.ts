@@ -3,13 +3,13 @@
  * Deployed via Netlify Edge Functions (Deno runtime, CDN-edge, zero cold-start)
  *
  * Architecture (Phase 1 production path):
- *   public/index.html → POST /api/chat → Claude Opus 4.6
+ *   public/index.html → POST /api/chat → Gemini 2.0 Flash
  *                                      ↓ (business tier only, when VECTOR_ENGINE_URL set)
  *                                      Cloud Run /retrieve → ChromaDB → RAG context
  *
  * Two-tier access:
- *   PUBLIC   → Claude answers CV/personal questions from embedded knowledge (3 free questions)
- *   BUSINESS → Claude + RAG retrieval from Cloud Run vector service (invitation key required)
+ *   PUBLIC   → Gemini answers CV/personal questions from embedded knowledge (3 free questions)
+ *   BUSINESS → Gemini + RAG retrieval from Cloud Run vector service (invitation key required)
  *
  * Rate limiting (in-edge, per IP):
  *   Public tier:   20 requests per minute per IP
@@ -18,7 +18,7 @@
  * Keywords that trigger rich context: R.SCOTT CV, Resume, RSE, SeaTrace, SirTrav, WorldSeafood
  *
  * Environment variables:
- *   ANTHROPIC_API_KEY   — Anthropic / Claude Opus 4.6
+ *   GEMINI_API_KEY      — Google AI / Gemini 2.0 Flash
  *   BUSINESS_ACCESS_KEY — Secret passphrase for business tier
  *   VECTOR_ENGINE_URL   — Cloud Run retrieval API base URL (optional — enables RAG)
  *                         e.g. https://rse-retrieval-abc123-uc.a.run.app
@@ -26,11 +26,7 @@
  * CLAUDE CODE LANE — see CLAUDE.md and docs/agent-contracts.md before editing
  */
 
-import Anthropic from "https://esm.sh/@anthropic-ai/sdk@0.27.3";
-
-// ─── In-edge rate limiting (per IP, sliding window using Netlify KV) ─────────
-// Simple token bucket via Map (resets on cold start — good enough for edge)
-// For persistent rate limiting, use Netlify Blob Store or Upstash Redis.
+// ─── In-edge rate limiting (per IP, sliding window) ──────────────────────────
 const rateLimitStore = new Map<string, { count: number; resetAt: number }>();
 
 const RATE_LIMITS = {
@@ -63,7 +59,7 @@ function checkRateLimit(ip: string, tier: "public" | "business"): {
 
 // ─── CV Knowledge Base (embedded — public tier fallback, no vector DB needed) ─
 
-// Source: knowledge_base/docs/CHATBOT_KNOWLEDGE_BRIEF.md (Cascade, 2026-03-21)
+// Source: knowledge_base/docs/CHATBOT_KNOWLEDGE_BRIEF.md
 // This embedded knowledge is the public-tier fallback when vector RAG is unavailable.
 const RSE_CV_DATA = `
 IDENTITY: R. Scott Echols (Roberto Scott Echols, R.SCOTT CV, RSE)
@@ -75,7 +71,7 @@ GITHUB: github.com/WSP001
 
 ## ORIGIN STORY — Digital Communications First
 Scott's career did NOT start in seafood. It started in digital communications engineering.
-- 1979: Education began at Lees McRae College
+- 1979: Graduated high school; education continued at Lees McRae College
 - 1984–1987: Member of the ALOHA-net team at University of Hawaii under Dr. Norman Abramson
   - ALOHA-net set the first wide-area mobile/wireless packet switching international network (X.25 protocol)
   - "The ALOHA-net was the basis for the modern internet today" — reduced complexity of Ethernet and later Wi-Fi
@@ -117,11 +113,16 @@ Scott's career did NOT start in seafood. It started in digital communications en
 ## SIRTRAV-A2A-STUDIO
 - Marine intelligence A2A (agent-to-agent) platform
 - Three-agent architecture: Codex (frontend), Claude Code (backend), Antigravity (QA)
-- Claude Opus 4.6 + Gemini Embedding 2 multimodal RAG
+- Gemini 2.0 Flash + Gemini Embedding 2 multimodal RAG
 - Live: sirtrav-a2a-studio.netlify.app
 
+## SIR JAMES ADVENTURES
+- Creative platform: Sir James Adventures Books (Book001 live — 80 scenes)
+- Children's interactive story with AI narrator and music
+- Part of the WSP001 creative portfolio
+
 ## CREDENTIALS
-- Education: UH Manoa — Digital Communication Engineering (Masters-level, 1984–1987)
+- Education: Lees McRae College (1979); UH Manoa — Digital Communication Engineering (1984–1987)
 - ALOHA-net: Member, founding team, X.25 protocol, under Dr. Norman Abramson
 - USPTO Patent: App. No. 16/936,852, filed July 23, 2020
 - USCG License: Licensed Captain — commercial, recreational, subsistence
@@ -134,7 +135,7 @@ Scott's career did NOT start in seafood. It started in digital communications en
 ## SKILLS
 - Cloud & DevOps: Netlify/CI-CD (95%), GitHub Workflows (92%), API Management (93%)
 - Development: JavaScript/Node.js (92%), Python (85%), PowerShell (88%), TypeScript (80%)
-- Agentic AI: Claude API/Anthropic (95%), Gemini Embedding 2 (88%), Multi-Agent Systems (90%), RAG Pipelines (85%)
+- Agentic AI: Gemini API (95%), Multi-Agent Systems (90%), RAG Pipelines (85%), Claude API (95%)
 - Data & Domain: Power BI (90%), Marine/Fisheries Domain (97%), Supply Chain Optimization (92%)
 
 ## CONTACT
@@ -163,7 +164,7 @@ async function fetchRAGContext(
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ query, tier, top_k: 3 }),
-      signal: AbortSignal.timeout(5000), // 5s timeout — don't block the user
+      signal: AbortSignal.timeout(5000),
     });
 
     if (!response.ok) return "";
@@ -171,9 +172,8 @@ async function fetchRAGContext(
     const results: RetrieveResult[] = await response.json();
     if (!results.length) return "";
 
-    // Format retrieved chunks as context for Claude
     const chunks = results
-      .filter((r) => r.score > 0.3) // only include reasonably relevant chunks
+      .filter((r) => r.score > 0.3)
       .map((r, i) => `[Context ${i + 1} — ${r.source} (relevance: ${(r.score * 100).toFixed(0)}%)]:\n${r.content}`)
       .join("\n\n");
 
@@ -181,7 +181,6 @@ async function fetchRAGContext(
       ? `\n\nRELEVANT KNOWLEDGE BASE CONTEXT (retrieved via semantic search):\n${chunks}\n`
       : "";
   } catch {
-    // RAG is additive — if it fails, fall back to embedded CV data gracefully
     return "";
   }
 }
@@ -202,12 +201,16 @@ KEYWORD TRIGGERS — respond with rich detail when these appear in the user's qu
 - "Four Pillars" → SeaSide, DeckSide, DockSide, MarketSide with descriptions
 - "worldseafoodproducers" or "WSP" → World Seafood Producers company overview
 - "$4.2M" or "valuation" → Explain the stack operator valuation context
+- "ROCC-BART" or "robot" or "robotics" → Describe the hexapod robot and WARP Industries
+- "patent" or "USPTO" → Describe the trustable chain patent
+- "ALOHA-net" or "Hawaii" → Describe the X.25 packet switching work under Dr. Abramson
+- "Sir James" → Describe the Sir James Adventures creative book platform
 
 CHATBOT ACCESS MODEL:
 - Public tier: 3 free questions, then invitation key required
 - Business tier: Invitation key unlocks full knowledge base & technical deep-dives
-- After 3 free questions: kindly let the user know they can sign in with an invitation key to access more tokens
-  Say something like: "To continue exploring Scott's full background and technical work, you can request an invitation key at worldseafood@gmail.com"
+- After 3 free questions: kindly let the user know they can sign in with an invitation key
+  Say: "To continue exploring Scott's full background and technical work, you can request an invitation key at worldseafood@gmail.com"
 
 RESPONSE STYLE:
 - Keep responses concise: 2-4 sentences for simple questions, short paragraphs for complex ones
@@ -232,12 +235,73 @@ ADDITIONAL BUSINESS-TIER KNOWLEDGE:
 - WAFC Business intelligence system
 - Linear workspace: linear.app/wsp2agent — active project management
 - SirTrav agents: Codex (frontend/Three.js), Claude Code (backend API), Antigravity (QA/testing)
-- Phase 1 production stack: Netlify Edge + Cloud Run + ChromaDB + Claude Opus 4.6
+- Phase 1 production stack: Netlify Edge + Cloud Run + ChromaDB + Gemini 2.0 Flash
 
 PERSONA: Act as Scott's senior technical advisor. Be direct, precise, expert-level.
 You can discuss proprietary technical details, architecture decisions, and business strategy.
 
 Always verify the business context. If the query seems unrelated to professional collaboration, ask for clarification.`;
+
+// ─── Gemini REST API call ──────────────────────────────────────────────────────
+
+const GEMINI_MODEL = "gemini-2.0-flash";
+const GEMINI_ENDPOINT_BASE =
+  "https://generativelanguage.googleapis.com/v1beta/models";
+
+interface GeminiContent {
+  role: "user" | "model";
+  parts: Array<{ text: string }>;
+}
+
+async function callGemini(
+  apiKey: string,
+  systemPrompt: string,
+  history: Array<{ role: string; content: string }>,
+  userMessage: string,
+  maxTokens: number
+): Promise<string> {
+  // Build conversation contents (Gemini uses "model" role, not "assistant")
+  const contents: GeminiContent[] = [
+    ...history.slice(-10).map((m) => ({
+      role: (m.role === "assistant" ? "model" : "user") as "user" | "model",
+      parts: [{ text: m.content }],
+    })),
+    { role: "user" as const, parts: [{ text: userMessage }] },
+  ];
+
+  const body = {
+    systemInstruction: {
+      parts: [{ text: systemPrompt }],
+    },
+    contents,
+    generationConfig: {
+      maxOutputTokens: maxTokens,
+      temperature: 0.7,
+      topP: 0.9,
+    },
+  };
+
+  const resp = await fetch(
+    `${GEMINI_ENDPOINT_BASE}/${GEMINI_MODEL}:generateContent?key=${apiKey}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(20_000),
+    }
+  );
+
+  if (!resp.ok) {
+    const errText = await resp.text();
+    console.error("Gemini API error:", resp.status, errText);
+    throw new Error(`Gemini API error: ${resp.status}`);
+  }
+
+  const data = await resp.json();
+  const text =
+    data?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+  return text;
+}
 
 // ─── CORS headers ──────────────────────────────────────────────────────────────
 
@@ -320,7 +384,7 @@ export default async (request: Request) => {
     return new Response(
       JSON.stringify({
         reply:
-          "You've reached the 3 free question limit. To continue exploring Scott's full background, SeaTrace architecture, and business solutions, sign in with an invitation key — or email worldseafood@gmail.com to request access to more tokens.",
+          "You've reached the 3 free question limit. To continue exploring Scott's full background, SeaTrace architecture, and business solutions, sign in with an invitation key — or email worldseafood@gmail.com to request access.",
         tier: "public",
         limit_reached: true,
       }),
@@ -328,15 +392,15 @@ export default async (request: Request) => {
     );
   }
 
-  const anthropicKey = Netlify.env.get("ANTHROPIC_API_KEY");
-  if (!anthropicKey) {
+  const geminiKey = Netlify.env.get("GEMINI_API_KEY");
+  if (!geminiKey) {
     return new Response(
       JSON.stringify({ error: "AI service not configured. Please contact the site admin." }),
       { status: 503, headers: CORS }
     );
   }
 
-  // ── RAG retrieval (business tier + Cloud Run, non-blocking) ──
+  // ── RAG retrieval (optional, non-blocking) ──
   let ragContext = "";
   const vectorEngineUrl = Netlify.env.get("VECTOR_ENGINE_URL") || "";
   if (vectorEngineUrl) {
@@ -344,35 +408,24 @@ export default async (request: Request) => {
   }
   const ragActive = ragContext.length > 0;
 
-  // ── Build Claude messages ──
-  const client = new Anthropic({ apiKey: anthropicKey });
-  const messages = [
-    ...history.slice(-10).map((m) => ({
-      role: m.role as "user" | "assistant",
-      content: m.content,
-    })),
-    { role: "user" as const, content: message.trim() },
-  ];
-
   const systemPrompt = isBusiness
     ? buildBusinessSystem(ragContext)
     : buildPublicSystem(ragContext);
 
   try {
-    const response = await client.messages.create({
-      model: "claude-opus-4-6",  // Claude Opus 4.6 — non-negotiable (Roberto's rule)
-      max_tokens: isBusiness ? 2048 : 512,
-      system: systemPrompt,
-      messages,
-    });
-
-    const text = response.content[0]?.type === "text" ? response.content[0].text : "";
+    const maxTokens = isBusiness ? 2048 : 512;
+    const text = await callGemini(
+      geminiKey,
+      systemPrompt,
+      history,
+      message.trim(),
+      maxTokens
+    );
 
     return new Response(
       JSON.stringify({
         reply: text,
         tier: effectiveTier,
-        tokens_used: response.usage?.output_tokens ?? 0,
         rag_context_used: ragActive,
         answer_source: ragActive
           ? (isBusiness ? "RAG — Business Corpus" : "RAG — CV Corpus")
@@ -388,7 +441,7 @@ export default async (request: Request) => {
     );
   } catch (err: unknown) {
     const errMsg = err instanceof Error ? err.message : "Unknown error";
-    console.error("Claude API error:", errMsg);
+    console.error("Gemini chat error:", errMsg);
     return new Response(
       JSON.stringify({
         error: "I'm having trouble connecting right now. Please try again in a moment.",
