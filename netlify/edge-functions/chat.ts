@@ -3,13 +3,18 @@
  * Deployed via Netlify Edge Functions (Deno runtime, CDN-edge, zero cold-start)
  *
  * Architecture (Phase 1 production path):
- *   public/index.html → POST /api/chat → Gemini 2.0 Flash
+ *   public/index.html → POST /api/chat → Claude Opus 4.6 (claude-opus-4-6)
  *                                      ↓ (business tier only, when VECTOR_ENGINE_URL set)
  *                                      Cloud Run /retrieve → ChromaDB → RAG context
  *
+ * ⚠️  MODEL RULE — NON-NEGOTIABLE:
+ *   Claude Opus 4.6 for ALL tiers. No substitutions. No cost-cutting.
+ *   Roberto Scott Echols has explicitly required this. Do NOT migrate to Gemini or any other model.
+ *   See: CLAUDE.md, AGENT-OPS.md, and conversation history (worldseafood@gmail.com).
+ *
  * Two-tier access:
- *   PUBLIC   → Gemini answers CV/personal questions from embedded knowledge (3 free questions)
- *   BUSINESS → Gemini + RAG retrieval from Cloud Run vector service (invitation key required)
+ *   PUBLIC   → Claude answers CV/personal questions from embedded knowledge (3 free questions)
+ *   BUSINESS → Claude + RAG retrieval from Cloud Run vector service (invitation key required)
  *
  * Rate limiting (in-edge, per IP):
  *   Public tier:   20 requests per minute per IP
@@ -18,7 +23,7 @@
  * Keywords that trigger rich context: R.SCOTT CV, Resume, RSE, SeaTrace, SirTrav, WorldSeafood
  *
  * Environment variables:
- *   GEMINI_API_KEY      — Google AI / Gemini 2.0 Flash
+ *   ANTHROPIC_API_KEY   — Claude Opus 4.6 (Anthropic)
  *   BUSINESS_ACCESS_KEY — Secret passphrase for business tier
  *   VECTOR_ENGINE_URL   — Cloud Run retrieval API base URL (optional — enables RAG)
  *                         e.g. https://rse-retrieval-abc123-uc.a.run.app
@@ -307,71 +312,65 @@ ADDITIONAL BUSINESS-TIER KNOWLEDGE:
 - WAFC Business intelligence system
 - Linear workspace: linear.app/wsp2agent — active project management
 - SirTrav agents: Codex (frontend/Three.js), Claude Code (backend API), Antigravity (QA/testing)
-- Phase 1 production stack: Netlify Edge + Cloud Run + ChromaDB + Gemini 2.0 Flash
+- Phase 1 production stack: Netlify Edge + Cloud Run + ChromaDB + Gemini Embedding 2
 
 PERSONA: Act as Scott's senior technical advisor. Be direct, precise, expert-level.
 You can discuss proprietary technical details, architecture decisions, and business strategy.
 
 Always verify the business context. If the query seems unrelated to professional collaboration, ask for clarification.`;
 
-// ─── Gemini REST API call ──────────────────────────────────────────────────────
+// ─── Anthropic Claude Opus 4.6 API call ───────────────────────────────────────
 
-const GEMINI_MODEL = "gemini-2.0-flash";
-const GEMINI_ENDPOINT_BASE =
-  "https://generativelanguage.googleapis.com/v1beta/models";
+// ⚠️  MODEL LOCK: claude-opus-4-6 — DO NOT CHANGE
+// Roberto Scott Echols has explicitly required Claude Opus 4.6 for ALL tiers.
+// This is non-negotiable. Any agent editing this file must preserve this constant.
+const CLAUDE_MODEL = "claude-opus-4-6";
+const ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages";
+const ANTHROPIC_VERSION = "2023-06-01";
 
-interface GeminiContent {
-  role: "user" | "model";
-  parts: Array<{ text: string }>;
-}
-
-async function callGemini(
+async function callClaude(
   apiKey: string,
   systemPrompt: string,
   history: Array<{ role: string; content: string }>,
   userMessage: string,
   maxTokens: number
 ): Promise<string> {
-  // Build conversation contents (Gemini uses "model" role, not "assistant")
-  const contents: GeminiContent[] = [
+  // Build messages array — Claude uses "user" / "assistant" roles
+  const messages = [
     ...history.slice(-10).map((m) => ({
-      role: (m.role === "assistant" ? "model" : "user") as "user" | "model",
-      parts: [{ text: m.content }],
+      role: m.role === "assistant" ? "assistant" : "user",
+      content: m.content,
     })),
-    { role: "user" as const, parts: [{ text: userMessage }] },
+    { role: "user", content: userMessage },
   ];
 
   const body = {
-    systemInstruction: {
-      parts: [{ text: systemPrompt }],
-    },
-    contents,
-    generationConfig: {
-      maxOutputTokens: maxTokens,
-      temperature: 0.7,
-      topP: 0.9,
-    },
+    model: CLAUDE_MODEL,
+    max_tokens: maxTokens,
+    system: systemPrompt,
+    messages,
   };
 
-  const resp = await fetch(
-    `${GEMINI_ENDPOINT_BASE}/${GEMINI_MODEL}:generateContent?key=${apiKey}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-      signal: AbortSignal.timeout(20_000),
-    }
-  );
+  const resp = await fetch(ANTHROPIC_API_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-api-key": apiKey,
+      "anthropic-version": ANTHROPIC_VERSION,
+    },
+    body: JSON.stringify(body),
+    signal: AbortSignal.timeout(25_000),
+  });
 
   if (!resp.ok) {
     const errText = await resp.text();
-    console.error("Gemini API error:", resp.status, errText);
-    throw new Error(`Gemini API error: ${resp.status}`);
+    console.error("Anthropic API error:", resp.status, errText);
+    throw new Error(`Anthropic API error: ${resp.status}`);
   }
 
   const data = await resp.json();
-  const text =
-    data?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+  // Claude returns content as an array of content blocks
+  const text = data?.content?.[0]?.text ?? "";
   return text;
 }
 
@@ -429,7 +428,7 @@ export default async (request: Request) => {
   const effectiveTier = isBusiness ? "business" : "public";
 
   // ── Rate limiting (per IP) ──
-  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  const ip = request.headers.get("x-forwarded-for")?.split(",")?.[0]?.trim() || "unknown";
   const rateCheck = checkRateLimit(ip, effectiveTier);
 
   if (!rateCheck.allowed) {
@@ -464,8 +463,9 @@ export default async (request: Request) => {
     );
   }
 
-  const geminiKey = Netlify.env.get("GEMINI_API_KEY");
-  if (!geminiKey) {
+  // ⚠️  ANTHROPIC_API_KEY — required for Claude Opus 4.6
+  const anthropicKey = Netlify.env.get("ANTHROPIC_API_KEY");
+  if (!anthropicKey) {
     return new Response(
       JSON.stringify({ error: "AI service not configured. Please contact the site admin." }),
       { status: 503, headers: CORS }
@@ -486,8 +486,8 @@ export default async (request: Request) => {
 
   try {
     const maxTokens = isBusiness ? 2048 : 512;
-    const text = await callGemini(
-      geminiKey,
+    const text = await callClaude(
+      anthropicKey,
       systemPrompt,
       history,
       message.trim(),
@@ -513,7 +513,7 @@ export default async (request: Request) => {
     );
   } catch (err: unknown) {
     const errMsg = err instanceof Error ? err.message : "Unknown error";
-    console.error("Gemini chat error:", errMsg);
+    console.error("Claude chat error:", errMsg);
     return new Response(
       JSON.stringify({
         error: "I'm having trouble connecting right now. Please try again in a moment.",
