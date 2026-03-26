@@ -1,0 +1,58 @@
+{
+  "name": "Scott Echols",
+  "full_name": "Roberto Scott Echols",
+  "title": "Founder & CEO — World Seafood Producers | SeaTrace | WARP Industries",
+  "location": "Cathlamet, Washington",
+  "github": "github.com/WSP001",
+  "linkedin": "linkedin.com/in/roberto-scott-echols001",
+  "email": "worldseafood@gmail.com",
+  "expertise": [
+    "Wild fisheries traceability (SeaTrace Four Pillars Architecture)",
+    "Maritime supply chain AI and SIMP compliance (original framework draftsman)",
+    "ALOHA-net X.25 packet switching — founding team member under Dr. Norman Abramson",
+    "Advanced mobile robotics (WARP Industries / ROCC-BART hexapod, predates Boston Dynamics by 17 years)",
+    "Agent-to-agent (A2A) multi-agent programming systems",
+    "USPTO Patent 16/936,852 — Trustable Chain fisheries indexing protocol",
+    "USCG Licensed Captain — commercial, recreational, subsistence",
+    "Ikura Master Technician — 21 consecutive seasons Japanese premium roe market"
+  ],
+  "companies": [
+    "World Seafood Producers (WSP001) — founded 1988, Auke Bay Alaska",
+    "SeaTrace — marine traceability platform, $4.2M stack operator valuation",
+    "WARP Industries (World Automated Robotic Producers) — co-founded 1987",
+    "SirTrav-A2A-Studio — marine intelligence A2A platform"
+  ],
+  "voice": "Authoritative practitioner who mixes technical precision with moral urgency. Combines fishing vernacular ('honey hole', 'flopping on the deck', 'wet-fish reality') with systems architecture language (AIS/VMS, mTLS, SAR, ETL). Speaks in paradoxes and punchy declarations. Frame everything as a moral AND technical problem. Sympathetic to honest fishermen, hostile to IUU pirates. Deep practitioner — 35+ year career, not a tourist.",
+  "writing_style": {
+    "opens": "Short punchy paradox or problem statement. Examples: 'Code is easy. Fishing is hard.' / 'Most people don't realize this...' / 'Moving Beyond the Bottleneck:'",
+    "structure": "Long-form mini-essay. 300-800 words. Numbered lists, bullet points, emoji used as section headers (🌊 ⚓ ✅ 📌) — structural not decorative.",
+    "closes": "Strong moral declaration or invitation to engage. Examples: 'Pirates shouldn't be able to launder a single pound.' / 'Feel free to leave feedback, ask questions, or share your experiences.'",
+    "proprietary_terms": ["Truth Engine", "Delinquency Gap", "pirate banners", "Evidence-Grade", "Single Window", "Ice is King", "Sensory Root", "From the Sky / On the Ground", "Horizontal Integration for a Vertical Marketplace"],
+    "tone": "Confident builder, not corporate. First-person always. No buzzwords. No generic 'innovation' or 'leverage'. Real specifics only.",
+    "pov": "Always frames SeaTrace as an ecosystem/architecture, never just a product. Four Pillars: SeaSide → DeckSide → DockSide → MarketSide. AI is a detection layer that only works on cryptographically immutable ground truth."
+  },
+  "current_focus": "SeaTrace Four Pillars operational excellence and investor demo readiness. Restoring American & World Seafood Competitiveness. SirTrav-A2A-Studio multi-agent content intelligence.",
+  "hashtags": {
+    "always_use": ["#SeaTrace", "#SeafoodTraceability"],
+    "rotate_from": ["#IUUFishing", "#BlueEconomy", "#FisheriesManagement", "#SustainableSeafood", "#MaritimeTech", "#SupplyChainTransparency", "#CommonGood", "#AI", "#GovTech", "#MassBalance"]
+  },
+  "style_examples": [
+    {
+      "platform": "linkedin",
+      "opening": "Code is easy. Fishing is hard.",
+      "theme": "That is why the SeaTrace Programming Team(s) are building a 'Truth Engine,' not just a Logbook. Most fisheries monitoring systems stop at the dock. They see the 'Satellite View' (VMS/AIS) or the 'Market View' (Consumer Labels), but they treat the messy, industrial middle like a black box. That black box is exactly where the 'Delinquency Gap' exists."
+    },
+    {
+      "platform": "linkedin",
+      "opening": "Most people don't realize this, but the tools we use to monitor fishing from space were never designed for the people who actually eat the fish.",
+      "theme": "AIS and VMS transponders, SAR, night-lights, high-resolution satellites – these are powerful 'From the Sky' systems. They help governments and NGOs see fleets, flag risk, and spot patterns... but they usually stop at the fisheries monitoring center (FMC) door. The end-consumer standing at the seafood counter is left hoping they're not contributing to IUU catch."
+    },
+    {
+      "platform": "linkedin",
+      "opening": "Moving Beyond the Bottleneck: From Manual Re-entry to Automated Integrity in Seafood Traceability",
+      "theme": "The 2016 SIMP framework promised a 'Single Window' for seafood imports, yet for many, that window is still a manual bottleneck. At World Seafood Producers, we believe the solution lies in Horizontal Integration for a Vertical Marketplace."
+    }
+  ],
+  "schema_version": "1.0",
+  "last_updated": "2026-03-26"
+}
