@@ -1395,6 +1395,74 @@
       .quick-btn { padding: 9px 10px; }
       .section-number { font-size: 4rem; right: 1rem; }
     }
+
+    /* ── Sir James Adventures Music Player ────────────────── */
+    .sj-card { position: relative; }
+    .sj-badge {
+      display: inline-block;
+      font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; padding: 2px 8px; border-radius: 20px;
+      background: rgba(139,92,246,0.15); color: #8b5cf6;
+      border: 1px solid rgba(139,92,246,0.3); margin-left: 0.5rem;
+      vertical-align: middle;
+    }
+    .sj-player {
+      margin: 0.9rem 0 0.7rem;
+      background: rgba(139,92,246,0.07);
+      border: 1px solid rgba(139,92,246,0.22);
+      border-radius: 10px; padding: 0.7rem 0.9rem;
+    }
+    .sj-player-label {
+      font-size: 0.65rem; color: #8b5cf6; text-transform: uppercase;
+      letter-spacing: 0.1em; margin-bottom: 0.35rem; opacity: 0.8;
+    }
+    .sj-player-track {
+      font-size: 0.88rem; color: var(--text); font-weight: 500;
+      margin-bottom: 0.5rem; cursor: pointer; white-space: nowrap;
+      overflow: hidden; text-overflow: ellipsis; max-width: 100%;
+      transition: color 0.2s;
+    }
+    .sj-player-track:hover { color: #8b5cf6; }
+    .sj-controls { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
+    .sj-btn {
+      background: rgba(139,92,246,0.12); border: 1px solid rgba(139,92,246,0.28);
+      color: #8b5cf6; border-radius: 6px; padding: 0.28rem 0.6rem;
+      cursor: pointer; font-size: 0.88rem; transition: all 0.18s; line-height: 1;
+    }
+    .sj-btn:hover { background: rgba(139,92,246,0.28); }
+    .sj-btn.sj-play-btn { font-size: 1rem; padding: 0.32rem 0.8rem; }
+    .sj-btn.sj-star-btn.fav { color: #fbbf24; border-color: rgba(251,191,36,0.4); background: rgba(251,191,36,0.1); }
+    .sj-fav-ct { font-size: 0.75rem; color: #fbbf24; min-width: 2rem; }
+    .sj-track-list {
+      margin-top: 0.6rem; max-height: 140px; overflow-y: auto;
+      background: rgba(0,0,0,0.25); border-radius: 6px; padding: 0.3rem;
+      display: none;
+    }
+    .sj-track-list.open { display: block; }
+    .sj-track-item {
+      padding: 0.3rem 0.5rem; font-size: 0.78rem; color: var(--text-muted);
+      cursor: pointer; border-radius: 4px; display: flex; gap: 0.5rem;
+      align-items: center; transition: background 0.15s;
+    }
+    .sj-track-item:hover { background: rgba(139,92,246,0.1); color: var(--text); }
+    .sj-track-item.playing { color: #8b5cf6; background: rgba(139,92,246,0.14); font-weight: 500; }
+    .sj-status { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.3rem; min-height: 1rem; }
+    .sj-card-links { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 0.75rem; }
+    .sj-link {
+      display: inline-block; font-size: 0.78rem; padding: 0.3rem 0.75rem;
+      border-radius: 6px; text-decoration: none; transition: all 0.18s;
+      border: 1px solid; font-weight: 500;
+    }
+    .sj-link.primary {
+      color: #8b5cf6; border-color: rgba(139,92,246,0.4);
+      background: rgba(139,92,246,0.08);
+    }
+    .sj-link.primary:hover { background: rgba(139,92,246,0.2); }
+    .sj-link.secondary {
+      color: var(--text-muted); border-color: rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.03);
+    }
+    .sj-link.secondary:hover { background: rgba(255,255,255,0.07); color: var(--text); }
   </style>
 </head>
 <body>
@@ -1557,7 +1625,7 @@
             Architected the SeaTrace Four Pillars marine intelligence platform — vessel tracking (SeaSide), catch
             verification (DeckSide), supply chain management (DockSide), and consumer traceability (MarketSide) —
             with a $4.2M stack operator valuation. Built SirTrav-A2A-Studio: a D2A (Doc-to-Agent) multi-agent
-            video production platform using Claude Opus + Gemini Embedding 2 multimodal RAG over Netlify Edge Functions.
+            video production platform using Gemini 2.0 Flash + Gemini Embedding 2 multimodal RAG over Netlify Edge Functions.
             Designed A2A (agent-to-agent) protocol architecture for fully orchestrated AI production pipelines.
           </div>
           <div class="timeline-achievements">
@@ -1568,6 +1636,56 @@
           </div>
         </div>
         <div class="timeline-empty"></div>
+      </div>
+
+      <!-- Sir James Adventures — Personal Creative (NOT SeaTrace business) -->
+      <div class="timeline-item reveal">
+        <div class="timeline-dot" style="background:#8b5cf6;box-shadow:0 0 14px rgba(139,92,246,0.7)"></div>
+        <div class="timeline-empty"></div>
+        <div class="timeline-card sj-card" style="border-color:rgba(139,92,246,0.28);background:rgba(139,92,246,0.03)">
+          <div class="timeline-period" style="color:#8b5cf6">
+            2024 — Present
+            <span class="sj-badge">Personal Creative</span>
+          </div>
+          <div class="timeline-role">Creator &amp; AI Producer — Interactive Children's Book Series</div>
+          <div class="timeline-company">Sir James Adventures &nbsp;·&nbsp; SirTrav Studio &nbsp;·&nbsp; WSP001</div>
+          <div class="timeline-desc">
+            AI-illustrated interactive children's adventure series created for grandson Sir James.
+            History as it applies today — kids learn while having fun alongside parents.
+            Sir James, a young aspiring knight, navigates multi-directional pathways toward the right
+            bridge to cross. Gramps (Scott, personified) guides from the background — speaking only when
+            truly needed, the voice of a wise knight. Claude, the loyal red-boned hound, is always nearby.
+            Parents co-write the next chapter alongside the AI.
+            <br><strong style="color:#8b5cf6">Book001 live — 80 scenes, 10 chapters. Book002 in production.</strong>
+          </div>
+
+          <!-- Sir James Music Player -->
+          <div class="sj-player" id="sjPlayer">
+            <div class="sj-player-label">🎵 Sir James Adventures — Soundtrack</div>
+            <div class="sj-player-track" id="sjTrackName" title="Click to show song list">Sir James Theme ▾</div>
+            <div class="sj-controls">
+              <button class="sj-btn" id="sjPrev" title="Previous">⏮</button>
+              <button class="sj-btn sj-play-btn" id="sjPlay" title="Play / Pause">▶ Play</button>
+              <button class="sj-btn" id="sjNext" title="Next">⏭</button>
+              <button class="sj-btn sj-star-btn" id="sjStar" title="Mark favorite">☆</button>
+              <span class="sj-fav-ct" id="sjFavCt"></span>
+            </div>
+            <div class="sj-track-list" id="sjTrackList"></div>
+            <div class="sj-status" id="sjStatus"></div>
+            <audio id="sjAudio" preload="none"></audio>
+          </div>
+
+          <div class="timeline-achievements">
+            <span class="achievement-chip" style="border-color:rgba(139,92,246,0.35);color:#8b5cf6">📚 Book001 — 80 Scenes / 10 Chapters</span>
+            <span class="achievement-chip">🎨 AI Illustration Pipeline</span>
+            <span class="achievement-chip" style="border-color:rgba(139,92,246,0.3)">👨‍👧 Parent Interactive Dashboard</span>
+            <span class="achievement-chip">📖 Book002 In Production</span>
+          </div>
+          <div class="sj-card-links">
+            <a href="https://sirjamesadventure2024.netlify.app" target="_blank" class="sj-link primary">📖 Read Book001</a>
+            <a href="https://github.com/WSP001/SirJamesAdventures" target="_blank" class="sj-link secondary">⌨ GitHub</a>
+          </div>
+        </div>
       </div>
 
       <!-- 2: Full-Stack Dev Era -->
@@ -1779,8 +1897,10 @@
             ALOHA-net established the first wide-area mobile/wireless packet switching international network using
             the X.25 protocol — the foundational technology that reduced the complexity of Ethernet and Wi-Fi
             and became the basis for the modern internet. Simultaneously completed Masters-level Digital
-            Communication Engineering coursework and worked as a Marketing Specialist at the Hawaii State
-            Department of Agriculture promoting Pacific seafood markets.
+            Communication Engineering coursework and ran a volunteer homebound project — using ADS engineers
+            and ALOHA-net team members to install FM radio-networked computer systems for disabled and
+            homebound citizens in Honolulu: color-coded food ordering, pre-programmed commands, proto-IoT
+            assistive technology decades before the term existed.
           </div>
           <div class="timeline-achievements">
             <span class="achievement-chip cyan">🌐 ALOHA-net · X.25 Protocol</span>
@@ -1811,6 +1931,40 @@
             <span class="achievement-chip">🏈 Football Scholarship</span>
             <span class="achievement-chip cyan">⚓ USCG Captain</span>
             <span class="achievement-chip cyan">📜 USPTO Patent 16/936,852</span>
+          </div>
+        </div>
+        <div class="timeline-empty"></div>
+      </div>
+
+      <!-- 12: DCHS Football Legacy -->
+      <div class="timeline-item reveal">
+        <div class="timeline-dot" style="background:var(--gold);box-shadow:0 0 12px var(--gold)"></div>
+        <div class="timeline-card" style="border-color:rgba(212,175,55,0.2)">
+          <div class="timeline-period" style="color:var(--gold)">1975 — 1979 &nbsp;·&nbsp; <span style="font-size:0.75em;opacity:0.75">LEGACY</span></div>
+          <div class="timeline-role">Student-Athlete &amp; Program Legacy Custodian</div>
+          <div class="timeline-company">Dodge County High School &nbsp;·&nbsp; Eastman, Georgia</div>
+          <div class="timeline-desc">
+            Dodge County High School football — a national-caliber program that built the discipline,
+            competitive drive, and leadership defining Scott's 40-year career. Earned a full football
+            scholarship to <strong>Lees McRae College</strong>, Banner Elk, NC — nestled between
+            <em>Beech Mountain</em> and <em>Sugar Mountain</em> ski resorts in the NC high country.
+            <br><br>
+            The night of graduation, 1979: coach gave permission to fly to Alaska before camp.
+            Fished the <strong>F/V Anastasia</strong>, a brand-new Chignik pocket seiner, under
+            rookie captain <strong>Hank Brindle</strong> — born and raised in Chignik, Alaska.
+            Targeting <em>bluebacks</em> — the largest, highest-oil Sockeye salmon — using
+            the 300-foot bottleneck at Chignik Lagoon. Earned <strong>$22,000 in two months</strong>
+            as a first-year deckhand, left early for football camp as agreed.
+            That summer forged the career: technology and seafood, always running in parallel.
+          </div>
+          <div class="timeline-achievements">
+            <span class="achievement-chip" style="color:var(--gold);border-color:rgba(212,175,55,0.4)">🏈 Football Scholarship — Lees McRae</span>
+            <span class="achievement-chip">🐟 Chignik — $22K Summer 1979</span>
+            <span class="achievement-chip">🎓 DCHS Class of 1979</span>
+            <span class="achievement-chip">📋 Alumni Legacy Custodian</span>
+          </div>
+          <div class="sj-card-links">
+            <a href="https://github.com/WSP001/DCHS-Football-" target="_blank" class="sj-link secondary">⌨ DCHS Football GitHub</a>
           </div>
         </div>
         <div class="timeline-empty"></div>
@@ -3851,6 +4005,113 @@ window.RSE_CV_KEYWORDS = {
   setTimeout(() => { player.style.opacity = '0.55'; }, 4000);
   player.addEventListener('mouseenter', () => player.style.opacity = '1');
   player.addEventListener('mouseleave', () => { if (!playing) player.style.opacity = '0.55'; });
+})();
+
+// ── Sir James Adventures Music Player ───────────────────────────────────────
+// Songs served from /audio/sir-james/ — copy files from:
+// C:\Users\Roberto002\OneDrive\Sir James\Sir James MP3\
+(function() {
+  const BASE = '/audio/sir-james/';
+  const SONGS = [
+    { file: 'Sir James Adventures.mp3',          title: 'Sir James Theme' },
+    { file: 'Sir James AdventuressSONG001.mp3',  title: 'Adventure Song I' },
+    { file: 'Sir James AdventuresSONG002.mp3',   title: 'Adventure Song II' },
+    { file: 'Sir James AdventuresSONG003.mp3',   title: 'Adventure Song III' },
+    { file: "_Sir James' Adventure Song_.mp3",   title: 'The Quest Begins' },
+    { file: "_Sir James' Adventure Song004.mp3", title: 'Adventure Song IV' },
+    { file: "_Sir James' Adventure Song006.mp3", title: 'Adventure Song VI' },
+    { file: "_Sir James' Adventure Song007.mp3", title: 'Adventure Song VII' },
+  ];
+
+  const audio    = document.getElementById('sjAudio');
+  const playBtn  = document.getElementById('sjPlay');
+  const prevBtn  = document.getElementById('sjPrev');
+  const nextBtn  = document.getElementById('sjNext');
+  const starBtn  = document.getElementById('sjStar');
+  const trackEl  = document.getElementById('sjTrackName');
+  const favCtEl  = document.getElementById('sjFavCt');
+  const listEl   = document.getElementById('sjTrackList');
+  const statusEl = document.getElementById('sjStatus');
+
+  if (!audio || !playBtn) return;  // guard if card not present
+
+  let cur = 0;
+  let isPlaying = false;
+  const favs = JSON.parse(localStorage.getItem('sj_favs') || '{}');
+
+  function saveFavs() { localStorage.setItem('sj_favs', JSON.stringify(favs)); }
+
+  function updateStar() {
+    const isFav = !!favs[SONGS[cur].file];
+    starBtn.textContent = isFav ? '★' : '☆';
+    starBtn.classList.toggle('fav', isFav);
+    const total = Object.values(favs).filter(Boolean).length;
+    favCtEl.textContent = total > 0 ? total + ' ★' : '';
+  }
+
+  function renderList() {
+    listEl.innerHTML = SONGS.map((s, i) => {
+      const star = favs[s.file] ? '★ ' : '';
+      const cls = i === cur ? ' playing' : '';
+      return `<div class="sj-track-item${cls}" data-idx="${i}">${star}${s.title}</div>`;
+    }).join('');
+    listEl.querySelectorAll('.sj-track-item').forEach(el => {
+      el.addEventListener('click', () => loadSong(parseInt(el.dataset.idx)));
+    });
+  }
+
+  function loadSong(idx) {
+    cur = ((idx % SONGS.length) + SONGS.length) % SONGS.length;
+    const song = SONGS[cur];
+    audio.src = BASE + encodeURIComponent(song.file);
+    trackEl.textContent = song.title + ' ▾';
+    statusEl.textContent = '';
+    updateStar();
+    renderList();
+    if (isPlaying) audio.play().catch(handleLoadErr);
+  }
+
+  function handleLoadErr() {
+    isPlaying = false;
+    playBtn.textContent = '▶ Play';
+    statusEl.textContent = '⚠ Audio files not yet hosted — visit sirjamesadventure2024.netlify.app';
+  }
+
+  playBtn.addEventListener('click', () => {
+    if (isPlaying) {
+      audio.pause();
+      isPlaying = false;
+      playBtn.textContent = '▶ Play';
+    } else {
+      if (!audio.src || audio.src === location.href) loadSong(cur);
+      audio.play().then(() => {
+        isPlaying = true;
+        playBtn.textContent = '⏸ Pause';
+        statusEl.textContent = '♫ Now Playing';
+      }).catch(handleLoadErr);
+    }
+  });
+
+  prevBtn.addEventListener('click', () => loadSong(cur - 1));
+  nextBtn.addEventListener('click', () => loadSong(cur + 1));
+
+  starBtn.addEventListener('click', () => {
+    const key = SONGS[cur].file;
+    favs[key] = !favs[key];
+    saveFavs();
+    updateStar();
+    renderList();
+  });
+
+  audio.addEventListener('ended', () => loadSong(cur + 1));
+
+  trackEl.addEventListener('click', () => {
+    listEl.classList.toggle('open');
+    renderList();
+  });
+
+  // Init
+  loadSong(0);
 })();
 </script>
 </body>

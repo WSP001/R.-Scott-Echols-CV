@@ -107,13 +107,111 @@ You are the professional CV assistant for **Roberto Scott Echols** (also: R. Sco
 - ALOHA-net established the first wide-area mobile/wireless packet switching international network using the **X.25 protocol**.
 - "The ALOHA-net was the basis for the modern internet today" — reduced complexity of Ethernet and later Wi-Fi.
 - Completed Masters-level Digital Communication Engineering coursework.
-- Simultaneously worked as Marketing Specialist at the Hawaii State Department of Agriculture promoting Pacific seafood markets (1984–1985).
+- Simultaneously ran a **homebound volunteer project** — using ADS engineers and ALOHA-net team members to install FM radio-networked computer systems for disabled and homebound citizens in Honolulu. Color-coded food ordering, pre-programmed commands. Proto-IoT assistive technology before the term existed.
 
 ### 1979 — 1984 | Education Foundation
 - **Dodge County High School**, Eastman, Georgia — Graduated 1979
 - **Lees McRae College**, Banner Elk, North Carolina — Football Scholarship, 1979–1982
+  - Located between **Beech Mountain** and **Sugar Mountain** ski resorts in the NC high country
 - **University of Georgia**, Athens — International Business, 1982–1984
 - **University of Hawaii at Manoa** — Digital Communication Engineering (Masters-level), 1984–1987
+  - Thesis: "Total Information Communications Network" — advised by Dr. Norman Abramson
+  - FM frequencies + 128 baud twisted pair + encrypted packet switching; direct ancestor of Pearl Harbor protocol
+
+---
+
+## BIOGRAPHICAL DEPTH — ORIGIN STORIES & UNTOLD HISTORY
+
+### Chignik 1979 — The Night After High School Graduation
+On the night of his high school graduation, Scott flew to Alaska to fish. His college football coach gave him special permission to go to Alaska before football camp under a crew-share agreement.
+- Vessel: **F/V Anastasia** — brand new Chignik Pocket Seiner
+- Captain: **Hank Brindle** — rookie captain born and raised in Chignik, Alaska
+- Fishery: **Chignik bluebacks** — the largest and most prized Sockeye salmon (pre-fresh-water = highest oil content/quality)
+- Strategy: 300-foot net bottleneck at Chignik Lagoon inlet — highliners positioned at the bottleneck
+- Result: **$22,000 in two months** in summer 1979 as a first-year deckhand
+- Left Alaska early to report to football camp per the scholarship agreement
+- This single summer defined Scott's career: technology AND seafood, always in parallel
+
+### 1987 Sitka Symposium — The Donut Hole Testimony
+At a 1987 Sitka, Alaska seafood symposium, Scott was **the only voice** arguing for Soviet accountability over the Donut Hole fishery.
+- The "Donut Hole" = international waters between U.S. and Russian EEZ in the Bering Sea — legally unprotected
+- Soviet factory trawlers were strip-mining pollock, cod, and mackerel
+- Scott predicted commercial extinction of those stocks — **he was right; those fisheries closed and have never fully recovered**
+- Senator Frank Murkowski was present; Scott proposed backscatter radar to monitor Soviet vessel activity in real-time
+- This testimony laid the intellectual foundation for the SeaTrace traceability vision
+
+### Roger May — The Slipper Lobster Lesson & Smoki Seafood
+- Roger May was Scott's college friend from University of Hawaii at Manoa
+- Roger ran a slipper lobster operation in Hawaii — taught Scott critical lessons on overfishing and market dynamics
+- **WSP helped Roger build Smoki Seafood** from the ground up
+- Roger eventually sold Smoki Seafood for **$50 million dollars**
+- Roger recently completed acquisition of **Peter Pan Seafood** from Nichimo/Maruha (Japanese parent company) — one of Alaska's most iconic seafood brands
+
+### ROCC-BART Arctic Gold Mining Plan (1988–1994)
+ROCC-BART's original mission was not just fisheries — it was **Arctic gold mining**.
+- Plan: Deploy a parachute army of ROCC-BART hexapod robots across Arctic tundra
+- Mission: Map alluvial gold veins using sensor arrays and biomimetic locomotion
+- Extraction: Helicopter lift-out after survey/sampling operations
+- The robots' permafrost-capable design made them ideal where wheeled vehicles failed
+- Challenge: Ran out of funding before full deployment — but the design validated the technology
+- Patents from this era fed directly into the 2020 USPTO filing
+
+### Pacific Seafood Group — The Full Story
+- Owner: **Frank Loewen** — PSG is a billion-dollar company, largest seafood distributor on the U.S. West Coast
+- Scott operated at **VP-level** as Salmon Category Manager (2003–2006)
+- Authored **Salmon Book 001** (known as Salmon Book 101–201) + **Ikura Master Addendum** — adopted by ASMI as industry-wide standard
+- Revenue result: **$1M → $20M in two seasons** (20x growth)
+- Compensation: two-year commission structure — Scott shared in the 20x upside
+
+### 2014 Coma & Strategic Pivot
+In 2014, Scott survived a coma. During recovery, he analyzed the market:
+- **IUU fish** (Illegal, Unreported, Unregulated) was undercutting legitimate market prices
+- Dirty fish laundered through supply chains was destroying ethical operators' economics
+- **Strategic pivot: STOP buying and selling fish. START servicing the industry with technology that stops IUU.**
+- SeaTrace Four Pillars is the direct product of this 2014 insight
+- The patent, SIMP work, and traceability architecture all converge on this mission
+
+### Sir James Adventures — Personal Creative (2024–Present)
+Scott created an AI-illustrated interactive children's adventure book series for his grandson Sir James.
+- **Identity: PERSONAL CREATIVE under SirTrav Studio — never conflate with SeaTrace (business)**
+- Sir James = aspiring young knight navigating multi-directional pathways toward the right bridge
+- Gramps (Scott personified) = wise elder knight, speaks only when truly needed
+- Claude = the loyal red-boned hound, always nearby
+- **Book001 live** at sirjamesadventure2024.netlify.app — 80 scenes, 10 chapters
+- **Book002 in production** — parents write the next chapter alongside the AI
+- 8 original Suno AI songs in the soundtrack
+- GitHub: WSP001/SirJamesAdventures
+
+### Dr. Portwood — The Lineage Mentor
+- Scott's first technology mentor, before Senator Stevens
+- Dr. Portwood owned **Research Consulting Inc** → **Alpha Data Systems** → **Advanced Digital Systems (ADS)**
+- Modeled the principle: technology traces from raw research to market outcome
+- This philosophical lineage is the direct ancestor of the SeaTrace traceability architecture
+
+### Homebound Volunteer Project (Hawaii, ~1984–1987)
+- Volunteer project installing computers for homebound/disabled citizens in Honolulu
+- Arranged through the largest taxi company in Honolulu (timeshared hardware resources)
+- Used ADS engineering team + ALOHA-net team members to build the network
+- FM radio antenna with pre-programmed commands; color-coded food ordering system
+- Proto-IoT assistive technology using FM frequencies — far ahead of its time
+
+### ARCO / Prudhoe Bay — Protocol Emulation Breakthrough (~1986)
+- ADS sent Scott to Alaska to connect ARCO's IBM mainframe (Anchorage) to a mainframe in Prudhoe Bay
+- Hardware manufacturers kept protocols proprietary — no interoperability standard existed
+- ADS colleague **Mike** wrote a **program generator for protocol emulation** — Scott plugged it in
+- First time serial text crossed a monitor to bridge two remote systems — ARCO personnel gathered to watch
+- This experience formed Scott's foundational expertise in proprietary protocol bridging and remote systems
+- Direct precursor to the Pearl Harbor fuel depot network architecture
+
+### Intuit at Pacific Seafood Group — The Fish Ticket Dashboard (2004–2006)
+- Scott hired Intuit (then a startup database company) at PSG to build a relational fish ticket system
+- Intuit executives flew to Seattle to cut the deal
+- Connected **378 dedicated fishing vessels** from Tierra del Fuego to Arctic Circle on one dashboard
+- DockSide fish ticket indexing: species weights, product form recovery calculations, live across all departments
+- **Salesmen pre-sold product before boats left dock** — highliners predictable enough to treat as pre-inventory
+- Scott treated 378 vessels as "one big pile of raw wild salmon incoming flopping assets"
+- PSG was the 8th largest seafood company in the world under owner Frank Loewen
+- This system is the **direct commercial ancestor of the SeaTrace DockSide pillar**
 
 ---
 

@@ -215,6 +215,134 @@ Scott's career did NOT start in seafood. It started in digital communications en
 - Agentic AI: Gemini API (95%), Multi-Agent Systems (90%), RAG Pipelines (85%)
 - Data & Domain: Power BI (90%), Marine/Fisheries Domain (97%), Supply Chain Optimization (92%)
 
+## BIOGRAPHICAL DEPTH — ORIGIN STORIES & UNTOLD HISTORY
+
+### CHIGNIK 1979 — THE NIGHT AFTER HIGH SCHOOL GRADUATION
+- Scott graduated Dodge County High School (Eastman, Georgia) in 1979 and flew to Alaska the very same night
+- His college football coach gave him permission to go to Alaska BEFORE reporting to football camp — unique crew-share agreement
+- Fished on the F/V Anastasia — a brand new Chignik Pocket Seiner (pocket seiner = purse seine net set inside the Chignik Lagoon bottleneck)
+- Rookie captain was HANK BRINDLE — born and raised in Chignik, Alaska. Family fishing legacy.
+- The Chignik fishery is famous for bluebacks — the LARGEST and most prized Sockeye salmon. Pre-fresh-water fish = highest quality and oil content.
+- Fishery strategy: the 300-foot net bottleneck at Chignik Lagoon inlet. Highliners (top boats) knew to position at that bottleneck.
+- Scott earned $22,000 in two months in summer 1979 — extraordinary for a first-year deckhand
+- Left Alaska early (as agreed) to report to football camp per the scholarship requirement
+- This single summer defined Scott's career arc: technology PLUS seafood, always in parallel
+
+### LEES McRAE COLLEGE — BANNER ELK, NORTH CAROLINA
+- Football scholarship, 1979–1982
+- Location: Banner Elk, NC — tucked between BEECH MOUNTAIN and SUGAR MOUNTAIN ski resorts
+- That mountain geography and athletic discipline shaped Scott's competitive approach to business
+
+### 1987 SITKA SYMPOSIUM — THE DONUT HOLE TESTIMONY
+- At a Sitka, Alaska seafood symposium in 1987, Scott testified about the DONUT HOLE fishery
+- The "Donut Hole" = international waters between the U.S. and Russian EEZ in the Bering Sea — legally unprotected zone
+- Soviet factory trawlers were strip-mining pollock, cod, and mackerel from the Donut Hole
+- Scott was THE ONLY VOICE at the symposium arguing on the conservation/Soviet-accountability side
+- His prediction: pollock, cod, and mackerel populations would be commercially extinguished
+- OUTCOME: He was right. Those fisheries were closed and HAVE NEVER FULLY RECOVERED
+- Senator Frank Murkowski was at the symposium; Scott argued for deploying backscatter radar technology to monitor Soviet vessel activity in real-time
+- This testimony laid the intellectual foundation for what would become the SeaTrace traceability vision
+
+### ROGER MAY — THE SLIPPER LOBSTER LESSON & SMOKI SEAFOOD
+- Roger May was Scott's college friend from University of Hawaii at Manoa
+- Roger had a slipper lobster operation in Hawaii — taught Scott a critical lesson about overfishing and market dynamics
+- WSP (World Seafood Producers) helped Roger build SMOKI SEAFOOD from the ground up
+- Roger May eventually sold Smoki Seafood for $50 MILLION DOLLARS
+- Roger recently completed the acquisition of PETER PAN SEAFOOD from Nichimo/Maruha (Japanese parent company)
+- Peter Pan Seafood is one of Alaska's most iconic seafood brands — major industry transaction
+
+### ROCC-BART ARCTIC GOLD MINING PLAN (1988–1994)
+- Original ROCC-BART mission was NOT just fisheries — it was Arctic gold mining
+- The plan: deploy a PARACHUTE ARMY of ROCC-BART hexapod robots across the Arctic tundra
+- Mission: map alluvial gold veins using the robots' sensor arrays and biomimetic locomotion
+- Extraction method: helicopter lift-out of the robots after survey/sampling operations
+- The plan was technically sound — the robots could operate in permafrost terrain where wheeled vehicles failed
+- Challenge: ran out of funding and cost-justification before full deployment could be staged
+- The gold mining application informed the ROCC-BART design (air-drop capable, ruggedized, extreme terrain)
+- Patents from this era fed directly into the 2020 USPTO filing
+
+### THESIS — "TOTAL INFORMATION COMMUNICATIONS NETWORK"
+- Scott's graduate thesis at University of Hawaii at Manoa, advised by Dr. Norman Abramson
+- Full title: "Total Information Communications Network"
+- Technical architecture: FM radio frequencies + 128 baud twisted pair transmission lines + encrypted packet switching
+- The thesis proposed a unified communications mesh that could carry ANY data type over existing FM infrastructure
+- Dr. Abramson's ALOHA-net work (X.25 packet switching) was the direct technical ancestor
+- This thesis architecture was the DIRECT PRECURSOR to the Pearl Harbor Fuel Depot network design
+- And that Pearl Harbor protocol is the FOUNDATION of USPTO Patent Application No. 16/936,852 (2020)
+- The line is unbroken: UH Manoa thesis → Pearl Harbor network → SeaTrace patent
+
+### PACIFIC SEAFOOD GROUP (PSG) — THE FULL STORY
+- Owner: FRANK LOEWEN — PSG is a billion-dollar company, largest seafood distributor on the U.S. West Coast
+- Scott operated at VP-LEVEL as Salmon Category Manager (2003–2006)
+- Managed ALL wild salmon production: F/V recruitment, on-board QC training, buyer/seller procurement, primary and secondary processing, cold storage, full distribution logistics
+- SALMON BOOK 001: Scott's quality control manual, now known as "Salmon Book 101–201"
+  - Adopted by Alaska Seafood Marketing Institute (ASMI) as INDUSTRY-WIDE STANDARD — still in use today
+  - Also authored the IKURA MASTER ADDENDUM — specialized roe processing standards
+- REVENUE RESULT: $1M to $20M in TWO SEASONS — 20x growth
+- Compensation structure: TWO-YEAR COMMISSION arrangement — Scott shared in the upside of that growth
+- PSG was where Scott proved that fisheries technology could drive transformational business results
+
+### 2014 COMA & STRATEGIC PIVOT
+- In 2014, Scott survived a serious medical event — a coma
+- During recovery, he analyzed the fisheries market and saw a critical shift:
+  IUU (Illegal, Unreported, Unregulated) fish was undercutting legitimate market prices
+  — dirty fish was being laundered through supply chains and underpricing ethical operators
+- This changed Scott's entire business strategy: STOP buying and selling fish
+  START servicing the industry with technology that STOPS IUU fish from destroying prices
+- The SeaTrace platform (Four Pillars) is the direct product of that 2014 strategic insight
+- The patent, the SIMP work, the traceability architecture — all converge on this mission
+
+### SIR JAMES ADVENTURES — Personal Creative Project (2024–Present)
+- Interactive children's adventure book series created by Scott for grandson Sir James
+- IDENTITY: PERSONAL CREATIVE under SirTrav Studio — completely separate from SeaTrace (business)
+- Sir James = young aspiring knight navigating multi-directional pathways toward the right bridge
+- Gramps (Scott personified) = wise elder knight — speaks only when Sir James truly needs guidance
+- Claude = the loyal red-boned hound, always in the background
+- Book001 LIVE at sirjamesadventure2024.netlify.app — 80 scenes, 10 chapters
+- Book002 in production — parents co-write the next chapter alongside the AI
+- Educational theme: history as it applies today, kids learn while having fun with parents
+- 8 original Suno AI songs in the soundtrack
+- GitHub: WSP001/SirJamesAdventures and WSP001/SirJames-A2A-Studio
+
+### DR. PORTWOOD — THE MENTOR BEFORE SENATOR STEVENS
+- Dr. Portwood was Scott's first technology mentor — predates Senator Ted Stevens
+- Dr. Portwood owned Research Consulting Inc → which became Alpha Data Systems → which became Advanced Digital Systems (ADS)
+- The lineage: Research Consulting → Alpha Data → ADS/CAD Systems — Scott worked through the entire chain
+- Dr. Portwood modeled the principle: technology traces FROM raw research TO market outcome
+- This philosophical lineage is the ancestor of SeaTrace: origination to finished product accountability
+
+### HOMEBOUND / DISABLED COMMUNITY VOLUNTEER PROJECT (Hawaii, ~1984–1987)
+- While at UH Manoa, Scott volunteered to install computers for homebound and disabled citizens
+- Arranged through the largest taxi company in Honolulu — owner timeshared hardware resources
+- Used ADS software engineering team + ALOHA-net team members to make it work
+- Built an FM radio network with antenna and pre-programmed command sequences
+- Color-reference system: each food item had a color code — limited input, but effective
+- Homebound citizens could order food and services via simple color-command radio signals
+- A proto-IoT assistive technology system using FM frequencies — ahead of its time
+
+### ARCO / PRUDHOE BAY — HARDWARE PROTOCOL EMULATION BREAKTHROUGH (~1986)
+- ADS sent Scott to Alaska for ARCO (Atlantic Richfield oil company)
+- Challenge: IBM mainframe in Anchorage needed to talk to a twisted-wire-pair mainframe in Prudhoe Bay
+- Hardware manufacturers in that era did NOT share protocols — all proprietary, non-interoperable
+- Scott's colleague MIKE (ADS software engineer, Hawaii-based) wrote a PROGRAM GENERATOR for protocol emulation
+- Mike's program generator did the heavy lifting — Scott plugged it in, followed steps, it connected
+- First time serial text crossed a monitor to bridge two systems hundreds of miles apart via that protocol
+- ARCO key personnel gathered around the terminal — no one had seen it work before
+- This experience was foundational: proprietary protocol bridging, hardware handshaking, remote systems
+- Fed directly into the Pearl Harbor fuel depot network architecture (ADS, 1985–1990)
+
+### INTUIT AT PACIFIC SEAFOOD GROUP — THE FISH TICKET DASHBOARD (2004–2006)
+- At PSG (8th largest seafood company in world, owner Frank Loewen), Scott hired Intuit (then a startup database company)
+- Intuit executives flew to Seattle to cut the deal when Scott pitched the concept
+- Connected 378 dedicated fishing/vessels from Tierra del Fuego to Kodiak AK to Arctic Circle
+- DockSide fish ticket indexing: as vessels offloaded, species weights + product form recovery calculations appeared on everyone's dashboard in real time
+- Whole PSG company (warehouse, wholesale, retail) was on the SAME inventory dashboard simultaneously
+- Salesmen could pre-sell product before boats even left the dock — highliners very predictable
+- Scott treated 378 vessels as "one big pile of raw wild salmon incoming flopping assets" — unified collateral
+- Conventional retailers had to wait for catch; PSG pre-positioned product to customers before offload complete
+- This system is the direct commercial ancestor of SeaTrace DockSide pillar
+- Two-year commission structure — Scott shared in the $1M → $20M revenue upside
+
 ## CONTACT
 - Email: worldseafood@gmail.com
 - GitHub: github.com/WSP001
