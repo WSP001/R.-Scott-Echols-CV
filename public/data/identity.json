@@ -1,0 +1,53 @@
+{
+  "profile_id": "sirscott",
+  "display_name": "R. Scott Echols",
+  "legal_name": "Roberto Scott Echols",
+  "aliases": ["RSE", "R. Scott Echols", "Roberto Scott Echols"],
+  "contact": {
+    "email": "worldseafood@gmail.com",
+    "github": "https://github.com/WSP001"
+  },
+  "identity_boundaries": {
+    "sirscott": "Professional CV and consulting identity.",
+    "sirtrav": "Personal studio and agent orchestration identity.",
+    "seatrace": "Business and commercial marine traceability work.",
+    "sirjames": "Creative and family storytelling project."
+  },
+  "verified_focus": [
+    "Marine intelligence and fisheries-domain systems",
+    "Traceability and operational software",
+    "AI-assisted workflows, agents, and knowledge tooling",
+    "World Seafood Producers, SeaTrace, and SirTrav-A2A-Studio"
+  ],
+  "public_projects": [
+    "R.-Scott-Echols-CV",
+    "SirTrav-A2A-Studio",
+    "SeaTrace-ODOO",
+    "SirJamesAdventures"
+  ],
+  "trust_policy": [
+    "Answer only from verified files or retrieved grounded context.",
+    "Do not turn legacy narrative drafts into settled fact.",
+    "If the source pack does not support a claim, say it is under review.",
+    "Keep SirTrav personal work separate from SeaTrace business work."
+  ],
+  "source_status": {
+    "public_profile_pack": "verified",
+    "legacy_narrative_brief": "mixed-trust",
+    "early_career_history": "under_review"
+  },
+  "topics_under_review": [
+    "Detailed early-career timeline claims",
+    "Specific Hawaii and ALOHA-net lineage claims",
+    "Pearl Harbor protocol origin details",
+    "Legacy patent-lineage storytelling that is not attached to a source file"
+  ],
+  "fallback_answers": {
+    "background": "R. Scott Echols is the professional identity behind World Seafood Producers, SeaTrace, and SirTrav-A2A-Studio. This public profile is being rebuilt around verified CV source files, so it stays focused on documented current work in marine intelligence, traceability, and AI-assisted systems.",
+    "resume": "The verified public profile currently supports a conservative summary: Scott works across software delivery, knowledge tooling, and seafood-domain operations through World Seafood Producers, SeaTrace, and SirTrav-A2A-Studio. Early-career timeline details are being revalidated before they are presented as settled fact.",
+    "sirtrav": "SirTrav-A2A-Studio is Scott's personal studio for agent orchestration, media pipelines, and AI-assisted production. It is personal studio work and should not be conflated with SeaTrace business systems.",
+    "seatrace": "SeaTrace is the business-side marine traceability and operating-system work under World Seafood Producers. The truth-first rule is to keep SeaTrace answers business-specific and separate from SirTrav personal identity.",
+    "contact": "You can reach Scott at worldseafood@gmail.com and review public work at https://github.com/WSP001.",
+    "default": "I can help with Scott's verified public profile, project boundaries, and current work. If you need deeper historical detail, the cleaned source pack and vector corpus still need review before that material should be treated as fully grounded."
+  }
+}

@@ -32,21 +32,39 @@ import json
 import zipfile
 import xml.etree.ElementTree as ET
 from pathlib import Path
-from typing import Optional
 
-# ── Allowed partitions (from design.md) ──────────────────────────────────────
+# ── Allowed partitions (from design.md) ──────────────────────────────
 PARTITIONS = {
-    "cv_personal":          {"tier": "public",   "desc": "Resume history, skills, career timeline"},
-    "cv_projects":          {"tier": "public",   "desc": "SirTrav, SeaTrace, WAFC, project details"},
-    "business_seatrace":    {"tier": "business", "desc": "SeaTrace Four Pillars API docs, pricing"},
-    "business_proposals":   {"tier": "business", "desc": "Client proposals, pricing, engagements"},
-    "internal_repos":       {"tier": "business", "desc": "GitHub repo summaries, code architecture"},
-    "recreational":         {"tier": "private",  "desc": "Personal interests, background stories"},
+    "cv_personal": {
+        "tier": "public",
+        "desc": "Resume history, skills, career timeline"
+    },
+    "cv_projects": {
+        "tier": "public",
+        "desc": "SirTrav, SeaTrace, WAFC, project details"
+    },
+    "business_seatrace": {
+        "tier": "business",
+        "desc": "SeaTrace Four Pillars API docs, pricing"
+    },
+    "business_proposals": {
+        "tier": "business",
+        "desc": "Client proposals, pricing, engagements"
+    },
+    "internal_repos": {
+        "tier": "business",
+        "desc": "GitHub repo summaries, code architecture"
+    },
+    "recreational": {
+        "tier": "private",
+        "desc": "Personal interests, background stories"
+    },
 }
 
-EMBED_MODEL = "models/embedding-001"  # Gemini Embedding — use text-embedding-004 or gemini-embedding-2-preview when available
-EMBED_DIMS  = 3072  # Target for gemini-embedding-2-preview
-CHUNK_SIZE  = 800   # Characters per chunk (tunable)
+# Gemini Embedding (use gemini-embedding-2-preview when available)
+EMBED_MODEL = "models/embedding-001"
+EMBED_DIMS = 3072  # Target for gemini-embedding-2-preview
+CHUNK_SIZE = 800   # Characters per chunk (tunable)
 CHUNK_OVERLAP = 100
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "..", ".chromadb")
@@ -57,14 +75,20 @@ def get_gemini_client():
     """Initialize Gemini client — fail fast if key not set."""
     api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
-        print("✗ GEMINI_API_KEY not set — run: export GEMINI_API_KEY=your_key_here")
+        print(
+            "✗ GEMINI_API_KEY not set — "
+            "run: export GEMINI_API_KEY=your_key_here"
+        )
         sys.exit(1)
     try:
         import google.generativeai as genai
         genai.configure(api_key=api_key)
         return genai
     except ImportError:
-        print("✗ google-generativeai not installed — run: pip install google-generativeai")
+        print(
+            "✗ google-generativeai not installed — "
+            "run: pip install google-generativeai"
+        )
         sys.exit(1)
 
 
@@ -75,13 +99,12 @@ def get_chroma_collection():
     except ImportError:
         print("✗ chromadb not installed — run: pip install chromadb")
         sys.exit(1)
-    
+
     client = chromadb.PersistentClient(path=DB_PATH)
-    collection = client.get_or_create_collection(
+    return client.get_or_create_collection(
         name=COLLECTION_NAME,
         metadata={"hnsw:space": "cosine"}
     )
-    return collection
 
 
 def embed_text(genai, text: str) -> list[float]:
@@ -94,7 +117,11 @@ def embed_text(genai, text: str) -> list[float]:
     return result["embedding"]
 
 
-def chunk_text(text: str, chunk_size: int = CHUNK_SIZE, overlap: int = CHUNK_OVERLAP) -> list[str]:
+def chunk_text(
+    text: str,
+    chunk_size: int = CHUNK_SIZE,
+    overlap: int = CHUNK_OVERLAP
+) -> list[str]:
     """Split text into overlapping character chunks (fixed strategy)."""
     chunks = []
     start = 0
@@ -110,8 +137,9 @@ def chunk_text(text: str, chunk_size: int = CHUNK_SIZE, overlap: int = CHUNK_OVE
 
 
 def chunk_by_sections(text: str, min_chars: int = 80) -> list[str]:
-    """Split text on markdown # headers for section-based chunking.
-    Falls back to chunk_text() if no headers found."""
+    """Split text on markdown headers for section-based chunking.
+    Falls back to chunk_text() if no headers found.
+    """
     parts = re.split(r"(?m)^(#{1,3} )", text)
     chunks, current = [], ""
     for part in parts:
@@ -123,11 +151,11 @@ def chunk_by_sections(text: str, min_chars: int = 80) -> list[str]:
             current += part
     if current.strip() and len(current.strip()) >= min_chars:
         chunks.append(current.strip())
-    return chunks if chunks else chunk_text(text)
+    return chunks or chunk_text(text)
 
 
 def extract_text_from_docx(path: Path) -> str:
-    """Extract plain text from DOCX using stdlib only (no python-docx needed)."""
+    """Extract plain text from DOCX using stdlib only."""
     ns = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
     try:
         with zipfile.ZipFile(path) as z:
@@ -135,7 +163,9 @@ def extract_text_from_docx(path: Path) -> str:
                 tree = ET.parse(f)
         paragraphs = []
         for para in tree.iter(f"{ns}p"):
-            texts = [node.text for node in para.iter(f"{ns}t") if node.text]
+            texts = [
+                node.text for node in para.iter(f"{ns}t") if node.text
+            ]
             if texts:
                 paragraphs.append("".join(texts))
         return "\n\n".join(paragraphs)
@@ -160,8 +190,16 @@ def extract_text_from_pdf(path: Path) -> str:
         return ""
 
 
-def ingest_file(genai, collection, file_path: str, partition: str, chunk_strategy: str = "fixed") -> int:
-    """Ingest a single file into ChromaDB. Supports .md .txt .json .docx .pdf"""
+def ingest_file(
+    genai,
+    collection,
+    file_path: str,
+    partition: str,
+    chunk_strategy: str = "fixed"
+) -> int:
+    """Ingest a single file into ChromaDB.
+    Supports .md .txt .json .docx .pdf
+    """
     path = Path(file_path)
     if not path.exists():
         print(f"  ✗ File not found: {file_path}")
@@ -193,17 +231,19 @@ def ingest_file(genai, collection, file_path: str, partition: str, chunk_strateg
     ingested = 0
     for i, chunk in enumerate(chunks):
         # Deterministic ID based on file content
-        chunk_id = hashlib.sha256(f"{file_path}::{i}::{chunk[:50]}".encode()).hexdigest()[:16]
-        doc_id = f"{partition}::{path.name}::{chunk_id}"
-        
+        chunk_hash = hashlib.sha256(
+            f"{file_path}::{i}::{chunk[:50]}".encode()
+        ).hexdigest()[:16]
+        doc_id = f"{partition}::{path.name}::{chunk_hash}"
+
         # Check if already ingested
         existing = collection.get(ids=[doc_id])
         if existing["ids"]:
             print(f"  → Skipping chunk {i+1}/{len(chunks)} (already ingested)")
             continue
-        
+
         embedding = embed_text(genai, chunk)
-        
+
         collection.add(
             ids=[doc_id],
             embeddings=[embedding],
@@ -218,15 +258,17 @@ def ingest_file(genai, collection, file_path: str, partition: str, chunk_strateg
         )
         ingested += 1
         print(f"  ✓ Chunk {i+1}/{len(chunks)} ingested (id: {doc_id[:12]}...)")
-    
+
     return ingested
 
 
-MANIFEST_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "rse_cv_manifest.json")
+MANIFEST_PATH = os.path.join(
+    os.path.dirname(__file__), "..", "data", "rse_cv_manifest.json"
+)
 KB_ROOT = os.path.join(os.path.dirname(__file__), "..", "knowledge_base")
 
 
-def cmd_ingest_manifest(args):
+def cmd_ingest_manifest(args):  # noqa: ARG001
     """Ingest all active sources listed in data/rse_cv_manifest.json."""
     manifest_path = Path(MANIFEST_PATH)
     if not manifest_path.exists():
@@ -234,8 +276,12 @@ def cmd_ingest_manifest(args):
         sys.exit(1)
 
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    sources = [s for s in manifest.get("sources", []) if s.get("status") == "active"]
-    print(f"Manifest v{manifest.get('version','?')} — {len(sources)} active sources\n")
+    sources = [
+        s for s in manifest.get("sources", [])
+        if s.get("status") == "active"
+    ]
+    manifest_ver = manifest.get('version', '?')
+    print(f"Manifest v{manifest_ver} — {len(sources)} active sources\n")
 
     genai = get_gemini_client()
     collection = get_chroma_collection()
@@ -246,7 +292,9 @@ def cmd_ingest_manifest(args):
         chunk_strategy = src.get("chunk_strategy", "section")
         source_file = src.get("source_path", "")
         title = src.get("title", source_file)
-        partition = "cv_personal" if tier == "public" else "business_seatrace"
+        partition = (
+            "cv_personal" if tier == "public" else "business_seatrace"
+        )
 
         # Search: knowledge_base/{tier}/cv/ first, then docs/
         candidates = [
@@ -260,11 +308,21 @@ def cmd_ingest_manifest(args):
             continue
 
         print(f"\n[{src['id']}] {title}")
-        print(f"  File: {file_path.name}  |  Partition: {partition}  |  Strategy: {chunk_strategy}")
-        count = ingest_file(genai, collection, str(file_path), partition, chunk_strategy)
+        file_info = (
+            f"  File: {file_path.name}  |  Partition: {partition}  |  "
+            f"Strategy: {chunk_strategy}"
+        )
+        print(file_info)
+        count = ingest_file(
+            genai, collection, str(file_path), partition, chunk_strategy
+        )
         total += count
 
-    print(f"\n✓ Manifest ingest complete — {total} new chunks added to '{COLLECTION_NAME}'")
+    complete_msg = (
+        f"\n✓ Manifest ingest complete — {total} new chunks added to "
+        f"'{COLLECTION_NAME}'"
+    )
+    print(complete_msg)
     print(f"  DB path: {DB_PATH}")
 
 
@@ -274,21 +332,27 @@ def cmd_ingest(args):
     source = args.source
     
     if partition not in PARTITIONS:
-        print(f"✗ Unknown partition '{partition}'. Allowed: {list(PARTITIONS.keys())}")
+        allowed = list(PARTITIONS.keys())
+        print(f"✗ Unknown partition '{partition}'. Allowed: {allowed}")
         sys.exit(1)
     
-    print(f"Ingesting into partition: {partition} ({PARTITIONS[partition]['tier']} tier)")
-    
+    partition_info = PARTITIONS[partition]
+    tier_info = partition_info['tier']
+    print(f"Ingesting into partition:  {partition} ({tier_info} tier)")
+
     genai = get_gemini_client()
     collection = get_chroma_collection()
-    
+
     source_path = Path(source)
     total = 0
-    
+
     if source_path.is_file():
         files = [source_path]
     elif source_path.is_dir():
-        files = list(source_path.glob("**/*.md")) + list(source_path.glob("**/*.txt")) + list(source_path.glob("**/*.json"))
+        md_files = list(source_path.glob("**/*.md"))
+        txt_files = list(source_path.glob("**/*.txt"))
+        json_files = list(source_path.glob("**/*.json"))
+        files = md_files + txt_files + json_files
         print(f"Found {len(files)} files in {source_path}")
     else:
         print(f"✗ Source not found: {source}")
@@ -313,10 +377,10 @@ def cmd_query(args):
     if partition:
         print(f"  Partition filter: {partition}")
     print(f"  Top-K: {top_k}\n")
-    
+
     genai = get_gemini_client()
     collection = get_chroma_collection()
-    
+
     # Embed the query
     query_embedding = genai.embed_content(
         model=EMBED_MODEL,
@@ -345,12 +409,16 @@ def cmd_query(args):
     )):
         score = 1 - dist  # cosine similarity
         print(f"\nResult {i+1} (similarity: {score:.3f})")
-        print(f"  Source: {meta['source']} | Partition: {meta['partition']} | Tier: {meta['tier']}")
+        source_line = (
+            f"  Source: {meta['source']} | Partition: {meta['partition']} "
+            f"| Tier: {meta['tier']}"
+        )
+        print(source_line)
         print(f"  Content: {doc[:300]}{'...' if len(doc) > 300 else ''}")
         print(f"{'─'*60}")
 
 
-def cmd_list_partitions(args):
+def cmd_list_partitions(args):  # noqa: ARG001
     """List all partitions and their descriptions."""
     print("Available Partitions:\n")
     for name, info in PARTITIONS.items():
@@ -360,14 +428,14 @@ def cmd_list_partitions(args):
         print()
 
 
-def cmd_stats(args):
+def cmd_stats(args):  # noqa: ARG001
     """Show collection statistics."""
     collection = get_chroma_collection()
     count = collection.count()
     print(f"ChromaDB Collection: {COLLECTION_NAME}")
     print(f"  Total chunks: {count}")
     print(f"  DB path: {DB_PATH}")
-    
+
     if count > 0:
         # Sample metadata to show partition breakdown
         sample = collection.get(limit=1000, include=["metadatas"])
@@ -388,16 +456,52 @@ def main():
     )
     
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument("--ingest", action="store_true", help="Ingest documents into ChromaDB")
-    group.add_argument("--from-manifest", action="store_true", help="Ingest all active sources from data/rse_cv_manifest.json")
-    group.add_argument("--query", type=str, metavar="QUERY", help="Semantic search query")
-    group.add_argument("--list-partitions", action="store_true", help="List all partitions")
-    group.add_argument("--stats", action="store_true", help="Show collection statistics")
-    
-    parser.add_argument("--partition", type=str, default="cv_projects", help="Knowledge partition")
-    parser.add_argument("--source", type=str, default="docs/", help="Source file or directory")
-    parser.add_argument("--top-k", type=int, default=3, help="Number of results to return")
-    
+    group.add_argument(
+        "--ingest",
+        action="store_true",
+        help="Ingest documents into ChromaDB"
+    )
+    group.add_argument(
+        "--from-manifest",
+        action="store_true",
+        help="Ingest all active sources from data/rse_cv_manifest.json"
+    )
+    group.add_argument(
+        "--query",
+        type=str,
+        metavar="QUERY",
+        help="Semantic search query"
+    )
+    group.add_argument(
+        "--list-partitions",
+        action="store_true",
+        help="List all partitions"
+    )
+    group.add_argument(
+        "--stats",
+        action="store_true",
+        help="Show collection statistics"
+    )
+
+    parser.add_argument(
+        "--partition",
+        type=str,
+        default="cv_projects",
+        help="Knowledge partition"
+    )
+    parser.add_argument(
+        "--source",
+        type=str,
+        default="docs/",
+        help="Source file or directory"
+    )
+    parser.add_argument(
+        "--top-k",
+        type=int,
+        default=3,
+        help="Number of results to return"
+    )
+
     args = parser.parse_args()
     
     if args.from_manifest:

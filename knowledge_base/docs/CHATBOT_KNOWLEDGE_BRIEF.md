@@ -1,4 +1,5 @@
 # CV CHATBOT — KNOWLEDGE BRIEF & SYSTEM PROMPT ENRICHMENT
+> Status: mixed-trust historical draft. For public profile answers and future ingest, prefer `knowledge_base/public/cv/identity_verified.md` and the files under `public/data/`. Early-career sections below require manual source validation.
 ## robertoscottecholscv.netlify.app
 ### Authoritative Reference for Embed Ingest + System Prompt
 ### Updated: 2026-03-23 (Claude Code — full career expansion from 1979 to present)

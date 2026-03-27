@@ -140,3 +140,6 @@ vite.config.ts.timestamp-*
 
 # Local Netlify folder
 .netlify
+
+# Local vector runtime output
+.chromadb/
