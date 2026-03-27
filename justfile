@@ -152,12 +152,12 @@ embed-query query="SeaTrace Four Pillars":
 # [CLAUDE CODE] Validate env vars are set (for local dev)
 backend-check-env:
     @echo 'Checking required environment variables'
-    @test -n "$$ANTHROPIC_API_KEY" && echo "OK: ANTHROPIC_API_KEY" || echo "FAIL: ANTHROPIC_API_KEY not set"
-    @test -n "$$GEMINI_API_KEY" && echo "OK: GEMINI_API_KEY" || echo "FAIL: GEMINI_API_KEY not set"
-    @test -n "$$BUSINESS_ACCESS_KEY" && echo "OK: BUSINESS_ACCESS_KEY" || echo "FAIL: BUSINESS_ACCESS_KEY not set"
-    @test -n "$$GEMINI_MODEL_WRITER" && echo "OK: GEMINI_MODEL_WRITER=$$GEMINI_MODEL_WRITER" || echo "-> GEMINI_MODEL_WRITER (default: gemini-2.5-pro)"
-    @test -n "$$GEMINI_MODEL_EDITOR" && echo "OK: GEMINI_MODEL_EDITOR=$$GEMINI_MODEL_EDITOR" || echo "-> GEMINI_MODEL_EDITOR (default: gemini-2.0-flash)"
-    @test -n "$$GEMINI_MODEL_DIRECTOR" && echo "OK: GEMINI_MODEL_DIRECTOR=$$GEMINI_MODEL_DIRECTOR" || echo "-> GEMINI_MODEL_DIRECTOR (default: gemini-2.5-pro)"
+    @powershell -NoProfile -Command "if (`$env:ANTHROPIC_API_KEY) { Write-Host 'OK: ANTHROPIC_API_KEY is set' } else { Write-Host 'FAIL: ANTHROPIC_API_KEY not set' }"
+    @powershell -NoProfile -Command "if (`$env:GEMINI_API_KEY) { Write-Host 'OK: GEMINI_API_KEY is set' } else { Write-Host 'FAIL: GEMINI_API_KEY not set' }"
+    @powershell -NoProfile -Command "if (`$env:BUSINESS_ACCESS_KEY) { Write-Host 'OK: BUSINESS_ACCESS_KEY is set' } else { Write-Host 'FAIL: BUSINESS_ACCESS_KEY not set' }"
+    @powershell -NoProfile -Command "if (`$env:GEMINI_MODEL_WRITER) { Write-Host OK: GEMINI_MODEL_WRITER=`$env:GEMINI_MODEL_WRITER } else { Write-Host '-> GEMINI_MODEL_WRITER default: gemini-2.5-pro' }"
+    @powershell -NoProfile -Command "if (`$env:GEMINI_MODEL_EDITOR) { Write-Host OK: GEMINI_MODEL_EDITOR=`$env:GEMINI_MODEL_EDITOR } else { Write-Host '-> GEMINI_MODEL_EDITOR default: gemini-2.0-flash' }"
+    @powershell -NoProfile -Command "if (`$env:GEMINI_MODEL_DIRECTOR) { Write-Host OK: GEMINI_MODEL_DIRECTOR=`$env:GEMINI_MODEL_DIRECTOR } else { Write-Host '-> GEMINI_MODEL_DIRECTOR default: gemini-2.5-pro' }"
 
 # [CLAUDE CODE] Validate Gemini model env vars against allowed Enum
 backend-validate-models:
@@ -330,7 +330,7 @@ truth-check:
 # Ingest verified identity pack ONLY (safest first ingest)
 ingest-identity:
     @echo 'Ingesting VERIFIED IDENTITY PACK ONLY (cv_verified_public)'
-    python scripts/embed_engine.py --ingest --partition cv_personal --source knowledge_base/public/cv/identity_verified.md --chunk-strategy section
+    python scripts/embed_engine.py --ingest --partition cv_personal --source knowledge_base/public/cv/identity_verified.md
     @echo 'OK: Verified identity pack ingested'
 
 # List all vector store partitions and their content counts
