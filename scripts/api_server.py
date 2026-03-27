@@ -70,7 +70,12 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://robertoscottecholscv.netlify.app", "http://localhost:*"],
+    allow_origins=[
+        "https://robertoscottecholscv.netlify.app",
+        "https://sirtrav-a2a-studio.netlify.app",
+        "http://localhost:8888",
+        "http://localhost:3000",
+    ],
     allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["Content-Type", "X-Ingest-Secret"],
 )
@@ -224,6 +229,78 @@ def retrieve(req: RetrieveRequest):
     # Sort by score descending
     output.sort(key=lambda x: x.score, reverse=True)
     return output
+
+
+class QueryRequest(BaseModel):
+    """SirTrav calling contract — matches content-seed.ts queryVectorEngine()."""
+    query: str
+    partitions: list[str] = ["cv_personal", "cv_projects"]
+    n_results: int = 4
+
+class QueryResponse(BaseModel):
+    context_chunks: list[str]
+
+@app.post("/query", response_model=QueryResponse)
+def query(req: QueryRequest):
+    """
+    SirTrav adapter endpoint — called by content-seed.ts queryVectorEngine().
+
+    Accepts { query, partitions[], n_results } — multi-partition fan-out.
+    Returns { context_chunks: string[] } — plain text ready for prompt injection.
+
+    Deduplicates across partitions, sorts by score, returns top n_results.
+    """
+    if not req.query or len(req.query.strip()) < 2:
+        raise HTTPException(400, "Query must be at least 2 characters")
+
+    safe_partitions = [p for p in req.partitions if p in ALLOWED_PARTITIONS]
+    if not safe_partitions:
+        return QueryResponse(context_chunks=[])
+
+    genai = get_genai()
+    col = get_collection()
+
+    try:
+        embedding_result = genai.embed_content(
+            model=EMBED_MODEL,
+            content=req.query.strip(),
+            task_type="retrieval_query"
+        )
+        query_embedding = embedding_result["embedding"]
+    except Exception as e:
+        raise HTTPException(502, f"Embedding failed: {str(e)}")
+
+    try:
+        results = col.query(
+            query_embeddings=[query_embedding],
+            n_results=min(req.n_results * len(safe_partitions), 20),
+            where={"partition": {"$in": safe_partitions}},
+            include=["documents", "metadatas", "distances"]
+        )
+    except Exception as e:
+        raise HTTPException(502, f"Vector search failed: {str(e)}")
+
+    if not results["ids"][0]:
+        return QueryResponse(context_chunks=[])
+
+    # Build scored list, deduplicate by content, return top n_results as plain strings
+    scored = sorted(
+        zip(results["documents"][0], results["distances"][0]),
+        key=lambda x: x[1]  # lower distance = higher similarity
+    )
+    seen: set[str] = set()
+    chunks: list[str] = []
+    for doc, _ in scored:
+        normalized = doc.strip()
+        if normalized and normalized not in seen:
+            seen.add(normalized)
+            chunks.append(normalized)
+            if len(chunks) >= req.n_results:
+                break
+
+    console_count = len(chunks)
+    print(f"[/query] Retrieved {console_count} chunks from {safe_partitions}")
+    return QueryResponse(context_chunks=chunks)
 
 
 @app.post("/ingest")
