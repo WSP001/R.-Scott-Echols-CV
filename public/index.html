@@ -3488,9 +3488,9 @@ async function callAPI(message) {
       'seatrace': "SeaTrace is the business-side marine traceability and operating-system work under World Seafood Producers. The truth-first rule is to keep SeaTrace answers business-specific and separate from SirTrav personal identity.",
       'worldseafood': "World Seafood Producers is the umbrella business context on this public profile. The site is being re-grounded so company answers stay tied to verified source files instead of speculative copy.",
       'warp': "Historical robotics material connected to WARP Industries exists in the archive, but this public profile is keeping those details high-level until the supporting source files are revalidated.",
-      'aloha': "Some early communications-history material is under review. The current truth-first policy is to avoid presenting those details as settled fact until the cleaned source package is connected to retrieval.",
+      'network-history': "Some early communications-history material is under review. The current truth-first policy is to avoid presenting those details as settled fact until the cleaned source package is connected to retrieval.",
       'patent': "This site references patent-related material in Scott's historical archive. The public profile is being rebuilt so those details appear only from verified source files rather than fallback storytelling.",
-      'pearl': "Some protocol-history material from Scott's early technical career is under review. Until the cleaned source package is re-ingested, the site keeps those details conservative instead of asserting them as verified fact.",
+      'naval-history': "Some protocol-history material from Scott's early technical career is under review. Until the cleaned source package is re-ingested, the site keeps those details conservative instead of asserting them as verified fact.",
       'alaska': "Scott's public materials clearly connect him to fisheries, marine operations, and Alaska-linked work. Detailed historical claims from that period are being reviewed against source files before they are expanded here.",
       'simp': "The public materials connect Scott to seafood traceability and regulatory systems work. Exact program-specific claims are being revalidated before they are presented as definitive in fallback mode.",
       'salmon': "Scott's public profile ties him to salmon, fisheries operations, and seafood-domain systems. The truth-first rebuild is separating broad domain experience from detailed historical claims until those source files are cleanly grounded.",
@@ -3504,9 +3504,9 @@ async function callAPI(message) {
                : m.includes('sirtrav') ? 'sirtrav'
                : m.includes('seatrace') ? 'seatrace'
                : (m.includes('warp') || m.includes('rocc') || m.includes('robot') || m.includes('hexapod')) ? 'robot'
-               : (m.includes('aloha') || m.includes('x.25') || m.includes('abramson') || m.includes('internet')) ? 'aloha'
+               : (m.includes('x.25') || m.includes('packet radio') || m.includes('internet')) ? 'network-history'
                : (m.includes('patent') || m.includes('uspto') || m.includes('perkin')) ? 'patent'
-               : (m.includes('pearl harbor') || m.includes('pearl') || m.includes('navy')) ? 'pearl'
+               : (m.includes('navy') || m.includes('naval')) ? 'naval-history'
                : (m.includes('alaska') || m.includes('salmon restoration') || m.includes('dipac') || m.includes('stevens')) ? 'alaska'
                : (m.includes('simp') || m.includes('ittp') || m.includes('noaa') || m.includes('nmfs')) ? 'simp'
                : (m.includes('salmon') || m.includes('pacific seafood') || m.includes('psg') || m.includes('asmi')) ? 'salmon'

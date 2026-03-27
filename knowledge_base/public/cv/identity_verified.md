@@ -7,6 +7,7 @@
 
 - Name: Roberto Scott Echols
 - Public name: R. Scott Echols
+- Public title: Solutions Architect / Senior Software Developer & Technical Lead
 - Contact: worldseafood@gmail.com
 - GitHub: https://github.com/WSP001
 

@@ -315,20 +315,16 @@ persona-check:
 
 # Verify truth-first content pack integrity
 truth-check:
-    @echo 'Checking Content Source of Truth integrity'
-    @powershell -NoProfile -Command "if (Test-Path docs/CONTENT_SOURCE_OF_TRUTH.md) { Write-Host 'OK: CONTENT_SOURCE_OF_TRUTH.md exists' } else { Write-Host 'FAIL: MISSING' }"
-    @powershell -NoProfile -Command "if (Test-Path knowledge_base/public/cv/identity_verified.md) { Write-Host 'OK: identity_verified.md exists' } else { Write-Host 'FAIL: MISSING' }"
-    @powershell -NoProfile -Command "if (Test-Path public/data/identity.json) { Write-Host 'OK: identity.json exists' } else { Write-Host 'FAIL: MISSING' }"
-    @powershell -NoProfile -Command "if (Test-Path public/data/voice.json) { Write-Host 'OK: voice.json exists' } else { Write-Host 'FAIL: MISSING' }"
-    @powershell -NoProfile -Command "if (Test-Path public/data/hashtags.json) { Write-Host 'OK: hashtags.json exists' } else { Write-Host 'FAIL: MISSING' }"
-    @echo ''
-    @echo 'Checking for contaminated legacy content'
-    @powershell -NoProfile -Command "if (Select-String -Pattern 'Hawaii|ALOHA|Pearl Harbor|Norman Abramson' -Path netlify/edge-functions/chat.ts,public/index.html -ErrorAction SilentlyContinue) { Write-Host 'FAIL: CONTAMINATED CONTENT FOUND' } else { Write-Host 'OK: No contaminated content in active paths' }"
-    @echo ''
-    @echo 'Truth pack status: VERIFIED'
+    python scripts/truth_audit.py --format text
+
+# Enterprise truth gate with PASS/WARN/FAIL verdict
+truth-audit:
+    python scripts/truth_audit.py --format text --gate ingest
 
 # Ingest verified identity pack ONLY (safest first ingest)
 ingest-identity:
+    @echo 'Running truth audit gate before ingest'
+    python scripts/truth_audit.py --format text --gate ingest
     @echo 'Ingesting VERIFIED IDENTITY PACK ONLY (cv_verified_public)'
     python scripts/embed_engine.py --ingest --partition cv_personal --source knowledge_base/public/cv/identity_verified.md
     @echo 'OK: Verified identity pack ingested'
@@ -337,7 +333,7 @@ ingest-identity:
 partitions:
     @echo 'Vector Store Partitions:'
     python scripts/embed_engine.py --list-partitions
-    @echo '
+    @Write-Host ''
     @echo 'Expected partitions:'
     @echo '  cv_personal          (public tier) -- verified identity'
     @echo '  cv_projects          (public tier) -- project details'
@@ -349,10 +345,14 @@ partitions:
 vector-health:
     @echo 'Checking vector store health'
     python scripts/embed_engine.py --stats
-    @echo '
+    @Write-Host ''
     @echo 'Checking ChromaDB persistence'
-    @test -d scripts/.chromadb && echo "OK: ChromaDB directory exists" || echo "FAIL: ChromaDB not initialized"
-    @du -sh scripts/.chromadb 2>/dev/null || echo "-> Run 'just ingest-identity' to initialize"
+    @if (Test-Path '.chromadb' -PathType Container) { Write-Host 'OK: ChromaDB directory exists' } else { Write-Host 'FAIL: ChromaDB not initialized' }
+    @if (Test-Path '.chromadb' -PathType Container) { $size = (Get-ChildItem '.chromadb' -Recurse -File | Measure-Object -Property Length -Sum).Sum; if ($null -eq $size) { $size = 0 }; Write-Host ('ChromaDB bytes: ' + $size) } else { Write-Host "-> Run 'just ingest-identity' to initialize" }
+
+# Read-only semantic lookup over the verified public partition
+cv-search query="Scott background":
+    python scripts/embed_engine.py --query "{{query}}" --partition cv_personal --top-k 5
 
 # Full RAG pipeline sanity test (local only)
 test-rag-local:
@@ -360,10 +360,10 @@ test-rag-local:
     @echo '=================================================================='
     @echo 'Step 1: Ingest verified identity'
     just ingest-identity
-    @echo '
+    @Write-Host ''
     @echo 'Step 2: Test semantic retrieval'
-    just search "Scott's background"
-    @echo '
+    just cv-search "Scott's background"
+    @Write-Host ''
     @echo 'Step 3: Check vector health'
     just vector-health
     @echo '=================================================================='

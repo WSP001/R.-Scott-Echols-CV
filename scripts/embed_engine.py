@@ -30,6 +30,7 @@ import sys
 import hashlib
 import json
 import zipfile
+from datetime import datetime, timezone
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
@@ -61,14 +62,27 @@ PARTITIONS = {
     },
 }
 
-# Gemini Embedding (use gemini-embedding-2-preview when available)
-EMBED_MODEL = "models/embedding-001"
-EMBED_DIMS = 3072  # Target for gemini-embedding-2-preview
+# Gemini Embedding
+EMBED_MODEL = os.environ.get(
+    "GEMINI_EMBED_MODEL",
+    "models/gemini-embedding-2-preview"
+)
+EMBED_FALLBACK_MODEL = os.environ.get(
+    "GEMINI_EMBED_FALLBACK_MODEL",
+    "models/embedding-001"
+)
+EMBED_DIMS = 3072
 CHUNK_SIZE = 800   # Characters per chunk (tunable)
 CHUNK_OVERLAP = 100
 
+REPO_ROOT = Path(__file__).resolve().parents[1]
+REPO_NAME = REPO_ROOT.name
 DB_PATH = os.path.join(os.path.dirname(__file__), "..", ".chromadb")
 COLLECTION_NAME = "wsp001_knowledge"
+
+
+class EmbedEngineError(RuntimeError):
+    """Raised when the embed/query pipeline should fail without a traceback."""
 
 
 def get_gemini_client():
@@ -107,14 +121,50 @@ def get_chroma_collection():
     )
 
 
+def describe_embedding_error(exc: Exception) -> str:
+    """Return an operator-friendly error message for embedding failures."""
+    text = str(exc)
+    if "API_KEY_INVALID" in text or "API Key not found" in text:
+        return (
+            "GEMINI_API_KEY is present but rejected by the Google "
+            "Generative Language API. Move a valid Gemini key into this "
+            "environment before running ingest or search."
+        )
+    return f"Embedding request failed: {text}"
+
+
+def embed_with_fallback(genai, content: str, task_type: str) -> list[float]:
+    """Embed using the configured model, with a safe fallback for local tooling."""
+    try:
+        result = genai.embed_content(
+            model=EMBED_MODEL,
+            content=content,
+            task_type=task_type
+        )
+        return result["embedding"]
+    except Exception as exc:
+        if EMBED_MODEL == EMBED_FALLBACK_MODEL:
+            raise EmbedEngineError(describe_embedding_error(exc)) from exc
+        print(
+            f"  ! Warning: {EMBED_MODEL} failed ({exc}). "
+            f"Falling back to {EMBED_FALLBACK_MODEL}."
+        )
+        try:
+            result = genai.embed_content(
+                model=EMBED_FALLBACK_MODEL,
+                content=content,
+                task_type=task_type
+            )
+            return result["embedding"]
+        except Exception as fallback_exc:
+            raise EmbedEngineError(
+                describe_embedding_error(fallback_exc)
+            ) from fallback_exc
+
+
 def embed_text(genai, text: str) -> list[float]:
     """Embed a single text chunk using Gemini."""
-    result = genai.embed_content(
-        model=EMBED_MODEL,
-        content=text,
-        task_type="retrieval_document"
-    )
-    return result["embedding"]
+    return embed_with_fallback(genai, text, "retrieval_document")
 
 
 def chunk_text(
@@ -190,6 +240,18 @@ def extract_text_from_pdf(path: Path) -> str:
         return ""
 
 
+def infer_modality(path: Path) -> str:
+    """Map file suffix to a metadata modality."""
+    suffix = path.suffix.lower()
+    if suffix in {".md", ".txt", ".json"}:
+        return "text"
+    if suffix == ".docx":
+        return "docx"
+    if suffix == ".pdf":
+        return "pdf"
+    return "unknown"
+
+
 def ingest_file(
     genai,
     collection,
@@ -244,16 +306,25 @@ def ingest_file(
 
         embedding = embed_text(genai, chunk)
 
+        try:
+            relative_path = path.resolve().relative_to(REPO_ROOT.resolve())
+        except ValueError:
+            relative_path = path
+
         collection.add(
             ids=[doc_id],
             embeddings=[embedding],
             documents=[chunk],
             metadatas=[{
                 "partition": partition,
+                "repo": REPO_NAME,
                 "source": str(path.name),
+                "path": str(relative_path).replace("\\", "/"),
                 "source_path": str(file_path),
+                "modality": infer_modality(path),
                 "chunk_index": i,
                 "tier": PARTITIONS[partition]["tier"],
+                "indexed_at": datetime.now(timezone.utc).isoformat(),
             }]
         )
         ingested += 1
@@ -352,7 +423,9 @@ def cmd_ingest(args):
         md_files = list(source_path.glob("**/*.md"))
         txt_files = list(source_path.glob("**/*.txt"))
         json_files = list(source_path.glob("**/*.json"))
-        files = md_files + txt_files + json_files
+        docx_files = list(source_path.glob("**/*.docx"))
+        pdf_files = list(source_path.glob("**/*.pdf"))
+        files = md_files + txt_files + json_files + docx_files + pdf_files
         print(f"Found {len(files)} files in {source_path}")
     else:
         print(f"✗ Source not found: {source}")
@@ -382,11 +455,11 @@ def cmd_query(args):
     collection = get_chroma_collection()
 
     # Embed the query
-    query_embedding = genai.embed_content(
-        model=EMBED_MODEL,
-        content=query,
-        task_type="retrieval_query"
-    )["embedding"]
+    query_embedding = embed_with_fallback(
+        genai,
+        query,
+        "retrieval_query"
+    )
     
     where = {"partition": partition} if partition else None
     
@@ -410,10 +483,14 @@ def cmd_query(args):
         score = 1 - dist  # cosine similarity
         print(f"\nResult {i+1} (similarity: {score:.3f})")
         source_line = (
-            f"  Source: {meta['source']} | Partition: {meta['partition']} "
-            f"| Tier: {meta['tier']}"
+            f"  Source: {meta['source']} | Repo: {meta.get('repo', '?')} "
+            f"| Path: {meta.get('path', meta.get('source_path', '?'))}"
         )
         print(source_line)
+        print(
+            f"  Partition: {meta['partition']} | Tier: {meta['tier']} "
+            f"| Modality: {meta.get('modality', 'text')}"
+        )
         print(f"  Content: {doc[:300]}{'...' if len(doc) > 300 else ''}")
         print(f"{'─'*60}")
 
@@ -504,16 +581,20 @@ def main():
 
     args = parser.parse_args()
     
-    if args.from_manifest:
-        cmd_ingest_manifest(args)
-    elif args.ingest:
-        cmd_ingest(args)
-    elif args.query:
-        cmd_query(args)
-    elif args.list_partitions:
-        cmd_list_partitions(args)
-    elif args.stats:
-        cmd_stats(args)
+    try:
+        if args.from_manifest:
+            cmd_ingest_manifest(args)
+        elif args.ingest:
+            cmd_ingest(args)
+        elif args.query:
+            cmd_query(args)
+        elif args.list_partitions:
+            cmd_list_partitions(args)
+        elif args.stats:
+            cmd_stats(args)
+    except EmbedEngineError as exc:
+        print(f"ERROR: {exc}")
+        sys.exit(1)
 
 
 if __name__ == "__main__":

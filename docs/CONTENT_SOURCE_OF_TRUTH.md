@@ -10,10 +10,11 @@ The public CV site mixed verified identity with generated or weakly grounded his
 
 1. `knowledge_base/public/cv/identity_verified.md`
 2. `public/data/identity.json`
-3. `public/data/voice.json`
-4. `public/data/hashtags.json`
-5. Retrieved vector context from cleaned ingest runs
-6. Older narrative briefs only after manual review
+3. `public/api/identity.json`
+4. `public/data/voice.json`
+5. `public/data/hashtags.json`
+6. Retrieved vector context from cleaned ingest runs
+7. Older narrative briefs only after manual review
 
 ## Current Rule
 
