@@ -603,6 +603,38 @@
       font-weight: 600; margin-bottom: 8px;
     }
     .project-desc { font-size: 0.875rem; color: var(--text-2); line-height: 1.7; margin-bottom: 1rem; }
+    .project-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: -0.2rem 0 1rem;
+    }
+    .project-meta-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.04);
+      color: var(--text-2);
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .project-meta-chip.live {
+      border-color: rgba(78,205,196,0.35);
+      color: var(--cyan);
+    }
+    .project-meta-chip.progress {
+      border-color: rgba(201,168,76,0.35);
+      color: var(--gold);
+    }
+    .project-meta-chip.personal {
+      border-color: rgba(124,106,247,0.35);
+      color: var(--purple);
+    }
     .project-tech { display: flex; gap: 6px; flex-wrap: wrap; }
     .tech-badge {
       background: var(--bg-3); color: var(--text-3);
@@ -1566,7 +1598,7 @@
       <div class="reveal" style="transition-delay:0.1s">
         <div class="about-stats">
           <div class="stat-card">
-            <div class="stat-num" data-count="12" contenteditable="true">0+</div>
+            <div class="stat-num" data-count="39" contenteditable="true">0+</div>
             <div class="stat-label">Years Experience</div>
           </div>
           <div class="stat-card">
@@ -1610,7 +1642,7 @@
     <div class="section-header reveal">
       <div class="section-label">Experience</div>
       <h2 class="section-title">Career Timeline</h2>
-      <p class="section-desc">40+ year career spanning digital communications engineering, advanced robotics, marine intelligence, and agentic AI systems.</p>
+      <p class="section-desc">39+ year career spanning digital communications engineering, advanced robotics, marine intelligence, and agentic AI systems.</p>
     </div>
     <div class="timeline">
 
@@ -1647,7 +1679,7 @@
             2024 — Present
             <span class="sj-badge">Personal Creative</span>
           </div>
-          <div class="timeline-role">Creator &amp; AI Producer — Interactive Children's Book Series</div>
+          <div class="timeline-role">Creator / Gramps — Interactive Children's Book Series</div>
           <div class="timeline-company">Sir James Adventures &nbsp;·&nbsp; SirTrav Studio &nbsp;·&nbsp; WSP001</div>
           <div class="timeline-desc">
             AI-illustrated interactive children's adventure series created for grandson Sir James.
@@ -2062,8 +2094,12 @@
         <div class="project-body">
           <div class="project-title" contenteditable="true">SirTrav-A2A-Studio</div>
           <div class="project-desc" contenteditable="true">
-            Marine intelligence platform using agent-to-agent (A2A) protocols. Multi-agent orchestration
-            with Claude API, Gemini Embedding 2 multimodal RAG, and composable AI stack deployed on Netlify.
+            D2A multi-agent production platform turning source docs, photos, and prompts into cinematic social posts.
+            Built on agent orchestration, Gemini Embedding 2 multimodal RAG, and composable Netlify delivery.
+          </div>
+          <div class="project-meta">
+            <span class="project-meta-chip">Role: Founder &amp; AI Systems Architect</span>
+            <span class="project-meta-chip live">Status: Live</span>
           </div>
           <div class="project-tech">
             <span class="tech-badge">Claude API</span>
@@ -2073,8 +2109,8 @@
           </div>
           <div class="project-expand">
             Claude Opus 4.6 powers the conversational layer; Gemini Embedding 2 maps text, images, video,
-            audio, and PDFs into a unified vector space for cross-modal retrieval. ElevenLabs provides
-            voice output for agent communications.
+            audio, and PDFs into a unified vector space for cross-modal retrieval. The current studio lane
+            is focused on real production output from source media to publishable social assets.
             <a href="https://sirtrav-a2a-studio.netlify.app" target="_blank" rel="noopener" class="project-live-link">
               🔗 Live Platform →
             </a>
@@ -2113,22 +2149,30 @@
           <div class="project-tag" style="color:var(--cyan)">Marine Tech</div>
         </div>
         <div class="project-body">
-          <div class="project-title" contenteditable="true">Fisheries Supply Chain Intelligence</div>
+          <div class="project-title" contenteditable="true">Sir James Adventures</div>
           <div class="project-desc" contenteditable="true">
-            Power BI dashboards and data visualization platform for fisheries supply chain optimization.
-            Real-time analytics, traceability workflows, and operational efficiency metrics.
+            Interactive children's story world for grandson Sir James, combining AI illustration, branching
+            chapter logic, soundtrack, and parent-guided storytelling.
+          </div>
+          <div class="project-meta">
+            <span class="project-meta-chip personal">Role: Creator / Gramps</span>
+            <span class="project-meta-chip live">Status: Book001 Live</span>
+            <span class="project-meta-chip progress">Book002 In Production</span>
           </div>
           <div class="project-tech">
-            <span class="tech-badge">Power BI</span>
-            <span class="tech-badge">Python</span>
-            <span class="tech-badge">API Integration</span>
+            <span class="tech-badge">Interactive Storytelling</span>
+            <span class="tech-badge">AI Illustration</span>
+            <span class="tech-badge">Audio</span>
+            <span class="tech-badge">Parent Dashboard</span>
           </div>
           <div class="project-expand">
-            Enterprise fisheries analytics covering catch volume KPIs, seasonal trend detection,
-            compliance reporting, and supply chain bottleneck identification. Used by maritime
-            operators to reduce waste and optimize harvest-to-market lead times.
+            Personal creative project kept separate from SeaTrace business systems. Book001 is live as an
+            80-scene, 10-chapter experience, while Book002 is actively being shaped as the next production run.
+            <a href="https://sirjamesadventure2024.netlify.app" target="_blank" rel="noopener" class="project-live-link">
+              🔗 Read Book001 →
+            </a>
           </div>
-          <span class="expand-cta">↓ Click for details</span>
+          <span class="expand-cta">↓ Click for story-world details</span>
         </div>
       </div>
 
@@ -2259,8 +2303,12 @@
         <div class="project-body">
           <div class="project-title" contenteditable="true">SeaTrace — Four Pillars Traceability API</div>
           <div class="project-desc" contenteditable="true">
-            Marine supply chain traceability platform at seatrace.worldseafoodproducers.com.
-            Four Pillars architecture serving vessel operators, dock processors, distributors, and consumers.
+            Maritime supply chain traceability platform built on the Four Pillars:
+            SeaSide, DeckSide, DockSide, and MarketSide for vessel operators, docks, distributors, and consumers.
+          </div>
+          <div class="project-meta">
+            <span class="project-meta-chip">Role: Founder &amp; AI Systems Architect</span>
+            <span class="project-meta-chip live">Status: Live Demo</span>
           </div>
           <div class="project-tech">
             <span class="tech-badge">Node.js / REST API</span>
@@ -2329,29 +2377,30 @@
           <div class="project-tag" style="color:var(--gold)">Cloud / AI</div>
         </div>
         <div class="project-body">
-          <div class="project-title" contenteditable="true">SirTrav A2A Studio — Agent Orchestration Platform</div>
+          <div class="project-title" contenteditable="true">LearnQuest</div>
           <div class="project-desc" contenteditable="true">
-            Multi-agent coordination platform using Agent-to-Agent (A2A) protocols. Three specialized agents
-            — Codex (frontend), Claude Code (backend), Antigravity (QA) — work in concert to build, test, and deploy.
+            Planned learning platform for guided lessons, progress loops, and family-visible knowledge scaffolding.
+            Structured as an education-focused build adjacent to the CV identity and agent workflow stack.
+          </div>
+          <div class="project-meta">
+            <span class="project-meta-chip">Role: Builder / Systems Designer</span>
+            <span class="project-meta-chip progress">Status: Planned</span>
           </div>
           <div class="project-tech">
-            <span class="tech-badge">A2A Protocol</span>
-            <span class="tech-badge">Claude API</span>
-            <span class="tech-badge">GitHub Actions</span>
-            <span class="tech-badge">ElevenLabs</span>
+            <span class="tech-badge">Learning Systems</span>
+            <span class="tech-badge">Progress Tracking</span>
+            <span class="tech-badge">Agent Workflow</span>
+            <span class="tech-badge">Planned Build</span>
           </div>
           <div class="project-expand">
-            <strong>Agent Roles:</strong>
-            <ul>
-              <li><strong>Codex</strong> — Frontend generation, UI/UX systems, Three.js 3D</li>
-              <li><strong>Claude Code</strong> — Backend logic, API wiring, TypeScript edge functions</li>
-              <li><strong>Antigravity</strong> — QA, regression testing, crash prevention</li>
-            </ul>
-            <a href="https://sirtrav-a2a-studio.netlify.app" target="_blank" rel="noopener" class="project-live-link">
-              🔗 sirtrav-a2a-studio.netlify.app →
+            LearnQuest is held as a forward-looking education lane: structured lessons, guided progression,
+            and clearer knowledge handoffs for family and team learning contexts. Public positioning remains
+            conservative until the implementation repo is promoted.
+            <a href="https://github.com/WSP001" target="_blank" rel="noopener" class="project-live-link">
+              🔗 Track via GitHub profile →
             </a>
           </div>
-          <span class="expand-cta">↓ Click to see agent breakdown</span>
+          <span class="expand-cta">↓ Click for planned scope</span>
         </div>
       </div>
     </div>

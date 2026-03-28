@@ -26,6 +26,9 @@
     "SeaTrace-ODOO",
     "SirJamesAdventures"
   ],
+  "planned_projects": [
+    "LearnQuest"
+  ],
   "trust_policy": [
     "Answer only from verified files or retrieved grounded context.",
     "Do not turn legacy narrative drafts into settled fact.",
