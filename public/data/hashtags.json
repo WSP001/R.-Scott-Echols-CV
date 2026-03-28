@@ -4,15 +4,46 @@
     "#Traceability",
     "#FisheriesTech",
     "#AgenticAI",
-    "#SupplyChain"
+    "#SupplyChain",
+    "#CommonGood"
   ],
   "personal_studio": [
     "#SirTrav",
+    "#SirTravStudio",
+    "#ProducedBySirTrav",
+    "#DirectorCut",
     "#A2A",
-    "#KnowledgeSystems"
+    "#KnowledgeSystems",
+    "#OriginalMusic",
+    "#BeatMaker",
+    "#AIAssistedProduction"
   ],
   "business": [
     "#SeaTrace",
-    "#WorldSeafoodProducers"
-  ]
+    "#WorldSeafoodProducers",
+    "#FourPillars",
+    "#SeaSide",
+    "#DeckSide",
+    "#DockSide",
+    "#MarketSide"
+  ],
+  "creative": [
+    "#SirJamesAdventures",
+    "#ChildrensBooks",
+    "#EducationalStories"
+  ],
+  "technical": [
+    "#ChromaDB",
+    "#GeminiEmbedding",
+    "#NetlifyEdge",
+    "#CloudRun",
+    "#VectorRetrieval",
+    "#RAG"
+  ],
+  "usage_rules": {
+    "linkedin": "Use 3-5 tags max. Lead with core, add 1-2 from the relevant boundary.",
+    "twitter": "Use 2-3 tags. Keep it tight. #CommonGood always fits.",
+    "cv_site": "Tags appear on project cards. Match identity_verified.md categories.",
+    "lane_rule": "Never mix personal_studio tags with business tags in the same post."
+  }
 }
