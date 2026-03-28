@@ -211,6 +211,116 @@ When any agent needs to change an API contract:
    - READ the current edge function source before changing assertions
    - Never assert against behavior not present in the current source
 
+
+## Output Provenance Tracking Contract
+
+**Owner:** Acting Master (Windsurf/Cascade)
+**Enforced by:** All agents — no output without provenance metadata.
+
+Every chatbot response, card edit, and content output MUST track four provenance dimensions.
+This applies to `/api/chat` responses, UI card edits, and pipeline outputs across all WSP001 repos.
+
+### Provenance Dimensions
+
+| Dimension | Field | Values | Where Stored |
+|-----------|-------|--------|--------------|
+| **Identity source** | `identity_source` | `identity.json` · `identity_verified.md` · `legacy_narrative (mixed-trust)` | API response + changelog |
+| **Style source** | `style_source` | `voice.json` · `hashtags.json` · `creative_credits` · `none` | API response |
+| **Project source** | `project_source` | `sirscott` · `sirtrav` · `seatrace` · `sirjames` · `learnquest` | API response + changelog |
+| **Retrieval mode** | `retrieval_mode` | `vector-active` · `fallback-local` · `embedded-seed` | API response + UI pill |
+
+### /api/chat Provenance Fields (Claude Code adds to response)
+
+```typescript
+// Add to existing 200 response shape:
+{
+  reply: string;
+  tier: 'public' | 'business';
+  tokens_used: number;
+  rag_context_used: boolean;
+  answer_source: string;           // existing — maps to retrieval_mode for UI pill
+  provenance: {                    // NEW — full audit trail
+    identity_source: 'identity.json' | 'identity_verified.md' | 'legacy_narrative';
+    style_source: 'voice.json' | 'hashtags.json' | 'creative_credits' | 'none';
+    project_source: 'sirscott' | 'sirtrav' | 'seatrace' | 'sirjames' | 'learnquest';
+    retrieval_mode: 'vector-active' | 'fallback-local' | 'embedded-seed';
+    chunks_used: number;           // 0 if fallback, N if vector-active
+  };
+}
+```
+
+### UI Provenance Display (Codex renders from response)
+
+The source attribution pill (`data-testid="source-pill"`) MUST reflect `retrieval_mode`:
+
+| retrieval_mode | Pill Text | Pill Class |
+|----------------|-----------|------------|
+| `vector-active` | `RAG — {project_source} Corpus` | `msg-meta-pill source business` or `public` |
+| `fallback-local` | `Safe Local Guidance` | `msg-meta-pill source fallback` |
+| `embedded-seed` | `Embedded CV — Public Profile` | `msg-meta-pill source public` |
+
+### Card Edit Provenance (CV-CARD-CHANGELOG.md)
+
+Every card edit in `public/index.html` logs to `docs/CV-CARD-CHANGELOG.md` with:
+
+| Column | What |
+|--------|------|
+| Date | ISO date |
+| Agent | Who made the edit |
+| Card | Which project card |
+| Change | What changed |
+| Identity Source | Which file the claim came from |
+| Project Source | Which identity boundary applies |
+
+### Antigravity Provenance Assertions
+
+- `provenance.identity_source` MUST be present on all 200 responses
+- `provenance.retrieval_mode` MUST match `rag_context_used` (vector-active ↔ true, fallback-local ↔ false)
+- `provenance.project_source` MUST be one of the 5 identity boundaries in identity.json
+- Card changelog entries MUST have non-empty Identity Source column
+
+---
+
+## Lane Separation Enforcement
+
+**Owner:** Acting Master (Windsurf/Cascade)
+**Rule:** No agent crosses lanes. Period.
+
+### Lane Map
+
+| Lane | Owner | Files | Cannot Touch |
+|------|-------|-------|-------------|
+| **Backend** | Claude Code | `netlify/edge-functions/*`, `scripts/*`, `api_server.py` | `public/index.html` layout, UI components |
+| **Frontend** | Codex | `public/index.html`, `public/data/*`, CSS/JS in HTML | Edge functions, Python scripts |
+| **QA** | Antigravity | `plans/*` (reports only), test scripts | Any source code — read-only recon |
+| **Orchestration** | Master (Cascade) | `plans/HANDOFF_*`, `docs/agent-contracts.md`, `AGENTS.md`, `justfile` | Backend logic, frontend UI, test code |
+| **Operator** | Human (Scott) | Netlify Dashboard env vars, Cloud Run deploy, API keys | Code files — delegates to agents |
+
+### Identity Boundary Lanes
+
+| Boundary | Scope | Separation Rule |
+|----------|-------|-----------------|
+| `sirscott` | Professional CV, consulting | Default for CV chatbot responses |
+| `sirtrav` | Personal studio, agent orchestration, music | Do NOT conflate with SeaTrace business |
+| `seatrace` | Business, commercial marine traceability | Do NOT conflate with SirTrav personal |
+| `sirjames` | Creative, family storytelling | NEVER wire to SirTrav or SeaTrace infra |
+| `learnquest` | Educational gaming platform | Keep separate until architecture stabilizes |
+
+### Enforcement Checks
+
+Before any commit, the committing agent MUST verify:
+1. Files touched are within their lane (see Lane Map)
+2. Identity claims reference the correct boundary (see identity.json → identity_boundaries)
+3. No cross-boundary wiring (SirJames ≠ SirTrav, SirTrav ≠ SeaTrace)
+4. Provenance fields are populated (not placeholder)
+
+### Violation Protocol
+
+If an agent detects a lane violation:
+1. STOP — do not commit
+2. Log the violation in `plans/LANE_VIOLATIONS.md` (create if needed)
+3. Notify Master via next handoff note
+4. Master decides: revert, reassign, or approve exception
 ---
 
 ## FOR THE COMMONS GOOD
