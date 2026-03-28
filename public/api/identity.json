@@ -11,9 +11,17 @@
   },
   "identity_boundaries": {
     "sirscott": "Professional CV and consulting identity.",
-    "sirtrav": "Personal studio and agent orchestration identity.",
+    "sirtrav": "Personal studio, agent orchestration, and music production identity.",
     "seatrace": "Business and commercial marine traceability work.",
-    "sirjames": "Creative and family storytelling project."
+    "sirjames": "Creative and family storytelling project.",
+    "producer": "Rap producer and director of original cuts — original music, beats, and audio/visual direction under the SirTrav studio umbrella."
+  },
+  "creative_credits": {
+    "role": "Producer / Director",
+    "disciplines": ["Rap production", "Beat production", "Director cuts", "Audio/visual direction"],
+    "studio": "SirTrav Studio",
+    "credit_line": "Produced by SirTrav | Directed by R. Scott Echols",
+    "ai_collaboration": "Claude Sonnet 4.6 — production research, lyric structure, and release content"
   },
   "current_focus": [
     "World Seafood Producers",
@@ -56,7 +64,18 @@
       "#Traceability",
       "#AgenticAI",
       "#CommonGood"
-    ]
+    ],
+    "creative_producer": [
+      "#SirTravStudio",
+      "#ProducedBySirTrav",
+      "#DirectorCut",
+      "#RapProducer",
+      "#IndependentProducer",
+      "#OriginalMusic",
+      "#BeatMaker",
+      "#AIAssistedProduction"
+    ],
+    "social_bio_line": "Solutions Architect | Marine AI | Rap Producer | Director | SirTrav Studio | SeaTrace | World Seafood Producers"
   },
   "last_updated": "2026-03-27"
 }
