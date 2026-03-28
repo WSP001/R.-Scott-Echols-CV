@@ -34,7 +34,7 @@ Write-Host "Target: $Url`n"
 Write-Host "--- Step 1: Site Health ---"
 $page = Invoke-WebRequest -Uri $Url -UseBasicParsing -TimeoutSec 10
 Test-Step "HTTP 200" { $page.StatusCode -eq 200 }
-Test-Step "HTML contains <title>" { $page.Content -match '<title>' }
+Test-Step "HTML contains title tag" { $page.Content -match [regex]::Escape("<title>") }
 
 # 2. Project cards
 Write-Host "`n--- Step 2: Project Cards ---"
