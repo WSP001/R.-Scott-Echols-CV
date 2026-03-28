@@ -54,6 +54,7 @@
     "SeaTrace-ODOO",
     "SirJamesAdventures"
   ],
+  "yearsExperience": 39,
   "planned_projects": [
     "LearnQuest"
   ],
@@ -77,5 +78,10 @@
     ],
     "social_bio_line": "Solutions Architect | Marine AI | Rap Producer | Director | SirTrav Studio | SeaTrace | World Seafood Producers"
   },
+  "producer_style_examples": [
+    { "platform": "instagram", "opening": "New drop. No features. Just truth.", "theme": "SirTrav Studio — Produced by R. Scott Echols" },
+    { "platform": "instagram", "opening": "The beat was done in 20 minutes. The mix took 3 days.", "theme": "That's the craft." },
+    { "platform": "narrative", "opening": "This wasn't made for the radio.", "theme": "It was made for the people who know what it cost to get here." }
+  ],
   "last_updated": "2026-03-27"
 }
