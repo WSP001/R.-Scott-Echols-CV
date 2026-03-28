@@ -48,7 +48,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 # ── Config ────────────────────────────────────────────────────────────────────
-EMBED_MODEL   = "models/embedding-001"  # Upgrade to gemini-embedding-2-preview when GA
+EMBED_MODEL   = "models/gemini-embedding-2-preview"  # 3072-dim, matches embed_engine.py
 EMBED_DIMS    = 3072
 CHUNK_SIZE    = 800
 DB_PATH       = os.environ.get("CHROMADB_PATH", "./chromadb_data")
