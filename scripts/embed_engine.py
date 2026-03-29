@@ -133,6 +133,22 @@ def describe_embedding_error(exc: Exception) -> str:
     return f"Embedding request failed: {text}"
 
 
+def ensure_ingest_prereqs(file_paths: list[Path]) -> None:
+    """Fail early when local ingest prerequisites are missing."""
+    if any(path.suffix.lower() == ".pdf" for path in file_paths):
+        try:
+            import pypdf  # noqa: F401
+        except ImportError as exc:
+            raise EmbedEngineError(
+                "pypdf not installed — run: python -m pip install pypdf"
+            ) from exc
+
+
+def run_embedding_preflight(genai) -> None:
+    """Validate the active Gemini key before iterating the corpus."""
+    embed_with_fallback(genai, "preflight check", "retrieval_document")
+
+
 def embed_with_fallback(genai, content: str, task_type: str) -> list[float]:
     """Embed using the configured model, with a safe fallback for local tooling."""
     try:
@@ -354,9 +370,7 @@ def cmd_ingest_manifest(args):  # noqa: ARG001
     manifest_ver = manifest.get('version', '?')
     print(f"Manifest v{manifest_ver} — {len(sources)} active sources\n")
 
-    genai = get_gemini_client()
-    collection = get_chroma_collection()
-    total = 0
+    resolved_sources = []
 
     for src in sources:
         tier = src.get("access_tier", "public")
@@ -378,6 +392,22 @@ def cmd_ingest_manifest(args):  # noqa: ARG001
             print(f"✗ [{src['id']}] '{source_file}' not found — skipping")
             continue
 
+        resolved_sources.append(
+            (src, file_path, partition, chunk_strategy, title)
+        )
+
+    try:
+        ensure_ingest_prereqs([item[1] for item in resolved_sources])
+        genai = get_gemini_client()
+        run_embedding_preflight(genai)
+    except EmbedEngineError as exc:
+        print(f"ERROR: {exc}")
+        sys.exit(1)
+
+    collection = get_chroma_collection()
+    total = 0
+
+    for src, file_path, partition, chunk_strategy, title in resolved_sources:
         print(f"\n[{src['id']}] {title}")
         file_info = (
             f"  File: {file_path.name}  |  Partition: {partition}  |  "
@@ -411,9 +441,6 @@ def cmd_ingest(args):
     tier_info = partition_info['tier']
     print(f"Ingesting into partition:  {partition} ({tier_info} tier)")
 
-    genai = get_gemini_client()
-    collection = get_chroma_collection()
-
     source_path = Path(source)
     total = 0
 
@@ -430,6 +457,16 @@ def cmd_ingest(args):
     else:
         print(f"✗ Source not found: {source}")
         sys.exit(1)
+
+    try:
+        ensure_ingest_prereqs(files)
+        genai = get_gemini_client()
+        run_embedding_preflight(genai)
+    except EmbedEngineError as exc:
+        print(f"ERROR: {exc}")
+        sys.exit(1)
+
+    collection = get_chroma_collection()
     
     for file_path in files:
         print(f"\nIngesting: {file_path.name}")

@@ -47,6 +47,18 @@ if (-not $Url) {
     exit 1
 }
 
+if ($Url -match '[<>]' -or $Url -match 'REAL_CLOUD_RUN_URL|your-cloud-run-url') {
+    Write-Fail "Placeholder URL detected. Paste the real Cloud Run service URL from deploy-cloud-run.ps1."
+    Write-Host ""
+    Write-Host "  Example: .\scripts\verify-vector.ps1 -Url 'https://rse-retrieval-zrmkhygpwa-uc.a.run.app'"
+    exit 1
+}
+
+if ($Url -notmatch '^https?://') {
+    Write-Fail "URL must start with http:// or https://"
+    exit 1
+}
+
 $Url = $Url.TrimEnd("/")
 Write-Info "Target: $Url"
 Write-Info "Query:  $TestQuery"
