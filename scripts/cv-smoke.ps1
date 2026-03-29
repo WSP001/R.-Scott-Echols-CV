@@ -5,7 +5,7 @@
 # Tests:
 #   1. Site is live (HTTP 200)
 #   2. Project cards render (Sir James, LearnQuest, SeaTrace, SirTrav)
-#   3. Years Experience counter shows 39+
+#   3. Years Experience counter shows 40+
 #   4. Chat endpoint responds
 #   5. Vector retrieval (if VECTOR_ENGINE_URL is set)
 
@@ -46,7 +46,7 @@ Test-Step "LearnQuest card present" { $html -match '(?i)learnquest' }
 
 # 3. Years counter
 Write-Host "`n--- Step 3: Years Experience ---"
-Test-Step "Years shows 39+" { $html -match '39\+' }
+Test-Step "Years shows 40+" { $html -match '40\+' }
 
 # 4. Chat endpoint
 Write-Host "`n--- Step 4: Chat API ---"
