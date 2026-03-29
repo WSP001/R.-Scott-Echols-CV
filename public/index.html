@@ -476,6 +476,12 @@
       transform-style: preserve-3d;
       position: relative;
     }
+    .projects-grid .slot-1 { order: 1; }
+    .projects-grid .slot-2 { order: 2; }
+    .projects-grid .slot-3 { order: 3; }
+    .projects-grid .slot-4 { order: 4; }
+    .projects-grid .slot-5 { order: 5; }
+    .projects-grid .slot-6 { order: 6; }
     .project-card::before {
       content: '';
       position: absolute; inset: 0; z-index: 1;
@@ -487,6 +493,26 @@
     .project-card:hover::before {
       border-color: rgba(201,168,76,0.4);
       box-shadow: 0 0 30px rgba(201,168,76,0.1);
+    }
+    .project-card.flagship-seatrace {
+      border-color: rgba(78,205,196,0.42);
+      box-shadow: 0 0 0 1px rgba(78,205,196,0.22), 0 18px 48px rgba(7,31,35,0.45);
+    }
+    .project-card.flagship-seatrace::before {
+      border-color: rgba(78,205,196,0.45);
+      box-shadow: 0 0 42px rgba(78,205,196,0.16);
+    }
+    .project-card.flagship-seatrace .emblem-stage {
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.12),
+        0 28px 58px rgba(0,0,0,0.42),
+        0 0 30px rgba(78,205,196,0.18);
+    }
+    .project-card.flagship-seatrace:hover .emblem-stage {
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.16),
+        0 34px 70px rgba(0,0,0,0.5),
+        0 0 52px rgba(78,205,196,0.28);
     }
     /* Glossy reflection sweep */
     .project-card::after {
@@ -1598,7 +1624,7 @@
       <div class="reveal" style="transition-delay:0.1s">
         <div class="about-stats">
           <div class="stat-card">
-            <div class="stat-num" data-count="39" contenteditable="true">0+</div>
+            <div class="stat-num" data-count="40" contenteditable="true">0+</div>
             <div class="stat-label">Years Experience</div>
           </div>
           <div class="stat-card">
@@ -1618,16 +1644,17 @@
         <h2 class="section-title">Marine Intelligence<br>Meets AI Architecture</h2>
         <div class="about-bio">
           <p contenteditable="true">
-            I'm a Senior Software Developer and Technical Lead with a unique blend of marine/fisheries domain expertise
-            and cutting-edge AI systems architecture. I build production-grade agentic systems that solve real-world
-            supply chain and operational challenges in the maritime sector.
+            I lead with World Seafood Producers and SeaTrace as the business flagship: traceability, fisheries-domain
+            operations, compliance logic, and production software built for real-world marine supply chains. My work
+            combines software delivery, AI-assisted systems, and long-track domain knowledge without collapsing business,
+            research, and personal studio lanes into one story.
           </p>
           <br/>
           <p contenteditable="true">
-            Currently leading development of SirTrav-A2A-Studio — a marine intelligence platform leveraging
-            agent-to-agent (A2A) protocols, Gemini Embedding 2 multimodal RAG, and Claude API integration.
-            My work bridges complex domain knowledge with modern AI infrastructure: from Power BI fisheries
-            dashboards to multi-agent orchestration systems deployed on Netlify's composable platform.
+            SirTrav-A2A-Studio is my personal studio and A2A production lane. It objectively draws grounded context
+            from this CV corpus to shape producer briefs, social posts, and media workflows using agent-to-agent
+            orchestration, Gemini Embedding 2 multimodal RAG, and Claude integration. SeaTrace remains the marine
+            business platform; SirTrav is the supporting studio for content, release workflows, and creative R&amp;D.
           </p>
         </div>
       </div>
@@ -1642,7 +1669,7 @@
     <div class="section-header reveal">
       <div class="section-label">Experience</div>
       <h2 class="section-title">Career Timeline</h2>
-      <p class="section-desc">39+ year career spanning digital communications engineering, advanced robotics, marine intelligence, and agentic AI systems.</p>
+      <p class="section-desc">40+ year career spanning digital communications engineering, advanced robotics, marine intelligence, and agentic AI systems.</p>
     </div>
     <div class="timeline">
 
@@ -1978,6 +2005,7 @@
             <span class="achievement-chip">📋 Legacy Archive Preserved</span>
           </div>
           <div class="sj-card-links">
+            <a href="https://dchs-football-org.netlify.app" target="_blank" class="sj-link">🏈 DCHS Football Site</a>
             <a href="https://github.com/WSP001/DCHS-Football-" target="_blank" class="sj-link secondary">⌨ DCHS Football GitHub</a>
           </div>
         </div>
@@ -2054,12 +2082,13 @@
     </div>
     <div class="projects-filters reveal">
       <button class="filter-btn active" onclick="filterProjects('all', this)">All</button>
-      <button class="filter-btn" onclick="filterProjects('ai', this)">Agentic AI</button>
       <button class="filter-btn" onclick="filterProjects('marine', this)">Marine Tech</button>
+      <button class="filter-btn" onclick="filterProjects('creative', this)">Creative</button>
+      <button class="filter-btn" onclick="filterProjects('ai', this)">Agentic AI</button>
       <button class="filter-btn" onclick="filterProjects('cloud', this)">Cloud</button>
     </div>
     <div class="projects-grid">
-      <div class="project-card reveal" data-cat="ai" data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.15">
+      <div class="project-card reveal slot-4" data-cat="ai" data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.15">
         <div class="project-thumb">
           <div class="project-thumb-bg" style="background:linear-gradient(135deg,#1a1040,#0d1a2e)"></div>
           <div class="thumb-glass-layer"></div>
@@ -2086,8 +2115,9 @@
         <div class="project-body">
           <div class="project-title" contenteditable="true">SirTrav-A2A-Studio</div>
           <div class="project-desc" contenteditable="true">
-            AI-powered video production pipeline — seven-agent A2A orchestration for cinematic content creation.
-            Built on agent orchestration, Gemini Embedding 2 multimodal RAG, and composable Netlify delivery.
+            Personal studio pipeline for grounded content production — seven-agent A2A orchestration that turns
+            verified CV context into producer briefs, social-ready copy, and media workflows without blurring it
+            into SeaTrace business systems.
           </div>
           <div class="project-meta">
             <span class="project-meta-chip">Role: Founder &amp; AI Systems Architect</span>
@@ -2102,7 +2132,8 @@
           <div class="project-expand">
             Claude Opus 4.6 powers the conversational layer; Gemini Embedding 2 maps text, images, video,
             audio, and PDFs into a unified vector space for cross-modal retrieval. The current studio lane
-            is focused on real production output from source media to publishable social assets.
+            is focused on grounded producer briefs, social media posting support, and publishable creative assets
+            built from verified CV material.
             <a href="https://sirtrav-a2a-studio.netlify.app" target="_blank" rel="noopener" class="project-live-link">
               🔗 Live Platform →
             </a>
@@ -2111,7 +2142,7 @@
         </div>
       </div>
 
-      <div class="project-card reveal" data-cat="marine" data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.15">
+      <div class="project-card reveal slot-2" data-cat="creative" data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.15">
         <div class="project-thumb">
           <div class="project-thumb-bg" style="background:linear-gradient(135deg,#0d2a1a,#0a1a2e)"></div>
           <div class="thumb-glass-layer"></div>
@@ -2138,13 +2169,13 @@
               <circle cx="48" cy="48" r="2" fill="rgba(201,168,76,0.6)"/>
             </svg>
           </div>
-          <div class="project-tag" style="color:var(--cyan)">Marine Tech</div>
+          <div class="project-tag" style="color:var(--purple)">Creative</div>
         </div>
         <div class="project-body">
           <div class="project-title" contenteditable="true">Sir James Adventures</div>
           <div class="project-desc" contenteditable="true">
-            Interactive children's story world for grandson Sir James, combining AI illustration, branching
-            chapter logic, soundtrack, and parent-guided storytelling.
+            Creative series of kids-learning-while-they're-having-fun books for Sir James, combining AI
+            illustration, branching chapter logic, soundtrack, and parent-guided storytelling.
           </div>
           <div class="project-meta">
             <span class="project-meta-chip personal">Role: Creator / Gramps</span>
@@ -2158,17 +2189,20 @@
             <span class="tech-badge">Parent Dashboard</span>
           </div>
           <div class="project-expand">
-            Personal creative project kept separate from SeaTrace business systems. Book001 is live as an
-            80-scene, 10-chapter experience, while Book002 is actively being shaped as the next production run.
-            <a href="https://sirjamesadventure2024.netlify.app" target="_blank" rel="noopener" class="project-live-link">
-              🔗 Read Book001 →
+            Personal creative series kept separate from SeaTrace business systems. Book002 is live in its current
+            final Netlify build, chapter scenes are browseable, and Book003 is the next story-world lane.
+            <a href="https://sirjames-book002-final.netlify.app/" target="_blank" rel="noopener" class="project-live-link">
+              🔗 Book002 Final →
+            </a>
+            <a href="https://sirjames-book003.netlify.app/" target="_blank" rel="noopener" class="project-live-link">
+              🔗 Book003 →
             </a>
           </div>
           <span class="expand-cta">↓ Click for story-world details</span>
         </div>
       </div>
 
-      <div class="project-card reveal" data-cat="cloud" data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.15">
+      <div class="project-card reveal slot-3" data-cat="cloud" data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.15">
         <div class="project-thumb">
           <div class="project-thumb-bg" style="background:linear-gradient(135deg,#1a1005,#2a1a05)"></div>
           <div class="thumb-glass-layer"></div>
@@ -2190,30 +2224,29 @@
           <div class="project-tag" style="color:var(--gold)">Cloud/DevOps</div>
         </div>
         <div class="project-body">
-          <div class="project-title" contenteditable="true">Netlify AI Edge Platform</div>
+          <div class="project-title" contenteditable="true">WSP2Agent Control Tower Hub</div>
           <div class="project-desc" contenteditable="true">
-            Composable AI stack using Netlify Edge Functions with Anthropic Claude and Gemini APIs.
-            Zero cold-start inference, DDoS protection, rate limiting, and CDN-edge AI responses.
+            Control-tower build for WSP001 workflows, agent handoffs, and operating-system visibility across
+            the broader stack. Hosted on Netlify and positioned as a hub rather than a SeaTrace or SirTrav identity lane.
           </div>
           <div class="project-tech">
-            <span class="tech-badge">Netlify Edge</span>
-            <span class="tech-badge">TypeScript</span>
-            <span class="tech-badge">Deno</span>
-            <span class="tech-badge">CI/CD</span>
+            <span class="tech-badge">Control Tower</span>
+            <span class="tech-badge">Netlify</span>
+            <span class="tech-badge">Workflows</span>
+            <span class="tech-badge">Hub Build</span>
           </div>
           <div class="project-expand">
-            This very CV site runs on this architecture. Edge functions handle /api/chat, /api/embed,
-            and /api/verify-access at CDN nodes worldwide — no server management, no cold starts,
-            instant global AI responses at millisecond latency.
-            <a href="https://robertoscottecholscv.netlify.app" target="_blank" rel="noopener" class="project-live-link">
-              🔗 Live Demo (this site) →
+            WSP2Agent is the control-tower side of the current buildout: a hub for agent routing, oversight,
+            and shared workflow visibility across the Commons Good stack.
+            <a href="https://wsp2agent.netlify.app" target="_blank" rel="noopener" class="project-live-link">
+              🔗 wsp2agent.netlify.app →
             </a>
           </div>
-          <span class="expand-cta">↓ Click for architecture notes</span>
+          <span class="expand-cta">↓ Click for hub notes</span>
         </div>
       </div>
 
-      <div class="project-card reveal" data-cat="ai" data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.15">
+      <div class="project-card reveal slot-5" data-cat="ai" data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.15">
         <div class="project-thumb">
           <div class="project-thumb-bg" style="background:linear-gradient(135deg,#1a0520,#0d0520)"></div>
           <div class="thumb-glass-layer"></div>
@@ -2263,7 +2296,7 @@
         </div>
       </div>
 
-      <div class="project-card reveal" data-cat="marine" data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.15">
+      <div class="project-card reveal flagship-seatrace slot-1" data-cat="marine" data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.15">
         <div class="project-thumb">
           <div class="project-thumb-bg" style="background:linear-gradient(135deg,#051a1a,#0a2020)"></div>
           <div class="thumb-glass-layer"></div>
@@ -2331,12 +2364,15 @@
             <a href="https://seatrace.worldseafoodproducers.com" target="_blank" rel="noopener" class="project-live-link">
               🔗 seatrace.worldseafoodproducers.com →
             </a>
+            <a href="https://worldseafoodproducers.com" target="_blank" rel="noopener" class="project-live-link">
+              🔗 worldseafoodproducers.com →
+            </a>
           </div>
           <span class="expand-cta">↓ Click to see Four Pillars breakdown</span>
         </div>
       </div>
 
-      <div class="project-card reveal" data-cat="cloud" data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.15">
+      <div class="project-card reveal slot-6" data-cat="cloud" data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.15">
         <div class="project-thumb">
           <div class="project-thumb-bg" style="background:linear-gradient(135deg,#1a1005,#100a00)"></div>
           <div class="thumb-glass-layer"></div>
@@ -2644,25 +2680,25 @@
   </div>
 
   <div class="chat-quick-actions" id="quick-actions">
-    <button class="quick-btn" onclick="sendQuick('Who is Scott and what does he specialize in?')">
+    <button class="quick-btn" onclick="sendQuick('What are the Four Pillars of SeaTrace under World Seafood Producers?')">
       <span class="quick-btn-index">1</span>
       <span class="quick-btn-copy">
-        <span class="quick-btn-label">Who is Scott and what does he specialize in?</span>
-        <span class="quick-btn-meta">Background, positioning, and consulting focus</span>
+        <span class="quick-btn-label">What are the Four Pillars of SeaTrace under World Seafood Producers?</span>
+        <span class="quick-btn-meta">Business flagship, traceability stack, and current priorities</span>
       </span>
     </button>
-    <button class="quick-btn" onclick="sendQuick('What experience does Scott have in software, AI, and marine operations?')">
+    <button class="quick-btn" onclick="sendQuick('What does SirTrav-A2A-Studio objectively do, separate from SeaTrace?')">
       <span class="quick-btn-index">2</span>
       <span class="quick-btn-copy">
-        <span class="quick-btn-label">What experience does Scott have in software, AI, and marine operations?</span>
-        <span class="quick-btn-meta">Career arc across enterprise systems and marine intelligence</span>
+        <span class="quick-btn-label">What does SirTrav-A2A-Studio objectively do, separate from SeaTrace?</span>
+        <span class="quick-btn-meta">Personal studio lane, grounded producer briefs, and social content workflows</span>
       </span>
     </button>
-    <button class="quick-btn" onclick="sendQuick('What projects and business systems has Scott built?')">
+    <button class="quick-btn" onclick="sendQuick('What verified systems, patents, and long-track builds are tied to Scott Echols?')">
       <span class="quick-btn-index">3</span>
       <span class="quick-btn-copy">
-        <span class="quick-btn-label">What projects and business systems has Scott built?</span>
-        <span class="quick-btn-meta">CV projects first, with business unlock available later</span>
+        <span class="quick-btn-label">What verified systems, patents, and long-track builds are tied to Scott Echols?</span>
+        <span class="quick-btn-meta">CV corpus first, with business and patent context kept grounded</span>
       </span>
     </button>
   </div>
@@ -3523,8 +3559,8 @@ async function callAPI(message) {
   } catch (err) {
     removeTyping();
     const fallbacks = {
-      'background': "R. Scott Echols is the professional identity behind World Seafood Producers, SeaTrace, and SirTrav-A2A-Studio. This public profile is being rebuilt around verified CV source files, so it stays focused on documented current work in marine intelligence, traceability, and AI-assisted systems.",
-      'resume': "The verified public profile currently supports a conservative summary: Scott works across software delivery, knowledge tooling, and seafood-domain operations through World Seafood Producers, SeaTrace, and SirTrav-A2A-Studio. Early-career timeline details are being revalidated before they are presented as settled fact.",
+      'background': "R. Scott Echols leads with World Seafood Producers and SeaTrace as the business-side work. This public profile is being rebuilt around verified CV source files so business, research, and personal studio lanes stay separate and grounded.",
+      'resume': "The verified public profile currently supports a conservative summary: Scott works across software delivery, knowledge tooling, fisheries-domain operations, and AI-assisted systems through World Seafood Producers, SeaTrace, and selected studio builds. Early-career timeline details are being revalidated before they are presented as settled fact.",
       'sirtrav': "SirTrav-A2A-Studio is Scott's personal studio for agent orchestration, media pipelines, and AI-assisted production. It is personal studio work and should not be conflated with SeaTrace business systems.",
       'seatrace': "SeaTrace is the business-side marine traceability and operating-system work under World Seafood Producers. The truth-first rule is to keep SeaTrace answers business-specific and separate from SirTrav personal identity.",
       'worldseafood': "World Seafood Producers is the umbrella business context on this public profile. The site is being re-grounded so company answers stay tied to verified source files instead of speculative copy.",
@@ -3765,7 +3801,7 @@ window.RSE_CV_KEYWORDS = {
   role: 'Founder, Technical Lead & AI Systems Architect',
   company: 'World Seafood Producers / WSP001',
   stack_valuation: '$4.2M USD',
-  projects: ['SirTrav-A2A-Studio', 'SeaTrace Four Pillars', 'Multimodal RAG Pipeline', 'Netlify AI Edge Platform'],
+  projects: ['SeaTrace Four Pillars', 'Sir James Adventures', 'WSP2Agent Control Tower Hub', 'SirTrav-A2A-Studio', 'Multimodal RAG Pipeline', 'LearnQuest'],
   seatrace_pillars: ['SeaSide (vessel tracking)', 'DeckSide (catch verification)', 'DockSide (supply chain)', 'MarketSide (consumer traceability)'],
   business_site: 'worldseafoodproducers.com',
   seatrace_portal: 'seatrace.worldseafoodproducers.com',
