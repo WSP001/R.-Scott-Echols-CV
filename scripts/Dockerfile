@@ -17,15 +17,15 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first (layer caching)
-# Build context is the scripts/ directory when deployed via --source ./scripts
-COPY requirements.txt ./requirements.txt
+# Build context is the REPO ROOT when built via: docker build -f scripts/Dockerfile .
+COPY scripts/requirements.txt ./requirements.txt
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
-COPY api_server.py ./api_server.py
-COPY embed_engine.py ./embed_engine.py
+COPY scripts/api_server.py ./api_server.py
+COPY scripts/embed_engine.py ./embed_engine.py
 
 # Create ChromaDB data directory
 RUN mkdir -p /data/chromadb
