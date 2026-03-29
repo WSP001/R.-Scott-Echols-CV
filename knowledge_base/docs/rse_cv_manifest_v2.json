@@ -1,0 +1,244 @@
+{
+  "manifest_version": "2.0",
+  "generated": "2026-03-22",
+  "owner": "Roberto Scott Echols",
+  "repo": "WSP001/R.-Scott-Echols-CV",
+  "target_path": "knowledge_base/public/cv/",
+  "embedding_model": "gemini-embedding-002",
+  "embedding_dimensions": 3072,
+  "chunking_strategy": "section_header",
+  "chunk_separator": "## ",
+  "vector_db": "supabase_pgvector",
+  "table": "rse_cv_embeddings",
+  "identity_rule": "SirTrav=personal | SeaTrace=business | SirJames=creative — NEVER conflate",
+
+  "sources": [
+    {
+      "id": "src-001",
+      "filename": "061722CURRICULUM VITAE OF ROBERT SCOTT ECHOLS (2)-1.docx",
+      "local_path": "C:\\Users\\Roberto002\\OneDrive\\Scott CV\\061722CURRICULUM VITAE OF ROBERT SCOTT ECHOLS (2)-1.docx",
+      "repo_path": "knowledge_base/public/cv/061722CURRICULUM VITAE OF ROBERT SCOTT ECHOLS (2)-1.docx",
+      "type": "docx",
+      "access_tier": "public",
+      "partition": "cv_personal",
+      "date_authored": "2022-06-17",
+      "priority": "tier1",
+      "normalized_output": "docs/cv/cv_personal_normalized.md",
+      "notable_content": ["ALOHAnet membership", "WARP Industries", "Stevens ASTF", "ADS AK", "Dutch Harbor", "SIMP", "USPTO patent"]
+    },
+    {
+      "id": "src-002",
+      "filename": "022723CURRICULUM VITAE OF ROBERTO SCOTT ECHOLS (2)-1.docx",
+      "local_path": "C:\\Users\\Roberto002\\OneDrive\\Scott CV\\022723CURRICULUM VITAE OF ROBERTO SCOTT ECHOLS (2)-1.docx",
+      "repo_path": "knowledge_base/public/cv/022723CURRICULUM VITAE OF ROBERTO SCOTT ECHOLS (2)-1.docx",
+      "type": "docx",
+      "access_tier": "public",
+      "partition": "cv_personal",
+      "date_authored": "2023-02-27",
+      "priority": "tier1",
+      "normalized_output": "docs/cv/cv_personal_normalized.md",
+      "notable_content": ["most complete ALOHAnet text", "Abramson quote", "WARP co-founder", "ITTP designer", "Ikura 21 seasons"]
+    },
+    {
+      "id": "src-003",
+      "filename": "Roberto CV Echols20230929-012137.pdf",
+      "local_path": "C:\\Users\\Roberto002\\OneDrive\\Scott CV\\Roberto CV Echols20230929-012137.pdf",
+      "repo_path": "knowledge_base/public/cv/Roberto CV Echols20230929-012137.pdf",
+      "type": "pdf",
+      "access_tier": "public",
+      "partition": "cv_personal",
+      "date_authored": "2023-09-29",
+      "priority": "tier1",
+      "normalized_output": "docs/cv/cv_personal_normalized.md",
+      "notable_content": ["GFW policy adviser context", "Tony Long mention", "PSG 20x profit", "ADS 1985-1988", "SIMP ITTP"]
+    },
+    {
+      "id": "src-004",
+      "filename": "01012024Scott CV compilation.docx",
+      "local_path": "C:\\Users\\Roberto002\\OneDrive\\Scott CV\\01012024Scott CV compilation.docx",
+      "repo_path": "knowledge_base/public/cv/01012024Scott CV compilation.docx",
+      "type": "docx",
+      "access_tier": "public",
+      "partition": "cv_personal",
+      "date_authored": "2024-01-01",
+      "priority": "tier2",
+      "normalized_output": "docs/cv/cv_personal_normalized.md",
+      "notable_content": ["2024 executive summary", "Stevens $109M endowment", "R/V Pioneer Micronesia biomass survey"]
+    },
+    {
+      "id": "src-005",
+      "filename": "Roberto EcholsCV062024.docx",
+      "local_path": "C:\\Users\\Roberto002\\OneDrive\\Scott CV\\Roberto EcholsCV062024.docx",
+      "repo_path": "knowledge_base/public/cv/Roberto EcholsCV062024.docx",
+      "type": "docx",
+      "access_tier": "public",
+      "partition": "cv_personal",
+      "date_authored": "2024-06-01",
+      "priority": "tier2",
+      "normalized_output": "docs/cv/cv_personal_normalized.md",
+      "notable_content": ["38 years experience", "$4.4M WARP funding detail", "dynamic professional summary", "most recent version"]
+    },
+    {
+      "id": "src-006",
+      "filename": "World Bank curriculum-vitae (1).docx",
+      "local_path": "C:\\Users\\Roberto002\\OneDrive\\Scott CV\\World Bank curriculum-vitae (1).docx",
+      "repo_path": "knowledge_base/public/cv/World Bank curriculum-vitae (1).docx",
+      "type": "docx",
+      "access_tier": "public",
+      "partition": "cv_personal",
+      "date_authored": "2023-01-01",
+      "priority": "tier2",
+      "normalized_output": "docs/cv/cv_personal_normalized.md",
+      "notable_content": ["World Bank targeted language", "international development framing"]
+    },
+
+    {
+      "id": "src-gh-live",
+      "filename": "github_repos_live.md",
+      "repo_path": "knowledge_base/public/cv/github_repos_live.md",
+      "type": "md",
+      "access_tier": "public",
+      "partition": "cv_projects",
+      "auto_generated": true,
+      "generated_by": ".github/workflows/refresh-gh-context.yml",
+      "refresh_schedule": "daily 06:00 UTC",
+      "priority": "tier2",
+      "chunk_separator": "### ",
+      "notable_content": [
+        "SirJamesAdventures live URL",
+        "SeaTrace repos",
+        "SirTrav personal repos",
+        "WSP2agent",
+        "DCHS Football",
+        "WAFC Business",
+        "identity classification map",
+        "chatbot answer cues for repo questions"
+      ]
+    },
+
+    {
+      "id": "src-sir-james",
+      "filename": "sir_james_adventures.md",
+      "repo_path": "docs/cv/sir_james_adventures.md",
+      "type": "md",
+      "access_tier": "public",
+      "partition": "cv_projects_personal",
+      "identity": "SirTrav_personal_creative",
+      "date_authored": "2026-03-22",
+      "priority": "tier1",
+      "chunk_separator": "## ",
+      "notable_content": [
+        "Sir James Adventures children's book series",
+        "Book001 live at sirjamesadventure2024.netlify.app",
+        "Book002 in production",
+        "80 scenes 10 chapters",
+        "AI-illustrated interactive",
+        "parent dashboard",
+        "educational history as it applies today",
+        "grandson project",
+        "SirTrav personal identity NOT SeaTrace"
+      ]
+    }
+  ],
+
+  "normalized_files": [
+    {
+      "filename": "cv_personal_normalized.md",
+      "partition": "cv_personal",
+      "access_tier": "public",
+      "sections": [
+        "IDENTITY",
+        "PROFESSIONAL SUMMARY",
+        "EDUCATION",
+        "CERTIFICATIONS & CREDENTIALS",
+        "CORE PROFICIENCIES",
+        "PROFESSIONAL EXPERIENCE",
+        "NOTABLE ACHIEVEMENTS",
+        "CONTACT & LINKS",
+        "SIR JAMES ADVENTURES"
+      ],
+      "chunk_count_estimate": 9,
+      "embedding_ready": true,
+      "changelog": "v2 adds Sir James Adventures section (2026-03-22)"
+    },
+    {
+      "filename": "cv_projects.md",
+      "partition": "cv_projects",
+      "access_tier": "public",
+      "sections": [
+        "WARP Industries / ROCC-BART",
+        "WorldSeafoodProducers.com",
+        "SeaTrace Four Pillars",
+        "SirTrav A2A",
+        "Sir James Adventures",
+        "SirJames AI Butler",
+        "SeaTrace-ODOO",
+        "DCHS Football Analytics",
+        "WAFC",
+        "RSE CV Site",
+        "LAMP Voice Interface"
+      ],
+      "chunk_count_estimate": 11,
+      "embedding_ready": true,
+      "changelog": "v2 adds Sir James Adventures as explicit section"
+    },
+    {
+      "filename": "knowledge_graph.md",
+      "partition": "cv_personal",
+      "access_tier": "public",
+      "chunk_separator": "## NODE-",
+      "chunk_count_estimate": 17,
+      "embedding_ready": true
+    },
+    {
+      "filename": "chatbot_questions.md",
+      "partition": "cv_personal",
+      "access_tier": "public",
+      "chunk_count_estimate": 3,
+      "embedding_ready": true,
+      "special_use": "preload_question_chips"
+    },
+    {
+      "filename": "chatbot_questions_v2.md",
+      "partition": "cv_personal",
+      "access_tier": "public",
+      "chunk_count_estimate": 8,
+      "embedding_ready": true,
+      "special_use": "preload_question_chips",
+      "changelog": "v2 adds Sir James, SirTrav/SeaTrace separation, GitHub repos Q&A"
+    },
+    {
+      "filename": "github_repos_live.md",
+      "partition": "cv_projects",
+      "access_tier": "public",
+      "chunk_separator": "### ",
+      "auto_refresh": true,
+      "chunk_count_estimate": 35,
+      "embedding_ready": true
+    }
+  ],
+
+  "ingest_commands": {
+    "cv_personal": "python scripts/embed_engine.py --partition cv_personal --source docs/cv/cv_personal_normalized.md --chunk-by '## '",
+    "cv_projects": "python scripts/embed_engine.py --partition cv_projects --source docs/cv/cv_projects.md --chunk-by '## '",
+    "knowledge_graph": "python scripts/embed_engine.py --partition cv_personal --source docs/cv/knowledge_graph.md --chunk-by '## NODE-'",
+    "chatbot_qa": "python scripts/embed_engine.py --partition cv_personal --source docs/cv/chatbot_questions.md --chunk-by '## Q'",
+    "chatbot_qa_v2": "python scripts/embed_engine.py --partition cv_personal --source docs/cv/chatbot_questions_v2.md --chunk-by '## Q'",
+    "sir_james": "python scripts/embed_engine.py --partition cv_projects_personal --source docs/cv/sir_james_adventures.md --chunk-by '## '",
+    "github_repos": "python scripts/embed_engine.py --partition cv_projects --source knowledge_base/public/cv/github_repos_live.md --chunk-by '### '"
+  },
+
+  "schema": {
+    "bigquery_table": "rse_cv_embeddings",
+    "fields": [
+      {"name": "id", "type": "STRING"},
+      {"name": "partition", "type": "STRING"},
+      {"name": "content", "type": "STRING"},
+      {"name": "source", "type": "STRING"},
+      {"name": "access_tier", "type": "STRING"},
+      {"name": "identity", "type": "STRING", "note": "NEW in v2 — sirtrav_personal | seatrace_business | sirjames_creative"},
+      {"name": "embedding", "type": "ARRAY<FLOAT64>"},
+      {"name": "created_at", "type": "TIMESTAMP"}
+    ]
+  }
+}
