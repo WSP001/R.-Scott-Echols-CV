@@ -4,10 +4,10 @@
 #
 # Tests:
 #   1. Site is live (HTTP 200)
-#   2. Project cards render (Sir James, LearnQuest, SeaTrace, SirTrav)
+#   2. Project card boundary markers render
 #   3. Years Experience counter shows 40+
-#   4. Chat endpoint responds
-#   5. Vector retrieval (if VECTOR_ENGINE_URL is set)
+#   4. Chat endpoint responds with source metadata
+#   5. Vector retrieval + RAG answer_source (if VECTOR_ENGINE_URL is set)
 
 param(
     [string]$Url = "https://robertoscottecholscv.netlify.app"
@@ -40,8 +40,12 @@ Test-Step "HTML contains title tag" { $page.Content -match [regex]::Escape("<tit
 Write-Host "`n--- Step 2: Project Cards ---"
 $html = $page.Content
 Test-Step "SeaTrace card present" { $html -match '(?i)seatrace|four pillars' }
+Test-Step "SeaTrace flagship class present" { $html -match 'flagship-seatrace' }
 Test-Step "SirTrav card present" { $html -match '(?i)sirtrav|a2a' }
 Test-Step "Sir James card present" { $html -match '(?i)sir james|adventures' }
+Test-Step "Sir James marked Creative" { $html -match '(?s)Sir James Adventures.*?>Creative<' }
+Test-Step "Sir James Book002 live URL present" { $html -match 'sirjames-book002-final\.netlify\.app' }
+Test-Step "WSP2Agent hub present" { $html -match 'WSP2Agent Control Tower Hub|wsp2agent\.netlify\.app' }
 Test-Step "LearnQuest card present" { $html -match '(?i)learnquest' }
 
 # 3. Years counter
@@ -54,6 +58,7 @@ try {
     $chatResp = Invoke-RestMethod -Uri "$Url/api/chat" -Method POST -ContentType "application/json" -Body '{"message":"hello","tier":"public","questionCount":0}' -TimeoutSec 15 -ErrorAction Stop
     Test-Step "Chat returns reply" { $chatResp.reply -and $chatResp.reply.Length -gt 0 }
     Test-Step "Chat returns tier" { $chatResp.tier -eq 'public' -or $chatResp.tier -eq 'business' }
+    Test-Step "Chat returns answer_source" { $chatResp.answer_source -and $chatResp.answer_source.Length -gt 0 }
 } catch {
     Write-Host "  FAIL: Chat API — $($_.Exception.Message)" -ForegroundColor Red
     $fail++
@@ -68,6 +73,8 @@ if ($vectorUrl) {
         Test-Step "Vector server alive" { $health }
         $query = Invoke-RestMethod -Uri "$vectorUrl/query" -Method POST -ContentType "application/json" -Body '{"query":"Scott Echols background","partitions":["cv_personal"],"n_results":3}' -TimeoutSec 10 -ErrorAction Stop
         Test-Step "Vector returns chunks" { $query.context_chunks -and $query.context_chunks.Count -gt 0 }
+        $ragChat = Invoke-RestMethod -Uri "$Url/api/chat" -Method POST -ContentType "application/json" -Body '{"message":"What are the Four Pillars of SeaTrace?","tier":"public","questionCount":0}' -TimeoutSec 20 -ErrorAction Stop
+        Test-Step "Chat reports RAG — CV Corpus" { $ragChat.answer_source -eq 'RAG — CV Corpus' }
     } catch {
         Write-Host "  FAIL: Vector — $($_.Exception.Message)" -ForegroundColor Red
         $fail++

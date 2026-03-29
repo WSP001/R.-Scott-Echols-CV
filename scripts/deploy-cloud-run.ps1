@@ -144,6 +144,10 @@ if (-not $ServiceUrl) {
     Write-Warn "Could not auto-detect service URL — check Cloud Run console"
 } else {
     Write-OK "Service URL: $ServiceUrl"
+    if (Get-Command Set-Clipboard -ErrorAction SilentlyContinue) {
+        $ServiceUrl | Set-Clipboard
+        Write-OK "Service URL copied to clipboard"
+    }
 }
 
 # ── Step 7: Health check ───────────────────────────────────────────────────────
@@ -173,6 +177,8 @@ Write-Host "  Key:   VECTOR_ENGINE_URL"
 Write-Host "  Value: $ServiceUrl"
 Write-Host ""
 Write-Host "  Go to: Netlify → Site Settings → Environment Variables"
+Write-Host "  Apply to: robertoscottecholscv.netlify.app"
+Write-Host "            sirtrav-a2a-studio.netlify.app"
 Write-Host "  Set team-level so all edge functions inherit it."
 Write-Host ""
 Write-Host "  Then redeploy Netlify (or trigger via git push) to activate RAG." -ForegroundColor Yellow
