@@ -840,7 +840,7 @@
       <div class="reveal" style="transition-delay:0.1s">
         <div class="about-stats">
           <div class="stat-card">
-            <div class="stat-num" contenteditable="true">12+</div>
+            <div class="stat-num" contenteditable="true">40+</div>
             <div class="stat-label">Years Experience</div>
           </div>
           <div class="stat-card">
@@ -860,16 +860,17 @@
         <h2 class="section-title">Marine Intelligence<br>Meets AI Architecture</h2>
         <div class="about-bio">
           <p contenteditable="true">
-            I'm a Senior Software Developer and Technical Lead with a unique blend of marine/fisheries domain expertise
-            and cutting-edge AI systems architecture. I build production-grade agentic systems that solve real-world
-            supply chain and operational challenges in the maritime sector.
+            I'm the Founder of World Seafood Producers and creator of SeaTrace — a Four Pillars maritime
+            supply chain traceability architecture (SeaSide → DeckSide → DockSide → MarketSide). With 40+
+            years spanning digital communications, advanced robotics, and fisheries operations, I build
+            production-grade systems that solve real-world traceability and compliance challenges.
           </p>
           <br/>
           <p contenteditable="true">
-            Currently leading development of SirTrav-A2A-Studio — a marine intelligence platform leveraging
-            agent-to-agent (A2A) protocols, Gemini Embedding 2 multimodal RAG, and Claude API integration.
-            My work bridges complex domain knowledge with modern AI infrastructure: from Power BI fisheries
-            dashboards to multi-agent orchestration systems deployed on Netlify's composable platform.
+            My work bridges deep marine domain knowledge with modern AI infrastructure: from Power BI
+            fisheries dashboards and SIMP compliance frameworks to ChromaDB vector retrieval and Claude-powered
+            knowledge systems. I also maintain SirTrav-A2A-Studio as a personal agent orchestration lab,
+            and the Sir James Adventures interactive children's book series.
           </p>
         </div>
       </div>
@@ -890,11 +891,12 @@
         <div class="timeline-dot"></div>
         <div class="timeline-card">
           <div class="timeline-period" contenteditable="true">2022 — Present</div>
-          <div class="timeline-role" contenteditable="true">Technical Lead &amp; AI Systems Architect</div>
-          <div class="timeline-company" contenteditable="true">SirTrav Marine Intelligence / WSP001</div>
+          <div class="timeline-role" contenteditable="true">Founder &amp; AI Systems Architect</div>
+          <div class="timeline-company" contenteditable="true">World Seafood Producers / SeaTrace / WSP001</div>
           <div class="timeline-desc" contenteditable="true">
-            Leading development of SirTrav-A2A-Studio, a marine intelligence platform with agent-to-agent (A2A) protocols.
-            Architected Gemini Embedding 2 multimodal RAG pipelines, Claude API integrations, and multi-agent orchestration systems.
+            Building SeaTrace Four Pillars traceability architecture for wild fisheries supply chains.
+            ChromaDB vector retrieval, Claude Opus chatbot, Gemini Embedding 2 RAG pipelines.
+            Parallel personal project: SirTrav-A2A-Studio (agent orchestration lab).
             Deployed composable AI stacks on Netlify with GitHub CI/CD automation.
           </div>
         </div>
@@ -1024,126 +1026,180 @@
     </div>
     <div class="projects-filters reveal">
       <button class="filter-btn active" onclick="filterProjects('all', this)">All</button>
-      <button class="filter-btn" onclick="filterProjects('ai', this)">Agentic AI</button>
       <button class="filter-btn" onclick="filterProjects('marine', this)">Marine Tech</button>
+      <button class="filter-btn" onclick="filterProjects('ai', this)">Agentic AI</button>
+      <button class="filter-btn" onclick="filterProjects('creative', this)">Creative</button>
       <button class="filter-btn" onclick="filterProjects('cloud', this)">Cloud</button>
     </div>
     <div class="projects-grid">
-      <div class="project-card reveal" data-cat="ai">
+      <div class="project-card reveal" data-cat="marine">
         <div class="project-thumb">
-          <div class="project-thumb-bg" style="background:linear-gradient(135deg,#1a1040,#0d1a2e)"></div>
-          <div class="project-thumb-icon">🤖</div>
-          <div class="project-tag" style="color:var(--purple)">Agentic AI</div>
+          <div class="project-thumb-bg" style="background:linear-gradient(135deg,#0d2a1a,#0a1a2e)"></div>
+          <div class="thumb-glass-layer"></div>
+          <div class="emblem-stage">
+            <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="32" cy="32" r="28" stroke="#4ecdc4" stroke-width="2" fill="rgba(78,205,196,0.08)"/>
+              <path d="M16 40 Q32 20 48 40" stroke="#4ecdc4" stroke-width="2.5" fill="none"/>
+              <path d="M12 36 Q32 16 52 36" stroke="#4ecdc4" stroke-width="1.5" fill="none" opacity="0.5"/>
+              <circle cx="32" cy="28" r="4" fill="#4ecdc4"/>
+            </svg>
+          </div>
+          <div class="project-tag" style="color:var(--cyan)">Marine Tech</div>
         </div>
         <div class="project-body">
-          <div class="project-title" contenteditable="true">SirTrav-A2A-Studio</div>
-          <div class="project-desc" contenteditable="true">
-            Marine intelligence platform using agent-to-agent (A2A) protocols. Multi-agent orchestration
-            with Claude API, Gemini Embedding 2 multimodal RAG, and composable AI stack deployed on Netlify.
+          <div class="project-title">SeaTrace — Maritime Supply Chain Traceability</div>
+          <div class="project-desc">
+            Four Pillars architecture (SeaSide → DeckSide → DockSide → MarketSide) for wild fisheries
+            traceability. USPTO Patent 16/936,852. Evidence-Grade chain from vessel to consumer.
           </div>
           <div class="project-tech">
-            <span class="tech-badge">Claude API</span>
-            <span class="tech-badge">Gemini Embed 2</span>
-            <span class="tech-badge">Node.js</span>
-            <span class="tech-badge">Netlify</span>
+            <span class="tech-badge">Four Pillars</span>
+            <span class="tech-badge">ODOO</span>
+            <span class="tech-badge">AIS/VMS</span>
+            <span class="tech-badge">SIMP</span>
           </div>
         </div>
       </div>
 
       <div class="project-card reveal" data-cat="marine" style="transition-delay:0.1s">
         <div class="project-thumb">
-          <div class="project-thumb-bg" style="background:linear-gradient(135deg,#0d2a1a,#0a1a2e)"></div>
-          <div class="project-thumb-icon">🐟</div>
-          <div class="project-tag" style="color:var(--cyan)">Marine Tech</div>
+          <div class="project-thumb-bg" style="background:linear-gradient(135deg,#1a1005,#2a1a05)"></div>
+          <div class="thumb-glass-layer"></div>
+          <div class="emblem-stage">
+            <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="10" y="10" width="44" height="44" rx="8" stroke="#c9a84c" stroke-width="2" fill="rgba(201,168,76,0.08)"/>
+              <path d="M22 32 L32 22 L42 32 L32 42 Z" stroke="#c9a84c" stroke-width="2" fill="rgba(201,168,76,0.15)"/>
+              <circle cx="32" cy="32" r="5" fill="#c9a84c"/>
+            </svg>
+          </div>
+          <div class="project-tag" style="color:var(--gold)">Business</div>
         </div>
         <div class="project-body">
-          <div class="project-title" contenteditable="true">Fisheries Supply Chain Intelligence</div>
-          <div class="project-desc" contenteditable="true">
-            Power BI dashboards and data visualization platform for fisheries supply chain optimization.
-            Real-time analytics, traceability workflows, and operational efficiency metrics.
+          <div class="project-title">World Seafood Producers</div>
+          <div class="project-desc">
+            Parent company operating SeaTrace, WARP Industries, and fisheries consulting.
+            Restoring American & World Seafood Competitiveness. 40+ years of maritime industry
+            operations and technology. $4.2M stack operator valuation.
           </div>
           <div class="project-tech">
             <span class="tech-badge">Power BI</span>
-            <span class="tech-badge">Python</span>
-            <span class="tech-badge">API Integration</span>
+            <span class="tech-badge">Supply Chain</span>
+            <span class="tech-badge">SIMP</span>
           </div>
         </div>
       </div>
 
-      <div class="project-card reveal" data-cat="cloud" style="transition-delay:0.2s">
+      <div class="project-card reveal" data-cat="creative" style="transition-delay:0.2s">
         <div class="project-thumb">
-          <div class="project-thumb-bg" style="background:linear-gradient(135deg,#1a1005,#2a1a05)"></div>
-          <div class="project-thumb-icon">⚙️</div>
-          <div class="project-tag" style="color:var(--gold)">Cloud/DevOps</div>
+          <div class="project-thumb-bg" style="background:linear-gradient(135deg,#1a0a2a,#0d1a2e)"></div>
+          <div class="thumb-glass-layer"></div>
+          <div class="emblem-stage">
+            <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="14" y="8" width="36" height="48" rx="4" stroke="#e8c877" stroke-width="2" fill="rgba(232,200,119,0.08)"/>
+              <line x1="22" y1="20" x2="42" y2="20" stroke="#e8c877" stroke-width="1.5" opacity="0.6"/>
+              <line x1="22" y1="28" x2="38" y2="28" stroke="#e8c877" stroke-width="1.5" opacity="0.4"/>
+              <line x1="22" y1="36" x2="40" y2="36" stroke="#e8c877" stroke-width="1.5" opacity="0.4"/>
+              <text x="32" y="50" text-anchor="middle" fill="#e8c877" font-size="10" font-weight="bold">SJ</text>
+            </svg>
+          </div>
+          <div class="project-tag" style="color:var(--gold-2)">Creative</div>
         </div>
         <div class="project-body">
-          <div class="project-title" contenteditable="true">Netlify AI Edge Platform</div>
-          <div class="project-desc" contenteditable="true">
-            Composable AI stack using Netlify Edge Functions with Anthropic Claude and Gemini APIs.
-            Zero cold-start inference, DDoS protection, rate limiting, and CDN-edge AI responses.
+          <div class="project-title">Sir James Adventures — Interactive Children's Series</div>
+          <div class="project-desc">
+            Interactive illustrated children's adventure book series with AI-generated narration,
+            8 original Suno music tracks, and a parent companion dashboard.
+            Built as a legacy project for grandson James.
           </div>
           <div class="project-tech">
-            <span class="tech-badge">Netlify Edge</span>
-            <span class="tech-badge">TypeScript</span>
-            <span class="tech-badge">Deno</span>
-            <span class="tech-badge">CI/CD</span>
+            <span class="tech-badge">Netlify</span>
+            <span class="tech-badge">Suno AI</span>
+            <span class="tech-badge">Interactive Design</span>
           </div>
         </div>
       </div>
 
       <div class="project-card reveal" data-cat="ai" style="transition-delay:0.3s">
         <div class="project-thumb">
+          <div class="project-thumb-bg" style="background:linear-gradient(135deg,#1a1040,#0d1a2e)"></div>
+          <div class="thumb-glass-layer"></div>
+          <div class="emblem-stage">
+            <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <polygon points="32,6 58,20 58,44 32,58 6,44 6,20" stroke="#7c6af7" stroke-width="2" fill="rgba(124,106,247,0.08)"/>
+              <polygon points="32,16 48,24 48,40 32,48 16,40 16,24" stroke="#7c6af7" stroke-width="1" fill="none" opacity="0.5"/>
+              <circle cx="32" cy="32" r="5" fill="#7c6af7"/>
+            </svg>
+          </div>
+          <div class="project-tag" style="color:var(--purple)">Personal Studio</div>
+        </div>
+        <div class="project-body">
+          <div class="project-title">SirTrav A2A Studio — Agent Orchestration Lab</div>
+          <div class="project-desc">
+            Personal studio for D2A multi-agent creative pipelines. Photos-to-cinematic social posts
+            using Gemini, Veo 2, and Claude. Personal project — not part of SeaTrace business operations.
+          </div>
+          <div class="project-tech">
+            <span class="tech-badge">Claude API</span>
+            <span class="tech-badge">Gemini</span>
+            <span class="tech-badge">Veo 2</span>
+            <span class="tech-badge">Netlify</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="project-card reveal" data-cat="cloud" style="transition-delay:0.4s">
+        <div class="project-thumb">
+          <div class="project-thumb-bg" style="background:linear-gradient(135deg,#0d1520,#0a1528)"></div>
+          <div class="thumb-glass-layer"></div>
+          <div class="emblem-stage">
+            <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="32" cy="32" r="24" stroke="#4ecdc4" stroke-width="2" fill="rgba(78,205,196,0.06)"/>
+              <circle cx="32" cy="32" r="8" fill="rgba(78,205,196,0.2)" stroke="#4ecdc4" stroke-width="1.5"/>
+              <line x1="32" y1="8" x2="32" y2="20" stroke="#4ecdc4" stroke-width="1" opacity="0.5"/>
+              <line x1="32" y1="44" x2="32" y2="56" stroke="#4ecdc4" stroke-width="1" opacity="0.5"/>
+              <line x1="8" y1="32" x2="20" y2="32" stroke="#4ecdc4" stroke-width="1" opacity="0.5"/>
+              <line x1="44" y1="32" x2="56" y2="32" stroke="#4ecdc4" stroke-width="1" opacity="0.5"/>
+            </svg>
+          </div>
+          <div class="project-tag" style="color:var(--cyan)">Cloud/AI</div>
+        </div>
+        <div class="project-body">
+          <div class="project-title">R. Scott Echols CV — AI Knowledge Platform</div>
+          <div class="project-desc">
+            This website — Claude Opus chatbot, ChromaDB vector retrieval, tiered access
+            (public/business), Netlify Edge Functions. The CV itself demonstrates
+            the technical capabilities listed in it.
+          </div>
+          <div class="project-tech">
+            <span class="tech-badge">Claude Opus</span>
+            <span class="tech-badge">ChromaDB</span>
+            <span class="tech-badge">Deno</span>
+            <span class="tech-badge">Edge Functions</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="project-card reveal" data-cat="ai" style="transition-delay:0.5s">
+        <div class="project-thumb">
           <div class="project-thumb-bg" style="background:linear-gradient(135deg,#1a0520,#0d0520)"></div>
-          <div class="project-thumb-icon">🧠</div>
-          <div class="project-tag" style="color:var(--purple)">Agentic AI</div>
+          <div class="thumb-glass-layer"></div>
+          <div class="emblem-stage">
+            <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M32 8 L40 24 L56 24 L44 36 L48 52 L32 44 L16 52 L20 36 L8 24 L24 24 Z" stroke="#7c6af7" stroke-width="2" fill="rgba(124,106,247,0.1)"/>
+            </svg>
+          </div>
+          <div class="project-tag" style="color:var(--purple)">Education</div>
         </div>
         <div class="project-body">
-          <div class="project-title" contenteditable="true">Multimodal RAG Pipeline</div>
-          <div class="project-desc" contenteditable="true">
-            Gemini Embedding 2 pipeline mapping text, images, video, audio, and PDFs into a unified
-            vector space. Enables cross-modal search and multimodal knowledge base retrieval.
+          <div class="project-title">LearnQuest — AI-Powered Educational Platform</div>
+          <div class="project-desc">
+            Educational technology platform combining AI tutoring with structured learning paths.
+            Interactive dashboard for students and educators. Currently in development.
           </div>
           <div class="project-tech">
-            <span class="tech-badge">Gemini Embed 2</span>
-            <span class="tech-badge">Vector DB</span>
-            <span class="tech-badge">RAG</span>
-            <span class="tech-badge">Python</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="project-card reveal" data-cat="marine" style="transition-delay:0.4s">
-        <div class="project-thumb">
-          <div class="project-thumb-bg" style="background:linear-gradient(135deg,#051a1a,#0a2020)"></div>
-          <div class="project-thumb-icon">🌊</div>
-          <div class="project-tag" style="color:var(--cyan)">Marine Tech</div>
-        </div>
-        <div class="project-body">
-          <div class="project-title" contenteditable="true">[Project 5 Title]</div>
-          <div class="project-desc" contenteditable="true">
-            [Click to add your project description. What problem did it solve? What technologies did you use? What was the outcome?]
-          </div>
-          <div class="project-tech">
-            <span class="tech-badge" contenteditable="true">Technology</span>
-            <span class="tech-badge" contenteditable="true">Stack</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="project-card reveal" data-cat="cloud" style="transition-delay:0.5s">
-        <div class="project-thumb">
-          <div class="project-thumb-bg" style="background:linear-gradient(135deg,#1a1005,#100a00)"></div>
-          <div class="project-thumb-icon">🔧</div>
-          <div class="project-tag" style="color:var(--gold)">Cloud</div>
-        </div>
-        <div class="project-body">
-          <div class="project-title" contenteditable="true">[Project 6 Title]</div>
-          <div class="project-desc" contenteditable="true">
-            [Click to add your project description. What problem did it solve? What technologies did you use? What was the outcome?]
-          </div>
-          <div class="project-tech">
-            <span class="tech-badge" contenteditable="true">Technology</span>
-            <span class="tech-badge" contenteditable="true">Stack</span>
+            <span class="tech-badge">AI Tutoring</span>
+            <span class="tech-badge">Interactive</span>
+            <span class="tech-badge">In Progress</span>
           </div>
         </div>
       </div>
@@ -1378,8 +1434,8 @@
 
   <div class="chat-quick-actions" id="quick-actions">
     <button class="quick-btn" onclick="sendQuick('What is Scott\'s background and expertise?')">👤 Background</button>
-    <button class="quick-btn" onclick="sendQuick('Tell me about the SirTrav marine intelligence platform.')">🌊 SirTrav Project</button>
-    <button class="quick-btn" onclick="sendQuick('How does Gemini Embedding 2 multimodal RAG work in your architecture?')">🧠 AI Architecture</button>
+    <button class="quick-btn" onclick="sendQuick('Tell me about the SeaTrace Four Pillars traceability architecture.')">⚓ SeaTrace</button>
+    <button class="quick-btn" onclick="sendQuick('What is Sir James Adventures?')">📚 Sir James</button>
     <button class="quick-btn" onclick="sendQuick('I\'m interested in hiring or collaborating with Scott. What\'s the best way to connect?')">📬 Contact</button>
   </div>
 
@@ -1684,10 +1740,11 @@ async function callAPI(message) {
     removeTyping();
     // Fallback for when API is not configured (local dev / preview)
     const fallbacks = {
-      'background': "Scott is a Senior Software Developer and Technical Lead with expertise in marine/fisheries technology and agentic AI systems. He's currently building SirTrav-A2A-Studio, a marine intelligence platform.",
-      'siртrav': "SirTrav-A2A-Studio is a marine intelligence platform using agent-to-agent (A2A) protocols with Claude API and Gemini Embedding 2 multimodal RAG.",
+      'background': "Scott is the Founder of World Seafood Producers and creator of SeaTrace, a Four Pillars maritime supply chain traceability architecture. With 40+ years spanning digital communications, advanced robotics, and fisheries operations, he builds production-grade systems for maritime traceability and compliance.",
+      'seatrace': "SeaTrace is a Four Pillars architecture (SeaSide → DeckSide → DockSide → MarketSide) for wild fisheries traceability. USPTO Patent 16/936,852. It provides Evidence-Grade chain-of-custody from vessel to consumer.",
+      'sir james': "Sir James Adventures is Scott's interactive children's book series — a personal legacy project for his grandson James, featuring AI-generated narration, 8 original Suno music tracks, and a parent companion dashboard.",
       'contact': "You can reach Scott at worldseafood@gmail.com or through the contact form on this page. He's open to enterprise consulting, technical leadership, and collaboration.",
-      'default': "I'm Scott's AI assistant. I can answer questions about his background, projects (like SirTrav marine intelligence platform), AI architecture work, and how to get in touch. The live AI requires the Netlify deployment with ANTHROPIC_API_KEY configured — try the contact form above to reach Scott directly."
+      'default': "I'm Scott's AI assistant. I can answer questions about his background, projects (SeaTrace, Sir James Adventures, SirTrav Studio), and how to get in touch. The live AI requires the Netlify deployment with ANTHROPIC_API_KEY configured — try the contact form above to reach Scott directly."
     };
     const m = message.toLowerCase();
     const key = Object.keys(fallbacks).find(k => m.includes(k)) || 'default';
