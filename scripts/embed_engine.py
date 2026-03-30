@@ -294,7 +294,10 @@ def ingest_file(
     elif suffix == ".pdf":
         text = extract_text_from_pdf(path)
     else:
-        text = path.read_text(encoding="utf-8")
+        try:
+            text = path.read_text(encoding="utf-8")
+        except UnicodeDecodeError:
+            text = path.read_text(encoding="cp1252")
 
     if not text.strip():
         print(f"  ERROR: No text extracted from {path.name}")
