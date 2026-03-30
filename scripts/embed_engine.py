@@ -390,10 +390,7 @@ def remote_ingest_file(url, secret, file_path, partition, chunk_strategy):
 
     if chunk_strategy == "section":
         chunks = chunk_by_sections(text)
-    elif chunk_strategy == "heading":
-        chunks = chunk_by_headings(text)
-    elif chunk_strategy == "paragraph":
-        chunks = chunk_by_paragraphs(text)
+        print(f"  INFO: Section chunking: {len(chunks)} sections")
     else:
         chunks = chunk_text(text)
 
