@@ -69,6 +69,9 @@ if (-not $env:GEMINI_API_KEY) {
 if (-not $env:INGEST_SECRET) {
     Write-Warn "INGEST_SECRET not set locally — will use Cloud Run secret"
 }
+if (-not $env:DATABASE_URL) {
+    Write-Warn "DATABASE_URL not set locally — service will fall back to local Chroma unless a Cloud Run secret exists"
+}
 
 # ── Step 2: Build Docker image ─────────────────────────────────────────────────
 if (-not $SkipBuild) {
@@ -127,6 +130,10 @@ if (gcloud secrets describe GEMINI_API_KEY --project=$ProjectId 2>$null) {
 if (gcloud secrets describe INGEST_SECRET --project=$ProjectId 2>$null) {
     $Secrets += "INGEST_SECRET=INGEST_SECRET:latest"
     Write-OK "Using Secret Manager: INGEST_SECRET"
+}
+if (gcloud secrets describe DATABASE_URL --project=$ProjectId 2>$null) {
+    $Secrets += "DATABASE_URL=DATABASE_URL:latest"
+    Write-OK "Using Secret Manager: DATABASE_URL"
 }
 if ($Secrets.Count -gt 0) {
     $DeployArgs += "--set-secrets"

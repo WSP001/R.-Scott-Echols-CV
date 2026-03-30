@@ -4,22 +4,22 @@ api_server.py — WSP001 Vector Retrieval Service (Cloud Run)
 FOR THE COMMONS GOOD — reusable across WSP001 repos
 
 This is the production retrieval bridge between Netlify Edge Functions
-and the ChromaDB knowledge base. It runs as a lightweight FastAPI server
+and the knowledge base. It runs as a lightweight FastAPI server
 on Google Cloud Run (scales to zero between requests).
 
 Architecture:
   Netlify /api/chat (Deno edge)
       ↓  POST /retrieve { query, partition, top_k }
-  Cloud Run api_server.py (FastAPI + ChromaDB)
+  Cloud Run api_server.py (FastAPI + vector store)
       ↓  cosine similarity search
-  ChromaDB (3072-dim Gemini Embedding 2 vectors)
+  pgvector or ChromaDB (3072-dim Gemini Embedding 2 vectors)
       ↓  top-K chunks
   back to chat.ts → injected into Claude system prompt as RAG context
 
 Endpoints:
   GET  /health         → liveness check
   POST /retrieve       → semantic search, returns top-K chunks
-  POST /ingest         → ingest a text chunk into ChromaDB (authenticated)
+  POST /ingest         → ingest a text chunk into the active vector store (authenticated)
   GET  /partitions     → list available partitions
 
 Environment variables:
@@ -27,6 +27,8 @@ Environment variables:
   INGEST_SECRET        → required for POST /ingest (set in Cloud Run secrets)
   PORT                 → Cloud Run sets this automatically (default 8080)
   CHROMADB_PATH        → local path to ChromaDB data (default ./chromadb_data)
+  DATABASE_URL         → optional durable PostgreSQL/pgvector backend
+  VECTOR_STORE_BACKEND → auto | chroma | pgvector
 
 Run locally:
   pip install fastapi uvicorn chromadb google-genai
@@ -46,12 +48,12 @@ from typing import Optional
 from fastapi import FastAPI, HTTPException, Header, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from vector_store import create_vector_store
 
 # ── Config ────────────────────────────────────────────────────────────────────
 EMBED_MODEL   = "models/gemini-embedding-2-preview"  # 3072-dim, matches embed_engine.py
 EMBED_DIMS    = 3072
 CHUNK_SIZE    = 800
-DB_PATH       = os.environ.get("CHROMADB_PATH", "./chromadb_data")
 COLLECTION    = "wsp001_knowledge"
 INGEST_SECRET = os.environ.get("INGEST_SECRET", "")
 PORT          = int(os.environ.get("PORT", 8080))
@@ -83,7 +85,7 @@ app.add_middleware(
 # ── Lazy-loaded clients ───────────────────────────────────────────────────────
 _genai = None
 _genai_types = None
-_collection = None
+_store = None
 
 def get_genai():
     global _genai, _genai_types
@@ -97,16 +99,11 @@ def get_genai():
         _genai_types = types
     return _genai
 
-def get_collection():
-    global _collection
-    if _collection is None:
-        import chromadb
-        client = chromadb.PersistentClient(path=DB_PATH)
-        _collection = client.get_or_create_collection(
-            name=COLLECTION,
-            metadata={"hnsw:space": "cosine"}
-        )
-    return _collection
+def get_store():
+    global _store
+    if _store is None:
+        _store = create_vector_store()
+    return _store
 
 # ── Request/Response models ───────────────────────────────────────────────────
 
@@ -134,9 +131,8 @@ class IngestRequest(BaseModel):
 def health():
     """Liveness check — Cloud Run uses this for startup probes."""
     try:
-        col = get_collection()
-        count = col.count()
-        return {"status": "ok", "chunks": count, "db_path": DB_PATH}
+        store = get_store()
+        return store.health_payload()
     except Exception as e:
         return {"status": "degraded", "error": str(e)}
 
@@ -173,18 +169,18 @@ def retrieve(req: RetrieveRequest):
         allowed = {"cv_personal", "cv_projects"}
         if req.partition and req.partition not in allowed:
             raise HTTPException(403, f"Partition '{req.partition}' requires business tier access")
-        where_filter = {"partition": {"$in": list(allowed)}}
+        search_partitions = [req.partition] if req.partition else list(allowed)
     else:
         # Business tier — respect explicit partition or search all
         if req.partition:
             if req.partition not in ALLOWED_PARTITIONS:
                 raise HTTPException(400, f"Unknown partition: {req.partition}")
-            where_filter = {"partition": req.partition}
+            search_partitions = [req.partition]
         else:
-            where_filter = None  # search everything
+            search_partitions = None  # search everything
 
     genai = get_genai()
-    col = get_collection()
+    store = get_store()
 
     # Embed the query
     try:
@@ -199,28 +195,22 @@ def retrieve(req: RetrieveRequest):
 
     # Search ChromaDB
     try:
-        kwargs = dict(
-            query_embeddings=[query_embedding],
+        rows = store.similarity_search(
+            query_embedding=query_embedding,
             n_results=min(req.top_k, 10),
-            include=["documents", "metadatas", "distances"]
+            partitions=search_partitions,
         )
-        if where_filter:
-            kwargs["where"] = where_filter
-
-        results = col.query(**kwargs)
     except Exception as e:
         raise HTTPException(502, f"Vector search failed: {str(e)}")
 
-    if not results["ids"][0]:
+    if not rows:
         return []
 
     output = []
-    for doc, meta, dist in zip(
-        results["documents"][0],
-        results["metadatas"][0],
-        results["distances"][0]
-    ):
-        score = round(1.0 - float(dist), 4)  # cosine similarity (higher = better)
+    for row in rows:
+        doc = row["document"]
+        meta = row["metadata"]
+        score = round(float(row["score"]), 4)
         output.append(RetrieveResult(
             content=doc,
             score=score,
@@ -260,7 +250,7 @@ def query(req: QueryRequest):
         return QueryResponse(context_chunks=[])
 
     genai = get_genai()
-    col = get_collection()
+    store = get_store()
 
     try:
         embedding_result = genai.models.embed_content(
@@ -273,22 +263,21 @@ def query(req: QueryRequest):
         raise HTTPException(502, f"Embedding failed: {str(e)}")
 
     try:
-        results = col.query(
-            query_embeddings=[query_embedding],
+        rows = store.similarity_search(
+            query_embedding=query_embedding,
             n_results=min(req.n_results * len(safe_partitions), 20),
-            where={"partition": {"$in": safe_partitions}},
-            include=["documents", "metadatas", "distances"]
+            partitions=safe_partitions,
         )
     except Exception as e:
         raise HTTPException(502, f"Vector search failed: {str(e)}")
 
-    if not results["ids"][0]:
+    if not rows:
         return QueryResponse(context_chunks=[])
 
     # Build scored list, deduplicate by content, return top n_results as plain strings
     scored = sorted(
-        zip(results["documents"][0], results["distances"][0]),
-        key=lambda x: x[1]  # lower distance = higher similarity
+        ((row["document"], row["distance"]) for row in rows),
+        key=lambda x: x[1]
     )
     seen: set[str] = set()
     chunks: list[str] = []
@@ -321,15 +310,14 @@ def ingest(req: IngestRequest, x_ingest_secret: Optional[str] = Header(None)):
         raise HTTPException(400, f"Unknown partition: {req.partition}")
 
     genai = get_genai()
-    col = get_collection()
+    store = get_store()
 
     # Deterministic ID
     chunk_id = hashlib.sha256(
         f"{req.partition}::{req.source}::{req.content[:80]}".encode()
     ).hexdigest()[:16]
 
-    existing = col.get(ids=[chunk_id])
-    if existing["ids"]:
+    if store.has_id(chunk_id):
         return {"status": "skipped", "id": chunk_id, "reason": "already ingested"}
 
     embedding = list(genai.models.embed_content(
@@ -338,16 +326,17 @@ def ingest(req: IngestRequest, x_ingest_secret: Optional[str] = Header(None)):
         config=_genai_types.EmbedContentConfig(task_type="RETRIEVAL_DOCUMENT")
     ).embeddings[0].values)
 
-    col.add(
-        ids=[chunk_id],
-        embeddings=[embedding],
-        documents=[req.content],
-        metadatas=[{
-            "partition": req.partition,
-            "source": req.source,
-            "modality": req.modality,
-            "tier": "public" if req.partition in {"cv_personal", "cv_projects"} else "business",
-        }]
+    metadata = {
+        "partition": req.partition,
+        "source": req.source,
+        "modality": req.modality,
+        "tier": "public" if req.partition in {"cv_personal", "cv_projects"} else "business",
+    }
+    store.add_document(
+        doc_id=chunk_id,
+        embedding=embedding,
+        document=req.content,
+        metadata=metadata,
     )
 
     return {"status": "ingested", "id": chunk_id, "partition": req.partition}
@@ -357,5 +346,5 @@ def ingest(req: IngestRequest, x_ingest_secret: Optional[str] = Header(None)):
 if __name__ == "__main__":
     import uvicorn
     print(f"Starting WSP001 Retrieval API on port {PORT}")
-    print(f"ChromaDB path: {DB_PATH}")
+    print(f"Vector store backend: {get_store().backend_name}")
     uvicorn.run("api_server:app", host="0.0.0.0", port=PORT, reload=True)

@@ -26,6 +26,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY scripts/api_server.py ./api_server.py
 COPY scripts/embed_engine.py ./embed_engine.py
+COPY scripts/vector_store.py ./vector_store.py
 
 # Create ChromaDB data directory
 RUN mkdir -p /data/chromadb
