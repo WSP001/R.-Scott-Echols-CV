@@ -4,7 +4,7 @@
 # Run this ONCE after you have a Supabase (or any PostgreSQL+pgvector) connection string.
 # It will:
 #   1. Store DATABASE_URL in GCP Secret Manager
-#   2. Redeploy Cloud Run so it boots on pgvector
+#   2. Rebuild + redeploy Cloud Run so it boots on the latest pgvector-capable image
 #   3. Re-ingest the full corpus into pgvector
 #   4. Run verify-vector.ps1 to confirm chunks are live
 #
@@ -24,7 +24,7 @@ param(
     [string]$ProjectId = "worldseafood-project-001",
     [string]$Region    = "us-central1",
     [string]$Service   = "rse-retrieval",
-    [string]$VectorUrl = "https://rse-retrieval-zrmkhygpwa-uc.a.run.app",
+    [string]$VectorUrl = "",
     [string]$IngestSecret = $env:INGEST_SECRET
 )
 
@@ -70,15 +70,38 @@ try {
 }
 
 # ── Step 2: Redeploy Cloud Run with DATABASE_URL secret ──────────────────────
-Write-Step "2/4 — Redeploying Cloud Run with pgvector backend"
+Write-Step "2/4 — Rebuilding and redeploying Cloud Run with pgvector backend"
 try {
-    gcloud run services update $Service `
-        --region $Region `
-        --update-secrets "DATABASE_URL=DATABASE_URL:latest"
-    Write-OK "Cloud Run redeployed with DATABASE_URL"
+    & "$PSScriptRoot\deploy-cloud-run.ps1" `
+        -ProjectId $ProjectId `
+        -Region $Region `
+        -ServiceName $Service
+    Write-OK "Cloud Run redeployed from the latest image with DATABASE_URL available"
 } catch {
     Write-Fail "Cloud Run redeploy failed: $_"
     exit 1
+}
+
+# Resolve the live service URL after redeploy so ingest and verification hit the
+# current Cloud Run endpoint, not a stale hardcoded hostname.
+try {
+    $ResolvedUrl = (
+        gcloud run services describe $Service `
+            --region=$Region `
+            --format="value(status.url)" 2>$null
+    ).Trim()
+    if ($ResolvedUrl) {
+        $VectorUrl = $ResolvedUrl
+        Write-Info "Using live service URL: $VectorUrl"
+    } elseif (-not $VectorUrl) {
+        Write-Fail "Could not resolve the Cloud Run service URL after redeploy"
+        exit 1
+    }
+} catch {
+    if (-not $VectorUrl) {
+        Write-Fail "Could not resolve the Cloud Run service URL: $_"
+        exit 1
+    }
 }
 
 # Wait for revision to stabilize
@@ -122,6 +145,13 @@ Write-Host " RESULT: $($final.chunks) chunks in pgvector" -ForegroundColor Green
 Write-Host "==========================================" -ForegroundColor Magenta
 
 if ($final.chunks -gt 0) {
+    Write-Step "Verification — Running verify-vector.ps1"
+    pwsh -File "$PSScriptRoot\verify-vector.ps1" -Url $VectorUrl
+    if ($LASTEXITCODE -ne 0) {
+        Write-Fail "verify-vector.ps1 failed — investigate the vector service before wiring Netlify"
+        exit 1
+    }
+
     Write-Host ""
     Write-Host "  pgvector is LIVE and durable." -ForegroundColor Green
     Write-Host "  Chunks survive Cloud Run restarts." -ForegroundColor Green
