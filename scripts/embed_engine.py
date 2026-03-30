@@ -90,7 +90,7 @@ def get_gemini_client():
     api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
         print(
-            "✗ GEMINI_API_KEY not set — "
+            "ERROR: GEMINI_API_KEY not set — "
             "run: export GEMINI_API_KEY=your_key_here"
         )
         sys.exit(1)
@@ -99,7 +99,7 @@ def get_gemini_client():
         return genai.Client(api_key=api_key)
     except ImportError:
         print(
-            "✗ google-genai not installed — "
+            "ERROR: google-genai not installed — "
             "run: pip install google-genai"
         )
         sys.exit(1)
@@ -110,7 +110,7 @@ def get_chroma_collection():
     try:
         import chromadb
     except ImportError:
-        print("✗ chromadb not installed — run: pip install chromadb")
+        print("ERROR: chromadb not installed — run: pip install chromadb")
         sys.exit(1)
 
     client = chromadb.PersistentClient(path=DB_PATH)
@@ -236,7 +236,7 @@ def extract_text_from_docx(path: Path) -> str:
                 paragraphs.append("".join(texts))
         return "\n\n".join(paragraphs)
     except Exception as e:
-        print(f"  ✗ DOCX extract failed: {e}")
+        print(f"  ERROR: DOCX extract failed: {e}")
         return ""
 
 
@@ -245,14 +245,14 @@ def extract_text_from_pdf(path: Path) -> str:
     try:
         from pypdf import PdfReader
     except ImportError:
-        print("  ✗ pypdf not installed — run: pip install pypdf")
+        print("  ERROR: pypdf not installed — run: pip install pypdf")
         return ""
     try:
         reader = PdfReader(str(path))
         pages = [page.extract_text() or "" for page in reader.pages]
         return "\n\n".join(p for p in pages if p.strip())
     except Exception as e:
-        print(f"  ✗ PDF extract failed: {e}")
+        print(f"  ERROR: PDF extract failed: {e}")
         return ""
 
 
@@ -280,13 +280,13 @@ def ingest_file(
     """
     path = Path(file_path)
     if not path.exists():
-        print(f"  ✗ File not found: {file_path}")
+        print(f"  ERROR: File not found: {file_path}")
         return 0
 
     suffix = path.suffix.lower()
     supported = [".md", ".txt", ".json", ".docx", ".pdf"]
     if suffix not in supported:
-        print(f"  → Skipping {path.name} (unsupported type: {suffix})")
+        print(f"  INFO: Skipping {path.name} (unsupported type: {suffix})")
         return 0
 
     if suffix == ".docx":
@@ -297,12 +297,12 @@ def ingest_file(
         text = path.read_text(encoding="utf-8")
 
     if not text.strip():
-        print(f"  ✗ No text extracted from {path.name}")
+        print(f"  ERROR: No text extracted from {path.name}")
         return 0
 
     if chunk_strategy == "section":
         chunks = chunk_by_sections(text)
-        print(f"  → Section chunking: {len(chunks)} sections")
+        print(f"  INFO: Section chunking: {len(chunks)} sections")
     else:
         chunks = chunk_text(text)
     
@@ -317,7 +317,7 @@ def ingest_file(
         # Check if already ingested
         existing = collection.get(ids=[doc_id])
         if existing["ids"]:
-            print(f"  → Skipping chunk {i+1}/{len(chunks)} (already ingested)")
+            print(f"  INFO: Skipping chunk {i+1}/{len(chunks)} (already ingested)")
             continue
 
         embedding = embed_text(genai, chunk)
@@ -344,7 +344,7 @@ def ingest_file(
             }]
         )
         ingested += 1
-        print(f"  ✓ Chunk {i+1}/{len(chunks)} ingested (id: {doc_id[:12]}...)")
+        print(f"  OK: Chunk {i+1}/{len(chunks)} ingested (id: {doc_id[:12]}...)")
 
     return ingested
 
@@ -359,7 +359,7 @@ def cmd_ingest_manifest(args):  # noqa: ARG001
     """Ingest all active sources listed in data/rse_cv_manifest.json."""
     manifest_path = Path(MANIFEST_PATH)
     if not manifest_path.exists():
-        print(f"✗ Manifest not found: {manifest_path}")
+        print(f"ERROR: Manifest not found: {manifest_path}")
         sys.exit(1)
 
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
@@ -389,7 +389,7 @@ def cmd_ingest_manifest(args):  # noqa: ARG001
         file_path = next((p for p in candidates if p.exists()), None)
 
         if not file_path:
-            print(f"✗ [{src['id']}] '{source_file}' not found — skipping")
+            print(f"ERROR: [{src['id']}] '{source_file}' not found — skipping")
             continue
 
         resolved_sources.append(
@@ -434,7 +434,7 @@ def cmd_ingest(args):
     
     if partition not in PARTITIONS:
         allowed = list(PARTITIONS.keys())
-        print(f"✗ Unknown partition '{partition}'. Allowed: {allowed}")
+        print(f"ERROR: Unknown partition '{partition}'. Allowed: {allowed}")
         sys.exit(1)
     
     partition_info = PARTITIONS[partition]
@@ -455,7 +455,7 @@ def cmd_ingest(args):
         files = md_files + txt_files + json_files + docx_files + pdf_files
         print(f"Found {len(files)} files in {source_path}")
     else:
-        print(f"✗ Source not found: {source}")
+        print(f"ERROR: Source not found: {source}")
         sys.exit(1)
 
     try:
