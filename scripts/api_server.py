@@ -29,7 +29,7 @@ Environment variables:
   CHROMADB_PATH        → local path to ChromaDB data (default ./chromadb_data)
 
 Run locally:
-  pip install fastapi uvicorn chromadb google-generativeai
+  pip install fastapi uvicorn chromadb google-genai
   export GEMINI_API_KEY=your_key
   uvicorn scripts.api_server:app --reload --port 8080
 
@@ -82,17 +82,19 @@ app.add_middleware(
 
 # ── Lazy-loaded clients ───────────────────────────────────────────────────────
 _genai = None
+_genai_types = None
 _collection = None
 
 def get_genai():
-    global _genai
+    global _genai, _genai_types
     if _genai is None:
         api_key = os.environ.get("GEMINI_API_KEY")
         if not api_key:
             raise HTTPException(503, "GEMINI_API_KEY not configured")
-        import google.generativeai as genai
-        genai.configure(api_key=api_key)
-        _genai = genai
+        from google import genai as _genai_module
+        from google.genai import types
+        _genai = _genai_module.Client(api_key=api_key)
+        _genai_types = types
     return _genai
 
 def get_collection():
@@ -186,12 +188,12 @@ def retrieve(req: RetrieveRequest):
 
     # Embed the query
     try:
-        result = genai.embed_content(
+        result = genai.models.embed_content(
             model=EMBED_MODEL,
-            content=req.query.strip(),
-            task_type="retrieval_query"
+            contents=req.query.strip(),
+            config=_genai_types.EmbedContentConfig(task_type="RETRIEVAL_QUERY")
         )
-        query_embedding = result["embedding"]
+        query_embedding = list(result.embeddings[0].values)
     except Exception as e:
         raise HTTPException(502, f"Embedding failed: {str(e)}")
 
@@ -261,12 +263,12 @@ def query(req: QueryRequest):
     col = get_collection()
 
     try:
-        embedding_result = genai.embed_content(
+        embedding_result = genai.models.embed_content(
             model=EMBED_MODEL,
-            content=req.query.strip(),
-            task_type="retrieval_query"
+            contents=req.query.strip(),
+            config=_genai_types.EmbedContentConfig(task_type="RETRIEVAL_QUERY")
         )
-        query_embedding = embedding_result["embedding"]
+        query_embedding = list(embedding_result.embeddings[0].values)
     except Exception as e:
         raise HTTPException(502, f"Embedding failed: {str(e)}")
 
@@ -330,11 +332,11 @@ def ingest(req: IngestRequest, x_ingest_secret: Optional[str] = Header(None)):
     if existing["ids"]:
         return {"status": "skipped", "id": chunk_id, "reason": "already ingested"}
 
-    embedding = genai.embed_content(
+    embedding = list(genai.models.embed_content(
         model=EMBED_MODEL,
-        content=req.content,
-        task_type="retrieval_document"
-    )["embedding"]
+        contents=req.content,
+        config=_genai_types.EmbedContentConfig(task_type="RETRIEVAL_DOCUMENT")
+    ).embeddings[0].values)
 
     col.add(
         ids=[chunk_id],

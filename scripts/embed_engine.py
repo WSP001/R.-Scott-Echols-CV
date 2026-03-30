@@ -20,7 +20,7 @@ Environment:
   GEMINI_API_KEY — required for embedding (get from Google AI Studio)
 
 Dependencies:
-  pip install chromadb google-generativeai
+  pip install chromadb google-genai
 """
 
 import argparse
@@ -95,13 +95,12 @@ def get_gemini_client():
         )
         sys.exit(1)
     try:
-        import google.generativeai as genai
-        genai.configure(api_key=api_key)
-        return genai
+        from google import genai
+        return genai.Client(api_key=api_key)
     except ImportError:
         print(
-            "✗ google-generativeai not installed — "
-            "run: pip install google-generativeai"
+            "✗ google-genai not installed — "
+            "run: pip install google-genai"
         )
         sys.exit(1)
 
@@ -151,13 +150,14 @@ def run_embedding_preflight(genai) -> None:
 
 def embed_with_fallback(genai, content: str, task_type: str) -> list[float]:
     """Embed using the configured model, with a safe fallback for local tooling."""
+    from google.genai import types as _types
     try:
-        result = genai.embed_content(
+        result = genai.models.embed_content(
             model=EMBED_MODEL,
-            content=content,
-            task_type=task_type
+            contents=content,
+            config=_types.EmbedContentConfig(task_type=task_type.upper())
         )
-        return result["embedding"]
+        return list(result.embeddings[0].values)
     except Exception as exc:
         if EMBED_MODEL == EMBED_FALLBACK_MODEL:
             raise EmbedEngineError(describe_embedding_error(exc)) from exc
@@ -166,12 +166,12 @@ def embed_with_fallback(genai, content: str, task_type: str) -> list[float]:
             f"Falling back to {EMBED_FALLBACK_MODEL}."
         )
         try:
-            result = genai.embed_content(
+            result = genai.models.embed_content(
                 model=EMBED_FALLBACK_MODEL,
-                content=content,
-                task_type=task_type
+                contents=content,
+                config=_types.EmbedContentConfig(task_type=task_type.upper())
             )
-            return result["embedding"]
+            return list(result.embeddings[0].values)
         except Exception as fallback_exc:
             raise EmbedEngineError(
                 describe_embedding_error(fallback_exc)
