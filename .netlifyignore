@@ -1,0 +1,7 @@
+scripts/
+knowledge_base/
+data/
+docs/
+plans/
+*.py
+*.ps1

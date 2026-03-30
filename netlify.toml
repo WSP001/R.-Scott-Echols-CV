@@ -16,6 +16,7 @@
 [build]
   publish = "public"
   command = ""
+  ignore = "exit 0"
 
 # ── Edge Functions (Deno — zero cold-start at CDN edge) ───────────────────────
 [[edge_functions]]
