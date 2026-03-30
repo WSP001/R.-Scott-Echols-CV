@@ -1,6 +1,6 @@
 {
-  "version": "2.0",
-  "last_updated": "2026-03-29",
+  "version": "2.1",
+  "last_updated": "2026-03-30",
   "sources": [
     {
       "id": "cv_public_001",
@@ -241,6 +241,27 @@
       ],
       "chunk_strategy": "heading",
       "priority": 13,
+      "status": "active"
+    },
+    {
+      "id": "cv_projects_001",
+      "title": "SeaTrace Four Pillars — Public Summary",
+      "source_path": "seatrace_four_pillars_summary.md",
+      "normalized_markdown": "knowledge_base/public/cv/seatrace_four_pillars_summary.md",
+      "access_tier": "public",
+      "partition": "cv_projects",
+      "topics": [
+        "SeaTrace",
+        "Four Pillars",
+        "fisheries traceability",
+        "SIMP",
+        "IUU",
+        "WorldSeafoodProducers",
+        "chain of custody",
+        "co-management"
+      ],
+      "chunk_strategy": "heading",
+      "priority": 1,
       "status": "active"
     }
   ]

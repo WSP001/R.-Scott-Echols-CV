@@ -452,7 +452,7 @@ def cmd_ingest_manifest(args):  # noqa: ARG001
         chunk_strategy = src.get("chunk_strategy", "section")
         source_file = src.get("source_path", "")
         title = src.get("title", source_file)
-        partition = (
+        partition = src.get("partition") or (
             "cv_personal" if tier == "public" else "business_seatrace"
         )
 
