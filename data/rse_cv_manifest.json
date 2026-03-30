@@ -1,6 +1,6 @@
 {
-  "version": "1.0",
-  "last_updated": "2026-03-20",
+  "version": "2.0",
+  "last_updated": "2026-03-29",
   "sources": [
     {
       "id": "cv_public_001",
@@ -85,6 +85,162 @@
       ],
       "chunk_strategy": "heading",
       "priority": 1,
+      "status": "active"
+    },
+    {
+      "id": "cv_public_005",
+      "title": "Roberto Echols - Longform Career Narrative",
+      "source_path": "career/RobertoCV.longform.txt",
+      "normalized_markdown": null,
+      "access_tier": "public",
+      "topics": [
+        "career narrative",
+        "personal statement",
+        "fisheries",
+        "WorldSeafoodProducers",
+        "leadership"
+      ],
+      "chunk_strategy": "paragraph",
+      "priority": 5,
+      "status": "active"
+    },
+    {
+      "id": "cv_public_006",
+      "title": "GFW Compliance Manager Application",
+      "source_path": "career/GFW Compliance manager.pdf",
+      "normalized_markdown": null,
+      "access_tier": "public",
+      "topics": [
+        "GFW",
+        "compliance",
+        "fisheries enforcement",
+        "IUU",
+        "SIMP"
+      ],
+      "chunk_strategy": "section",
+      "priority": 6,
+      "status": "active"
+    },
+    {
+      "id": "cv_public_007",
+      "title": "Scott Echols CV Model (Structured Format)",
+      "source_path": "career/SCOTTcvModel.docx",
+      "normalized_markdown": null,
+      "access_tier": "public",
+      "topics": [
+        "CV",
+        "resume",
+        "skills",
+        "career history",
+        "structured format"
+      ],
+      "chunk_strategy": "section",
+      "priority": 7,
+      "status": "active"
+    },
+    {
+      "id": "cv_public_008",
+      "title": "Scott Echols Resume CV 010 (Latest)",
+      "source_path": "recent/Scott E. Resume CV 010.docx",
+      "normalized_markdown": null,
+      "access_tier": "public",
+      "topics": [
+        "resume",
+        "recent",
+        "SeaTrace",
+        "WSP",
+        "skills"
+      ],
+      "chunk_strategy": "section",
+      "priority": 8,
+      "status": "active"
+    },
+    {
+      "id": "cv_public_009",
+      "title": "Scott Echols Resume CV 008",
+      "source_path": "recent/Scott E. Resume CV008.docx",
+      "normalized_markdown": null,
+      "access_tier": "public",
+      "topics": [
+        "resume",
+        "recent",
+        "career summary",
+        "skills"
+      ],
+      "chunk_strategy": "section",
+      "priority": 9,
+      "status": "active"
+    },
+    {
+      "id": "cv_public_010",
+      "title": "Scott Echols CV Compilation 2024",
+      "source_path": "recent/01012024Scott CV compilation.docx",
+      "normalized_markdown": null,
+      "access_tier": "public",
+      "topics": [
+        "CV",
+        "2024",
+        "compilation",
+        "career history",
+        "achievements"
+      ],
+      "chunk_strategy": "section",
+      "priority": 10,
+      "status": "active"
+    },
+    {
+      "id": "cv_public_011",
+      "title": "LinkedIn Profile - Robert Scott Echols",
+      "source_path": "style/LinkedIn Profile.pdf",
+      "normalized_markdown": null,
+      "access_tier": "public",
+      "topics": [
+        "LinkedIn",
+        "professional profile",
+        "endorsements",
+        "connections",
+        "public presence"
+      ],
+      "chunk_strategy": "section",
+      "priority": 11,
+      "status": "active"
+    },
+    {
+      "id": "cv_public_012",
+      "title": "GitHub Repos Live - Active Project Inventory",
+      "source_path": "github_repos_live.md",
+      "normalized_markdown": "knowledge_base/public/cv/github_repos_live.md",
+      "access_tier": "public",
+      "topics": [
+        "GitHub",
+        "repositories",
+        "SirTrav",
+        "SeaTrace",
+        "SirJames",
+        "WSP001",
+        "active projects"
+      ],
+      "chunk_strategy": "heading",
+      "priority": 12,
+      "status": "active"
+    },
+    {
+      "id": "cv_public_013",
+      "title": "Identity Verified - Authoritative Identity Boundaries",
+      "source_path": "identity_verified.md",
+      "normalized_markdown": "knowledge_base/public/cv/identity_verified.md",
+      "access_tier": "public",
+      "topics": [
+        "identity",
+        "SirTrav",
+        "SeaTrace",
+        "WorldSeafoodProducers",
+        "SirJames",
+        "brand separation",
+        "bio truth"
+      ],
+      "chunk_strategy": "heading",
+      "priority": 13,
       "status": "active"
     }
   ]
