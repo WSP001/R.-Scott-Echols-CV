@@ -1,0 +1,270 @@
+{
+  "version": "2026-03-31",
+  "generated_at": "2026-03-31T22:32:04.831403+00:00",
+  "source_manifest": "data\\rse_cv_manifest.json",
+  "manifest_version": "2.1",
+  "item_count": 14,
+  "mode": "fallback",
+  "note": "Offline-safe snapshot — public content only. FOR THE COMMONS GOOD.",
+  "items": [
+    {
+      "id": "cv_public_001",
+      "title": "SeaTrace - Robert Scott Echols - CV",
+      "summary": "SeaTrace - Robert Scott Echols - CV. Topics: WSP, SeaTrace, fisheries governance, traceability, FastAPI, GFW, SIMP",
+      "text": "SeaTrace - Robert Scott Echols - CV. Topics: WSP, SeaTrace, fisheries governance, traceability, FastAPI, GFW, SIMP",
+      "tags": [
+        "WSP",
+        "SeaTrace",
+        "fisheries governance",
+        "traceability",
+        "FastAPI",
+        "GFW",
+        "SIMP"
+      ],
+      "partition": "cv_personal",
+      "visibility": "public",
+      "status": "approved",
+      "source_ref": "knowledge_base/public/cv/master_cv.md",
+      "content_hash": "39b801fe"
+    },
+    {
+      "id": "cv_public_002",
+      "title": "CV of Robert Scott Echols - Deep History",
+      "summary": "CV of Robert Scott Echols - Deep History. Topics: Aloha-Net, packet-switching, education, career history, tech achievements",
+      "text": "CV of Robert Scott Echols - Deep History. Topics: Aloha-Net, packet-switching, education, career history, tech achievements",
+      "tags": [
+        "Aloha-Net",
+        "packet-switching",
+        "education",
+        "career history",
+        "tech achievements"
+      ],
+      "partition": "cv_personal",
+      "visibility": "public",
+      "status": "approved",
+      "source_ref": "knowledge_base/public/cv/timeline.md",
+      "content_hash": "2ba44c24"
+    },
+    {
+      "id": "cv_public_003",
+      "title": "CV of Robert Scott Echols - Marine Operations",
+      "summary": "CV of Robert Scott Echols - Marine Operations. Topics: fisheries operations, compliance, sustainability, field training",
+      "text": "CV of Robert Scott Echols - Marine Operations. Topics: fisheries operations, compliance, sustainability, field training",
+      "tags": [
+        "fisheries operations",
+        "compliance",
+        "sustainability",
+        "field training"
+      ],
+      "partition": "cv_personal",
+      "visibility": "public",
+      "status": "approved",
+      "source_ref": "knowledge_base/public/cv/certifications.md",
+      "content_hash": "06d5a9f3"
+    },
+    {
+      "id": "cv_public_004",
+      "title": "Scott Echols Master Career Timeline",
+      "summary": "Scott Echols Master Career Timeline. Topics: career timeline, Aloha-Net, WARP Industries, marine technology, chronological history",
+      "text": "Scott Echols Master Career Timeline. Topics: career timeline, Aloha-Net, WARP Industries, marine technology, chronological history",
+      "tags": [
+        "career timeline",
+        "Aloha-Net",
+        "WARP Industries",
+        "marine technology",
+        "chronological history"
+      ],
+      "partition": "cv_personal",
+      "visibility": "public",
+      "status": "approved",
+      "source_ref": "knowledge_base/public/cv/master_timeline.md",
+      "content_hash": "68d5a4a0"
+    },
+    {
+      "id": "cv_public_005",
+      "title": "Roberto Echols - Longform Career Narrative",
+      "summary": "Roberto Echols - Longform Career Narrative. Topics: career narrative, personal statement, fisheries, WorldSeafoodProducers, leadership",
+      "text": "Roberto Echols - Longform Career Narrative. Topics: career narrative, personal statement, fisheries, WorldSeafoodProducers, leadership",
+      "tags": [
+        "career narrative",
+        "personal statement",
+        "fisheries",
+        "WorldSeafoodProducers",
+        "leadership"
+      ],
+      "partition": "cv_personal",
+      "visibility": "public",
+      "status": "approved",
+      "source_ref": "career/RobertoCV.longform.txt",
+      "content_hash": "ef290a58"
+    },
+    {
+      "id": "cv_public_006",
+      "title": "GFW Compliance Manager Application",
+      "summary": "GFW Compliance Manager Application. Topics: GFW, compliance, fisheries enforcement, IUU, SIMP",
+      "text": "GFW Compliance Manager Application. Topics: GFW, compliance, fisheries enforcement, IUU, SIMP",
+      "tags": [
+        "GFW",
+        "compliance",
+        "fisheries enforcement",
+        "IUU",
+        "SIMP"
+      ],
+      "partition": "cv_personal",
+      "visibility": "public",
+      "status": "approved",
+      "source_ref": "career/GFW Compliance manager.pdf",
+      "content_hash": "03d90e15"
+    },
+    {
+      "id": "cv_public_007",
+      "title": "Scott Echols CV Model (Structured Format)",
+      "summary": "Scott Echols CV Model (Structured Format). Topics: CV, resume, skills, career history, structured format",
+      "text": "Scott Echols CV Model (Structured Format). Topics: CV, resume, skills, career history, structured format",
+      "tags": [
+        "CV",
+        "resume",
+        "skills",
+        "career history",
+        "structured format"
+      ],
+      "partition": "cv_personal",
+      "visibility": "public",
+      "status": "approved",
+      "source_ref": "career/SCOTTcvModel.docx",
+      "content_hash": "cff72e48"
+    },
+    {
+      "id": "cv_public_008",
+      "title": "Scott Echols Resume CV 010 (Latest)",
+      "summary": "Scott Echols Resume CV 010 (Latest). Topics: resume, recent, SeaTrace, WSP, skills",
+      "text": "Scott Echols Resume CV 010 (Latest). Topics: resume, recent, SeaTrace, WSP, skills",
+      "tags": [
+        "resume",
+        "recent",
+        "SeaTrace",
+        "WSP",
+        "skills"
+      ],
+      "partition": "cv_personal",
+      "visibility": "public",
+      "status": "approved",
+      "source_ref": "recent/Scott E. Resume CV 010.docx",
+      "content_hash": "e379d05f"
+    },
+    {
+      "id": "cv_public_009",
+      "title": "Scott Echols Resume CV 008",
+      "summary": "Scott Echols Resume CV 008. Topics: resume, recent, career summary, skills",
+      "text": "Scott Echols Resume CV 008. Topics: resume, recent, career summary, skills",
+      "tags": [
+        "resume",
+        "recent",
+        "career summary",
+        "skills"
+      ],
+      "partition": "cv_personal",
+      "visibility": "public",
+      "status": "approved",
+      "source_ref": "recent/Scott E. Resume CV008.docx",
+      "content_hash": "7112c09d"
+    },
+    {
+      "id": "cv_public_010",
+      "title": "Scott Echols CV Compilation 2024",
+      "summary": "Scott Echols CV Compilation 2024. Topics: CV, 2024, compilation, career history, achievements",
+      "text": "Scott Echols CV Compilation 2024. Topics: CV, 2024, compilation, career history, achievements",
+      "tags": [
+        "CV",
+        "2024",
+        "compilation",
+        "career history",
+        "achievements"
+      ],
+      "partition": "cv_personal",
+      "visibility": "public",
+      "status": "approved",
+      "source_ref": "recent/01012024Scott CV compilation.docx",
+      "content_hash": "1b62ee6f"
+    },
+    {
+      "id": "cv_public_011",
+      "title": "LinkedIn Profile - Robert Scott Echols",
+      "summary": "LinkedIn Profile - Robert Scott Echols. Topics: LinkedIn, professional profile, endorsements, connections, public presence",
+      "text": "LinkedIn Profile - Robert Scott Echols. Topics: LinkedIn, professional profile, endorsements, connections, public presence",
+      "tags": [
+        "LinkedIn",
+        "professional profile",
+        "endorsements",
+        "connections",
+        "public presence"
+      ],
+      "partition": "cv_personal",
+      "visibility": "public",
+      "status": "approved",
+      "source_ref": "style/LinkedIn Profile.pdf",
+      "content_hash": "45def86a"
+    },
+    {
+      "id": "cv_public_012",
+      "title": "GitHub Repos Live - Active Project Inventory",
+      "summary": "<!-- partition: cv_projects | access_tier: public | auto-generated: true --> <!-- generated by: .github/workflows/refresh-gh-context.yml --> <!-- IDENTITY RULE: SirTrav=personal | SeaTrace=business | SirJames=creative -->",
+      "text": "# RSE GitHub Repository Context — Live\n<!-- partition: cv_projects | access_tier: public | auto-generated: true -->\n<!-- generated by: .github/workflows/refresh-gh-context.yml -->\n<!-- IDENTITY RULE: SirTrav=personal | SeaTrace=business | SirJames=creative -->\n<!-- DO NOT EDIT MANUALLY — this file is overwritten nightly -->\n\n**Owner:** R. Scott Echols (GitHub: WSP001 / World-Seafood-Producers)\n**Last refreshed:** $(date -u +\"%Y-%m-%d %H:%M UTC\")\n\n---\n\n## IDENTITY KEY\n\n| Tag | Meaning |\n|-----|---------|\n| [PERSONAL] | SirTrav identity — Scott's personal projects |\n| [BUSINESS] | SeaTrace / World Seafood Producers — commercial |\n| [CREATIVE] | Sir James Adventures — children's book series |\n| [LEGACY]   | Heritage / family / sports history |\n| [TOOLS]    | Tech experiments, AI tools, frameworks |\n| [CV]       | This CV site and knowledge base |\n\n---\n\n## WSP001 REPOSITORIES\n\n### R.-Scott-Echols-CV\n**URL:** https://github.com/WSP001/R.-Scott-Echols-CV  \n**Updated:** 2026-03-30  \n**Language:** HTML  \n**Description:** R. Scott Echols CV  \n**Private:** No (public)\n\n### SirTrav-A2A-Studio\n**URL:** https://github.com/WSP001/SirTrav-A2A-Studio  \n**Updated:** 2026-03-29  \n**Language:** TypeScript  \n**Description:** Memory Keepers of Best Memory context Experience Enhancements point to Moment over proceeding Time Public \"Commons-Good\" repo for the SirTrav A2A Studio. Implements a D2A (Doc-to-Agent) manifest to automate cinematic video production from raw media. This is the reusable \"engine.\" Rewards corresponding Grade Recall tight D2A interactive Spaces  \n**Private:** No (public)\n\n### SeaTrace-ODOO\n**URL:** https://github.com/WSP001/SeaTrace-ODOO  \n**Updated:** 2026-03-07  \n**Language:** Python  \n**Description:** SeaTrace-ODOO Enterprise Integration Suite - Public Marketing and Integration Documentation  \n**Private:** No (public)\n\n### ROBORTO-DBA-WSP\n**URL:** https://github.com/WSP001/ROBORTO-DBA-WSP  \n**Updated:** 2026-02-24  \n**Language:** —  \n**Description:** FOR THE COMMO",
+      "tags": [
+        "GitHub",
+        "repositories",
+        "SirTrav",
+        "SeaTrace",
+        "SirJames",
+        "WSP001",
+        "active projects"
+      ],
+      "partition": "cv_personal",
+      "visibility": "public",
+      "status": "approved",
+      "source_ref": "knowledge_base/public/cv/github_repos_live.md",
+      "content_hash": "1871ff67"
+    },
+    {
+      "id": "cv_public_013",
+      "title": "Identity Verified - Authoritative Identity Boundaries",
+      "summary": "<!-- partition: cv_verified_public | access_tier: public | normalized: true --> <!-- identity: SirScott professional profile only --> - Name: Roberto Scott Echols",
+      "text": "<!-- partition: cv_verified_public | access_tier: public | normalized: true -->\n<!-- identity: SirScott professional profile only -->\n\n# R. Scott Echols — Verified Public Profile Pack\n\n## Identity\n\n- Name: Roberto Scott Echols\n- Public name: R. Scott Echols\n- Public title: Solutions Architect / Senior Software Developer & Technical Lead\n- Contact: worldseafood@gmail.com\n- GitHub: https://github.com/WSP001\n\n## Active Work\n\n- World Seafood Producers\n- SeaTrace\n- SirTrav-A2A-Studio\n\n## Public Focus Areas\n\n- Marine intelligence and seafood-domain systems\n- Traceability and operational software\n- AI-assisted workflows, agent orchestration, and knowledge tooling\n- Public project communication and consulting-oriented profile content\n\n## Identity Boundaries\n\n- SirScott = professional CV and consulting identity\n- SeaTrace = business and commercial work\n- SirTrav = personal studio and agent work\n- Sir James = creative and family storytelling work\n\n## Truth Policy\n\n- Use this file for public-profile answers when retrieved context is unavailable.\n- If a question depends on early-career details or legacy narrative that is not present here, answer that the source package is under review.\n- Do not merge SeaTrace business history with SirTrav personal identity.\n\n## Public Repo Signals\n\n- `R.-Scott-Echols-CV`\n- `SirTrav-A2A-Studio`\n- `SeaTrace-ODOO`\n- `SirJamesAdventures`",
+      "tags": [
+        "identity",
+        "SirTrav",
+        "SeaTrace",
+        "WorldSeafoodProducers",
+        "SirJames",
+        "brand separation",
+        "bio truth"
+      ],
+      "partition": "cv_personal",
+      "visibility": "public",
+      "status": "approved",
+      "source_ref": "knowledge_base/public/cv/identity_verified.md",
+      "content_hash": "37dbe72b"
+    },
+    {
+      "id": "cv_projects_001",
+      "title": "SeaTrace Four Pillars — Public Summary",
+      "summary": "SeaTrace is a fisheries traceability platform built by R. Scott Echols / WorldSeafoodProducers.com. It is designed to bring trusted, machine-level transparency to wild fisheries supply chains from harvest to market. **Pillar 1 — Accurate Capture** Electronic monitoring and reporting at the point ...",
+      "text": "# SeaTrace — Four Pillars Architecture\n\nSeaTrace is a fisheries traceability platform built by R. Scott Echols / WorldSeafoodProducers.com. It is designed to bring trusted, machine-level transparency to wild fisheries supply chains from harvest to market.\n\n## The Four Pillars of SeaTrace\n\n**Pillar 1 — Accurate Capture**\nElectronic monitoring and reporting at the point of harvest. Vessel-level catch data is recorded at sea using SIMP-compliant forms, AIS/VMS transponder activity, and dockside offload verification. Goal: trusted harvest records that cannot be manipulated after the fact.\n\n**Pillar 2 — Chain of Custody**\nImmutable document trail from vessel to processor to importer. Each transfer of custody is logged with verifiable weight, species, gear type, and flag state. Designed to meet NOAA SIMP, EU IUU, and GFW compliance standards.\n\n**Pillar 3 — Market Transparency**\nConsumer-facing traceability certificates and QR-code product labeling that links retail seafood back to the original harvest event. Retailers and importers can verify sourcing claims without relying solely on paperwork.\n\n**Pillar 4 — Co-Management Data Share**\nBi-directional data sharing between fishing communities, processors, regulators, and conservation partners. Supports ecosystem-based fisheries management (EBFM) by giving all stakeholders access to the same verified dataset — ending the information asymmetry that enables IUU fishing.\n\n## Context\n- Founder: R. Scott Echols, WorldSeafoodProducers.com\n- Architecture: FastAPI backend, ChromaDB/pgvector RAG, Gemini Embedding 2\n- Mission: FOR THE COMMONS GOOD — trusted seafood supply chains at machine scale\n- Related: WAFC, GGSE, GFW compliance, NOAA SIMP framework",
+      "tags": [
+        "SeaTrace",
+        "Four Pillars",
+        "fisheries traceability",
+        "SIMP",
+        "IUU",
+        "WorldSeafoodProducers",
+        "chain of custody",
+        "co-management"
+      ],
+      "partition": "cv_projects",
+      "visibility": "public",
+      "status": "approved",
+      "source_ref": "knowledge_base/public/cv/seatrace_four_pillars_summary.md",
+      "content_hash": "006aedee"
+    }
+  ]
+}
