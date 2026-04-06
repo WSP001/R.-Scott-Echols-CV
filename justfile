@@ -412,3 +412,369 @@ clean-test:
     @echo 'Cleaning test artifacts'
     rm -rf .snapshots/ tmp/ debug_*.log verify_*.log 2>/dev/null || true
     @echo 'OK: Test artifacts cleared'
+
+# ============================================================================
+# ── LAYER 3+4: DURABLE CONTROL — COCKPIT / TRUTH / DOCTOR / GATES ─────────
+# Acting Master: Windsurf/Cascade (WSP001) — 2026-04-06
+# These commands implement the four durable control layers from STACK_TRUTH.md
+# Append-only: no existing commands were modified
+# FOR THE COMMONS GOOD — reusable across all WSP001 repos
+# ============================================================================
+
+# [MASTER] Fast session resume — branch, status, truth, next owner, next gate
+cockpit:
+    @echo '=================================================================='
+    @echo '  R. SCOTT ECHOLS CV — COCKPIT'
+    @echo '=================================================================='
+    @echo ''
+    @echo 'BRANCH:'
+    @git branch --show-current
+    @echo ''
+    @echo 'GIT STATUS:'
+    @git status --short
+    @echo ''
+    @echo 'RECENT COMMITS:'
+    @git log --oneline -5
+    @echo ''
+    @echo 'STACK TRUTH (key lines):'
+    @grep -E '^(STACK_STATUS|PHASE:|PHASE_STATUS|NEXT_OWNER|NEXT_GATE|SMOKE_TEST|VECTOR_CHUNKS|CLOUD_RUN_STATUS|INGEST_STATUS):' STACK_TRUTH.md 2>/dev/null || echo '(STACK_TRUTH.md not found — create it)'
+    @echo ''
+    @echo 'KEY FILES (plans/):'
+    @ls -lt plans/ 2>/dev/null | head -8 || echo '(plans/ not found)'
+    @echo ''
+    @echo 'ACTIVE BLOCKERS:'
+    @grep -E '^BLOCKER_' AGENT-OPS.md 2>/dev/null || echo '(none found)'
+    @echo ''
+    @echo '=================================================================='
+
+# [MASTER] Print the full STACK_TRUTH.md canonical truth file
+stack-truth:
+    @if [ -f STACK_TRUTH.md ]; then cat STACK_TRUTH.md; else echo 'ERROR: STACK_TRUTH.md not found'; exit 1; fi
+
+# [MASTER] Print the DEPENDENCY_MAP.md service dependency map
+dependency-map:
+    @if [ -f DEPENDENCY_MAP.md ]; then cat DEPENDENCY_MAP.md; else echo 'ERROR: DEPENDENCY_MAP.md not found'; exit 1; fi
+
+# [MASTER] Cheap diagnostic checks — verify repo wiring without API calls (COST: $0)
+doctor:
+    @echo '=================================================================='
+    @echo '  DOCTOR — Repo Wiring Check (COST: $0)'
+    @echo '=================================================================='
+    @echo ''
+    @echo 'Git:'
+    @git branch --show-current
+    @git remote -v | head -2
+    @echo ''
+    @echo 'Python:'
+    @python --version 2>/dev/null || python3 --version 2>/dev/null || echo 'WARN: Python not found in PATH'
+    @echo ''
+    @echo 'Key Files:'
+    @test -f STACK_TRUTH.md && echo 'OK: STACK_TRUTH.md' || echo 'MISSING: STACK_TRUTH.md'
+    @test -f DEPENDENCY_MAP.md && echo 'OK: DEPENDENCY_MAP.md' || echo 'MISSING: DEPENDENCY_MAP.md'
+    @test -f AGENT-OPS.md && echo 'OK: AGENT-OPS.md' || echo 'MISSING: AGENT-OPS.md'
+    @test -f MASTER_AGENT_IMPLEMENTATION_HANDOFF.md && echo 'OK: MASTER_AGENT_IMPLEMENTATION_HANDOFF.md' || echo 'MISSING: MASTER_AGENT_IMPLEMENTATION_HANDOFF.md'
+    @test -f AGENT_HANDOFFS.md && echo 'OK: AGENT_HANDOFFS.md' || echo 'MISSING: AGENT_HANDOFFS.md'
+    @test -f PHASE5_LIVE_STATUS_BOARD.md && echo 'OK: PHASE5_LIVE_STATUS_BOARD.md' || echo 'MISSING: PHASE5_LIVE_STATUS_BOARD.md'
+    @test -f netlify.toml && echo 'OK: netlify.toml' || echo 'MISSING: netlify.toml'
+    @test -f justfile && echo 'OK: justfile' || echo 'MISSING: justfile'
+    @test -f data/rse_cv_manifest.json && echo 'OK: data/rse_cv_manifest.json' || echo 'MISSING: data/rse_cv_manifest.json'
+    @echo ''
+    @echo 'Scripts:'
+    @test -f scripts/api_server.py && echo 'OK: scripts/api_server.py' || echo 'MISSING: scripts/api_server.py'
+    @test -f scripts/embed_engine.py && echo 'OK: scripts/embed_engine.py' || echo 'MISSING: scripts/embed_engine.py'
+    @test -f scripts/vector_store.py && echo 'OK: scripts/vector_store.py' || echo 'MISSING: scripts/vector_store.py'
+    @test -f scripts/truth_audit.py && echo 'OK: scripts/truth_audit.py' || echo 'MISSING: scripts/truth_audit.py'
+    @test -f scripts/Dockerfile && echo 'OK: scripts/Dockerfile' || echo 'MISSING: scripts/Dockerfile'
+    @echo ''
+    @echo 'Edge Functions:'
+    @test -f netlify/edge-functions/chat.ts && echo 'OK: netlify/edge-functions/chat.ts' || echo 'MISSING: chat.ts'
+    @test -f netlify/edge-functions/embed.ts && echo 'OK: netlify/edge-functions/embed.ts' || echo 'MISSING: embed.ts'
+    @test -f netlify/edge-functions/verify-access.ts && echo 'OK: netlify/edge-functions/verify-access.ts' || echo 'MISSING: verify-access.ts'
+    @echo ''
+    @echo 'Knowledge Base:'
+    @ls knowledge_base/public/cv/ 2>/dev/null | wc -l | xargs -I{} echo 'Public CV files: {}'
+    @ls knowledge_base/business/ 2>/dev/null | wc -l | xargs -I{} echo 'Business files: {}'
+    @echo ''
+    @echo 'Env Vars (presence only — never log values):'
+    @if [ -n "$$GEMINI_API_KEY" ]; then echo 'OK: GEMINI_API_KEY is set'; else echo 'NOT SET: GEMINI_API_KEY'; fi
+    @if [ -n "$$ANTHROPIC_API_KEY" ]; then echo 'OK: ANTHROPIC_API_KEY is set'; else echo 'NOT SET: ANTHROPIC_API_KEY'; fi
+    @if [ -n "$$VECTOR_ENGINE_URL" ]; then echo 'OK: VECTOR_ENGINE_URL is set'; else echo 'NOT SET: VECTOR_ENGINE_URL (optional)'; fi
+    @echo ''
+    @echo '=================================================================='
+
+# [MASTER] QA readiness check — is the repo clean enough to hand to Antigravity?
+qa-ready:
+    @echo '=================================================================='
+    @echo '  QA READY CHECK'
+    @echo '=================================================================='
+    @echo ''
+    @echo 'Git Status:'
+    @git status --short
+    @echo ''
+    @echo 'Current Branch:'
+    @git branch --show-current
+    @echo ''
+    @echo 'Phase Status:'
+    @grep -E '^(PHASE:|PHASE_STATUS|NEXT_GATE|SMOKE_TEST):' STACK_TRUTH.md 2>/dev/null || echo '(check STACK_TRUTH.md)'
+    @echo ''
+    @echo 'Blockers:'
+    @grep -E '^BLOCKER_' AGENT-OPS.md 2>/dev/null || echo '(none found)'
+    @echo ''
+    @echo 'If status is clean and blockers are resolved, QA lane may proceed.'
+    @echo '=================================================================='
+
+# [MASTER] CV-specific status — identity, corpus, cloud health summary
+cv-status:
+    @echo '=================================================================='
+    @echo '  CV STATUS'
+    @echo '=================================================================='
+    @echo ''
+    @echo 'IDENTITY:    SirScott (professional CV)'
+    @echo 'CHATBOT:     Claude Opus 4.6 (non-negotiable)'
+    @echo 'EMBED MODEL: gemini-embedding-2-preview (3072 dims)'
+    @echo 'VECTOR:      Supabase pgvector (production) + ChromaDB (local dev)'
+    @echo 'SITE:        https://robertoscottecholscv.netlify.app'
+    @echo ''
+    @echo 'Corpus:'
+    @python scripts/embed_engine.py --stats 2>/dev/null || echo '(embed_engine.py --stats failed — check Python / chromadb)'
+    @echo ''
+    @echo 'Manifest:'
+    @python -c "import json; m=json.load(open('data/rse_cv_manifest.json')); active=[s for s in m.get('sources',[]) if s.get('status')=='active']; print(f'  Active sources: {len(active)}'); print(f'  Version: {m.get(\"version\",\"?\")}')" 2>/dev/null || echo '(manifest read failed)'
+    @echo ''
+    @echo '=================================================================='
+
+# [MASTER] Cloud Run health probe — read-only, $0 cost, safe to rerun
+cv-smoke-cloud:
+    @echo '=================================================================='
+    @echo '  CV CLOUD SMOKE (COST: $0 — read-only)'
+    @echo '=================================================================='
+    @echo ''
+    @echo 'Cloud Run /health:'
+    @curl -s --max-time 15 https://rse-retrieval-22622354820.us-central1.run.app/health 2>/dev/null || echo 'FAIL: Cloud Run unreachable'
+    @echo ''
+    @echo ''
+    @echo 'Cloud Run /partitions:'
+    @curl -s --max-time 15 https://rse-retrieval-22622354820.us-central1.run.app/partitions 2>/dev/null || echo 'FAIL: /partitions unreachable'
+    @echo ''
+    @echo ''
+    @echo 'Netlify site:'
+    @curl -s -o /dev/null -w 'HTTP %{http_code} — %{time_total}s' --max-time 15 https://robertoscottecholscv.netlify.app 2>/dev/null || echo 'FAIL: Netlify site unreachable'
+    @echo ''
+    @echo ''
+    @echo '=================================================================='
+
+# [MASTER] Full verification gate — combines all Layer 4 proof paths
+verify-all:
+    @echo '=================================================================='
+    @echo '  FULL VERIFICATION GATE'
+    @echo '=================================================================='
+    just doctor
+    @echo ''
+    just cv-smoke-cloud
+    @echo ''
+    just vector-health
+    @echo ''
+    just qa-ready
+    @echo ''
+    @echo '=================================================================='
+    @echo '  VERIFICATION COMPLETE — review output above'
+    @echo '=================================================================='
+
+# ============================================================================
+# ── LANE-PREFIXED AGENT COMMANDS ───────────────────────────────────────────
+# The prefix IS the lane boundary. Agents run ONLY their own prefix.
+# master-*       Scott / Acting Master / Windsurf
+# claude-*       Claude Code (backend / ops / runtime)
+# codex-*        already exists above (codex-validate, codex-preview, etc.)
+# antigravity-*  Antigravity (QA / verification)
+# Acting Master: Windsurf/Cascade (WSP001) — 2026-04-06
+# FOR THE COMMONS GOOD
+# ============================================================================
+
+# --- LANE: ACTING MASTER (Approval / Governance / Truth) ---
+
+# [MASTER] Session resume with truth snapshot — governance view
+master-cockpit:
+    @echo '=================================================================='
+    @echo '  ACTING MASTER — COCKPIT'
+    @echo '=================================================================='
+    @echo ''
+    @echo 'HUMAN ADMIN: Roberto Scott Echols'
+    @echo ''
+    @echo 'BRANCH:'
+    @git branch --show-current
+    @echo ''
+    @echo 'GIT STATUS:'
+    @git status --short
+    @echo ''
+    @echo 'STACK TRUTH (key lines):'
+    @grep -E '^(STACK_STATUS|PHASE:|PHASE_STATUS|NEXT_OWNER|NEXT_GATE|SMOKE_TEST|VECTOR_CHUNKS|CLOUD_RUN_STATUS|INGEST_STATUS|HUMAN_ADMIN):' STACK_TRUTH.md 2>/dev/null || echo '(STACK_TRUTH.md not found)'
+    @echo ''
+    @echo 'ACTIVE BLOCKERS:'
+    @grep -E '^BLOCKER_' AGENT-OPS.md 2>/dev/null || echo '(none found)'
+    @echo ''
+    @echo '=================================================================='
+
+# [MASTER] Print full STACK_TRUTH.md for governance review
+master-truth:
+    @if [ -f STACK_TRUTH.md ]; then cat STACK_TRUTH.md; else echo 'ERROR: STACK_TRUTH.md not found'; exit 1; fi
+
+# [MASTER] Show who owns what lane and current agent assignments
+master-lanes:
+    @echo '=================================================================='
+    @echo '  AGENT LANE ASSIGNMENTS'
+    @echo '=================================================================='
+    @echo ''
+    @echo 'Scott / Acting Master  -> env vars, keys, merge approval, phase gates'
+    @echo 'Claude Code            -> scripts/, netlify/edge-functions/, design.md'
+    @echo 'Codex #2               -> public/index.html, public/assets/'
+    @echo 'Antigravity            -> test execution, pass/fail reports'
+    @echo 'Windsurf/Cascade       -> orchestration, truth docs, justfile'
+    @echo ''
+    @echo 'RULE: Agents may cross lanes to READ. Agents may NOT cross lanes to WRITE.'
+    @echo '=================================================================='
+
+# --- LANE: CLAUDE CODE (Backend / Ops / Runtime) ---
+
+# [CLAUDE] Backend diagnostic — scripts, edge functions, wiring check ($0)
+claude-doctor:
+    @echo '=================================================================='
+    @echo '  CLAUDE CODE — DOCTOR ($0)'
+    @echo '=================================================================='
+    @echo ''
+    @echo 'Python:'
+    @python --version 2>/dev/null || python3 --version 2>/dev/null || echo 'WARN: Python not found'
+    @echo ''
+    @echo 'Backend Scripts:'
+    @test -f scripts/api_server.py && echo 'OK: api_server.py' || echo 'MISSING: api_server.py'
+    @test -f scripts/embed_engine.py && echo 'OK: embed_engine.py' || echo 'MISSING: embed_engine.py'
+    @test -f scripts/vector_store.py && echo 'OK: vector_store.py' || echo 'MISSING: vector_store.py'
+    @test -f scripts/truth_audit.py && echo 'OK: truth_audit.py' || echo 'MISSING: truth_audit.py'
+    @test -f scripts/Dockerfile && echo 'OK: Dockerfile' || echo 'MISSING: Dockerfile'
+    @echo ''
+    @echo 'Edge Functions:'
+    @test -f netlify/edge-functions/chat.ts && echo 'OK: chat.ts' || echo 'MISSING: chat.ts'
+    @test -f netlify/edge-functions/embed.ts && echo 'OK: embed.ts' || echo 'MISSING: embed.ts'
+    @test -f netlify/edge-functions/verify-access.ts && echo 'OK: verify-access.ts' || echo 'MISSING: verify-access.ts'
+    @echo ''
+    @echo 'Config:'
+    @test -f netlify.toml && echo 'OK: netlify.toml' || echo 'MISSING: netlify.toml'
+    @test -f data/rse_cv_manifest.json && echo 'OK: rse_cv_manifest.json' || echo 'MISSING: rse_cv_manifest.json'
+    @echo '=================================================================='
+
+# [CLAUDE] Vector store health probe — Cloud Run + local ($0)
+claude-vector-probe:
+    @echo '=================================================================='
+    @echo '  CLAUDE CODE — VECTOR PROBE ($0)'
+    @echo '=================================================================='
+    @echo ''
+    @echo 'Cloud Run /health:'
+    @curl -s --max-time 15 https://rse-retrieval-22622354820.us-central1.run.app/health 2>/dev/null || echo 'FAIL: Cloud Run unreachable'
+    @echo ''
+    @echo ''
+    @echo 'Local ChromaDB (dev only):'
+    @test -d .chromadb && echo 'OK: .chromadb/ directory exists' || echo 'INFO: .chromadb/ not present (local dev only)'
+    @echo '=================================================================='
+
+# [CLAUDE] Env var presence check — boolean only, never log values ($0)
+claude-env-check:
+    @echo '=================================================================='
+    @echo '  CLAUDE CODE — ENV CHECK (presence only)'
+    @echo '=================================================================='
+    @if [ -n "$$GEMINI_API_KEY" ]; then echo 'OK: GEMINI_API_KEY is set'; else echo 'NOT SET: GEMINI_API_KEY'; fi
+    @if [ -n "$$ANTHROPIC_API_KEY" ]; then echo 'OK: ANTHROPIC_API_KEY is set'; else echo 'NOT SET: ANTHROPIC_API_KEY'; fi
+    @if [ -n "$$BUSINESS_ACCESS_KEY" ]; then echo 'OK: BUSINESS_ACCESS_KEY is set'; else echo 'NOT SET: BUSINESS_ACCESS_KEY'; fi
+    @if [ -n "$$VECTOR_ENGINE_URL" ]; then echo 'OK: VECTOR_ENGINE_URL is set'; else echo 'NOT SET: VECTOR_ENGINE_URL (optional)'; fi
+    @if [ -n "$$INGEST_SECRET" ]; then echo 'OK: INGEST_SECRET is set'; else echo 'NOT SET: INGEST_SECRET'; fi
+    @echo '=================================================================='
+
+# --- LANE: ANTIGRAVITY (QA / Verification) ---
+
+# [ANTIGRAVITY] QA checklist runner — repo state + cloud health ($0)
+antigravity-qa:
+    @echo '=================================================================='
+    @echo '  ANTIGRAVITY — QA CHECKLIST ($0)'
+    @echo '=================================================================='
+    @echo ''
+    @echo 'Git Status:'
+    @git status --short
+    @echo ''
+    @echo 'Branch:'
+    @git branch --show-current
+    @echo ''
+    @echo 'Phase Status:'
+    @grep -E '^(PHASE:|PHASE_STATUS|NEXT_GATE|SMOKE_TEST):' STACK_TRUTH.md 2>/dev/null || echo '(check STACK_TRUTH.md)'
+    @echo ''
+    @echo 'Verification Contract (last pass):'
+    @grep -E '^LAST:' STACK_TRUTH.md 2>/dev/null || echo '(no proof timestamps found)'
+    @echo ''
+    @echo '=================================================================='
+
+# [ANTIGRAVITY] Cloud smoke test from QA lane ($0)
+antigravity-smoke:
+    @echo '=================================================================='
+    @echo '  ANTIGRAVITY — CLOUD SMOKE ($0)'
+    @echo '=================================================================='
+    @echo ''
+    @echo 'Cloud Run /health:'
+    @curl -s --max-time 15 https://rse-retrieval-22622354820.us-central1.run.app/health 2>/dev/null || echo 'FAIL: Cloud Run unreachable'
+    @echo ''
+    @echo ''
+    @echo 'Netlify site:'
+    @curl -s -o /dev/null -w 'HTTP %{http_code} — %{time_total}s' --max-time 15 https://robertoscottecholscv.netlify.app 2>/dev/null || echo 'FAIL: Netlify unreachable'
+    @echo ''
+    @echo ''
+    @echo '=================================================================='
+
+# [ANTIGRAVITY] Proof report snapshot — what the QA agent found
+antigravity-proof-report:
+    @echo '=================================================================='
+    @echo '  ANTIGRAVITY — PROOF REPORT'
+    @echo '=================================================================='
+    @echo ''
+    @echo 'Branch:'
+    @git branch --show-current
+    @echo ''
+    @echo 'Recent commits:'
+    @git log --oneline -5
+    @echo ''
+    @echo 'Changed files:'
+    @git status --short
+    @echo ''
+    @echo 'Verification timestamps from STACK_TRUTH.md:'
+    @grep -E '^(LAST:|RESULT:)' STACK_TRUTH.md 2>/dev/null || echo '(no proof timestamps found)'
+    @echo ''
+    @echo '=================================================================='
+
+# --- LANE: CODEX #2 (Frontend) ---
+# Note: codex-validate, codex-preview, codex-upgrade already exist above.
+# Adding lane-prefixed aliases that complement the existing commands.
+
+# [CODEX] Frontend build gate
+codex-build:
+    @echo '=================================================================='
+    @echo '  CODEX — BUILD GATE'
+    @echo '=================================================================='
+    @echo 'NOTE: CV repo is static HTML — no npm build step required.'
+    @echo 'Running codex-validate instead...'
+    @echo ''
+    just codex-validate
+
+# [CODEX] Frontend status summary
+codex-status:
+    @echo '=================================================================='
+    @echo '  CODEX — FRONTEND STATUS'
+    @echo '=================================================================='
+    @echo ''
+    @echo 'Branch:'
+    @git branch --show-current
+    @echo ''
+    @echo 'Recent commits:'
+    @git log --oneline -5
+    @echo ''
+    @echo 'index.html:'
+    @test -f public/index.html && wc -l < public/index.html | xargs -I{} echo '{} lines' || echo 'MISSING'
+    @echo ''
+    @echo 'Assets:'
+    @ls public/assets/ 2>/dev/null | wc -l | xargs -I{} echo '{} asset files' || echo '(no assets/)'
+    @echo '=================================================================='

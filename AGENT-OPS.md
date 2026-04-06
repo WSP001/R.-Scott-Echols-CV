@@ -33,6 +33,8 @@ git -C "C:\WSP001\R.-Scott-Echols-CV" pull origin main
 # Step 3 — read these files in order
 cat MASTER_AGENT_IMPLEMENTATION_HANDOFF.md    # phase + mission
 cat AGENT-OPS.md                              # this file — lane rules + blockers
+cat STACK_TRUTH.md                            # Layer 1-4 canonical truth (NEW 2026-04-06)
+cat DEPENDENCY_MAP.md                         # service dependency map (NEW 2026-04-06)
 cat PHASE5_LIVE_STATUS_BOARD.md               # exact board state
 cat plans\TEAM_ASSIGNMENT_SHEET.md            # who owns what
 
