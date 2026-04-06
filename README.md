@@ -2,13 +2,16 @@
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/your-site-id/deploy-status)](https://robertoscottecholscv.netlify.app)
 ![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)
-![ChromaDB](https://img.shields.io/badge/vector--store-ChromaDB-orange.svg)
+![pgvector](https://img.shields.io/badge/vector--store-pgvector%2FSupabase-3ECF8E.svg)
 ![Gemini Embedding 2](https://img.shields.io/badge/embeddings-Gemini%20Embedding%202-4285F4.svg)
 ![License](https://img.shields.io/badge/license-proprietary-lightgrey.svg)
 
-**A manifest-driven ChromaDB RAG system for a public-facing CV and knowledge experience.**
+**A manifest-driven pgvector RAG system for a public-facing CV and knowledge experience.**
 
-Canonical knowledge lives in Git-managed source folders and manifests. ChromaDB provides indexed retrieval. The API server exposes stable query endpoints. A public-safe fallback snapshot keeps the frontend usable when the live vector stack is unavailable.
+Canonical knowledge lives in Git-managed source folders and manifests. Supabase pgvector provides durable indexed retrieval (121 chunks, `SirStudio-to-CV` project). The API server exposes stable query endpoints. A public-safe fallback snapshot keeps the frontend usable when the live vector stack is unavailable.
+
+> **Production vector store is Supabase pgvector — NOT ChromaDB.**
+> ChromaDB code remains in the repo as a local dev/offline fallback only.
 
 > **FOR THE COMMONS GOOD** — R. Scott Echols / WorldSeafoodProducers.com
 
@@ -37,7 +40,8 @@ cp infra/.env.example .env
 ### 2. Install dependencies
 
 ```bash
-pip install chromadb google-genai fastapi uvicorn
+pip install psycopg[binary] google-genai fastapi uvicorn
+# For local dev/offline fallback only: pip install chromadb
 ```
 
 ### 3. Validate your manifest
@@ -46,9 +50,12 @@ pip install chromadb google-genai fastapi uvicorn
 python scripts/validate_manifest.py
 ```
 
-### 4. Ingest knowledge into ChromaDB
+### 4. Ingest knowledge into pgvector (production)
 
 ```bash
+# Requires VECTOR_ENGINE_URL and INGEST_SECRET set in environment
+VECTOR_ENGINE_URL="https://rse-retrieval-zrmkhygpwa-uc.a.run.app" \
+INGEST_SECRET="<secret>" \
 python scripts/embed_engine.py --from-manifest
 ```
 
@@ -65,7 +72,7 @@ That's it. You now have a working RAG pipeline.
 ## Architecture
 
 ```
-Source Docs (Git)           ← Canonical truth
+Source Docs (Git)                    ← Canonical truth
     │
     ▼
 Manifest (rse_cv_manifest.json)
@@ -73,58 +80,61 @@ Manifest (rse_cv_manifest.json)
     ▼
 Embed Engine (Gemini Embedding 2, 3072 dims, partition-aware)
     │
-    ├──▶ ChromaDB (6 collections, Cloud Run)    ← Live retrieval
-    ├──▶ Local Chroma (./chroma/local-data/)    ← Laptop mode
+    ▼
+Cloud Run api_server.py (FastAPI)    ← rse-retrieval-zrmkhygpwa-uc.a.run.app
     │
     ▼
-Retrieval API (FastAPI)
-    │
-    ├──▶ Supabase (wsp001_knowledge, RLS)       ← Structured data + auth
-    │
-    ▼
-Frontend Chat (Netlify Edge Functions)
+Supabase pgvector                    ← PRODUCTION: durable, 121 chunks, SirStudio-to-CV
+    (ChromaDB local path available as dev/offline fallback only)
     │
     ▼
-fallback_snapshot.json      ← Offline safety net
+Netlify Edge Function /api/chat      ← RAG context injected into Claude Opus 4.6 prompt
+    │
+    ▼
+Browser (robertoscottecholscv.netlify.app)
+    │
+    ▼
+fallback_snapshot.json               ← Offline safety net (no vector store needed)
 ```
 
-### How Supabase + ChromaDB Work Together
+### Live Architecture Truth
 
 | Layer | Tool | Role |
 |-------|------|------|
-| **Auth + Structured Data** | Supabase (Postgres) | User access, knowledge metadata, RLS policies |
-| **Vector Retrieval** | ChromaDB | Semantic search, embeddings, RAG queries |
+| **Vector store (production)** | Supabase pgvector | 121 chunks, durable, partition-aware |
+| **Vector store (dev/fallback)** | ChromaDB (local) | Offline dev only — NOT used in production |
+| **Embedding model** | Gemini Embedding 2 (3072 dims) | All ingestion and query embedding |
+| **Retrieval bridge** | Cloud Run FastAPI | Converts query → embedding → pgvector search |
+| **Chat AI** | Claude Opus 4.6 | Non-negotiable. RAG context injected as system prompt |
 | **Canonical Truth** | Git | Source docs, manifests, version control |
-
-Supabase handles **who can access what**. ChromaDB handles **finding the right content**. Git holds **the actual truth**.
 
 ---
 
 ## Three Operating Modes
 
-### 1. Live Mode
+### 1. Live Mode (production)
 
 ```
-Frontend → Retrieval API → ChromaDB (Cloud Run)
+Browser → Netlify Edge /api/chat → Cloud Run /retrieve → Supabase pgvector
 ```
 
-The production path. Frontend calls the deployed retrieval API, which queries live ChromaDB collections and returns sourced answers.
+The production path. Netlify edge function calls Cloud Run, which queries pgvector on Supabase and returns sourced RAG chunks injected into Claude Opus 4.6.
 
-**Requires:** `VECTOR_ENGINE_URL`, deployed Chroma backend, API healthy.
+**Requires:** `VECTOR_ENGINE_URL` (Netlify env), `DATABASE_URL` + `GEMINI_API_KEY` (Cloud Run secrets via GCP Secret Manager).
 
-### 2. Local Mode
+### 2. Local Mode (dev fallback)
 
 ```
-Frontend → Local API → Local Persistent Chroma
+Frontend → Local API → Local ChromaDB (./chromadb_data/)
 ```
 
-For laptop development and offline testing. Same retrieval contract as production.
+For laptop development and offline testing. ChromaDB auto-selected when `DATABASE_URL` is not set.
 
 ```bash
-python scripts/api_server.py  # Starts local FastAPI server
+python scripts/api_server.py  # Starts local FastAPI server on port 8080
 ```
 
-**Requires:** Local `.env`, ingested Chroma data at `./chroma/local-data/`.
+**Requires:** Local `.env` with `GEMINI_API_KEY`, ingested Chroma data (`python scripts/embed_engine.py --from-manifest` with no `DATABASE_URL` set).
 
 ### 3. Fallback Mode
 

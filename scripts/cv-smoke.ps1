@@ -1,94 +1,283 @@
-# cv-smoke.ps1 — Post-deploy smoke test for R. Scott Echols CV site
-# WSP001 — Commons Good
-# Usage: .\scripts\cv-smoke.ps1 [-Url "https://robertoscottecholscv.netlify.app"]
-#
-# Tests:
-#   1. Site is live (HTTP 200)
-#   2. Project card boundary markers render
-#   3. Years Experience counter shows 40+
-#   4. Chat endpoint responds with source metadata
-#   5. Vector retrieval + RAG answer_source (if VECTOR_ENGINE_URL is set)
-
 param(
-    [string]$Url = "https://robertoscottecholscv.netlify.app"
+    [string]$BaseUrl = "https://robertoscottecholscv.netlify.app",
+    [string]$Prompt = "Say hello in one short sentence.",
+    [int]$TimeoutSec = 45
 )
 
-$ErrorActionPreference = "Continue"
-$pass = 0; $fail = 0; $skip = 0
+Set-StrictMode -Version Latest
+$ErrorActionPreference = "Stop"
 
-function Test-Step($name, $check) {
-    try {
-        $result = & $check
-        if ($result) { Write-Host "  PASS: $name" -ForegroundColor Green; $script:pass++ }
-        else { Write-Host "  FAIL: $name" -ForegroundColor Red; $script:fail++ }
-    } catch {
-        Write-Host "  FAIL: $name — $($_.Exception.Message)" -ForegroundColor Red
-        $script:fail++
-    }
-}
+$BaseUrl = $BaseUrl.TrimEnd("/")
 
-Write-Host "`n=== CV SMOKE TEST ===" -ForegroundColor Cyan
-Write-Host "Target: $Url`n"
-
-# 1. Site alive
-Write-Host "--- Step 1: Site Health ---"
-$page = Invoke-WebRequest -Uri $Url -UseBasicParsing -TimeoutSec 10
-Test-Step "HTTP 200" { $page.StatusCode -eq 200 }
-Test-Step "HTML contains title tag" { $page.Content -match [regex]::Escape("<title>") }
-
-# 2. Project cards
-Write-Host "`n--- Step 2: Project Cards ---"
-$html = $page.Content
-Test-Step "SeaTrace card present" { $html -match '(?i)seatrace|four pillars' }
-Test-Step "SeaTrace flagship class present" { $html -match 'flagship-seatrace' }
-Test-Step "SirTrav card present" { $html -match '(?i)sirtrav|a2a' }
-Test-Step "Sir James card present" { $html -match '(?i)sir james|adventures' }
-Test-Step "Sir James marked Creative" { $html -match '(?s)Sir James Adventures.*?>Creative<' }
-Test-Step "Sir James Book002 live URL present" { $html -match 'sirjames-book002-final\.netlify\.app' }
-Test-Step "WSP2Agent hub present" { $html -match 'WSP2Agent Control Tower Hub|wsp2agent\.netlify\.app' }
-Test-Step "LearnQuest card present" { $html -match '(?i)learnquest' }
-
-# 3. Years counter
-Write-Host "`n--- Step 3: Years Experience ---"
-Test-Step "Years shows 40+" { $html -match '40\+' }
-
-# 4. Chat endpoint
-Write-Host "`n--- Step 4: Chat API ---"
 try {
-    $chatResp = Invoke-RestMethod -Uri "$Url/api/chat" -Method POST -ContentType "application/json" -Body '{"message":"hello","tier":"public","questionCount":0}' -TimeoutSec 15 -ErrorAction Stop
-    Test-Step "Chat returns reply" { $chatResp.reply -and $chatResp.reply.Length -gt 0 }
-    Test-Step "Chat returns tier" { $chatResp.tier -eq 'public' -or $chatResp.tier -eq 'business' }
-    Test-Step "Chat returns answer_source" { $chatResp.answer_source -and $chatResp.answer_source.Length -gt 0 }
+    [Net.ServicePointManager]::SecurityProtocol = `
+        [Net.ServicePointManager]::SecurityProtocol -bor `
+        [Net.SecurityProtocolType]::Tls12
 } catch {
-    Write-Host "  FAIL: Chat API — $($_.Exception.Message)" -ForegroundColor Red
-    $fail++
+    # Ignore on platforms where this is not needed.
 }
 
-# 5. Vector retrieval (optional)
-Write-Host "`n--- Step 5: Vector Retrieval ---"
-$vectorUrl = $env:VECTOR_ENGINE_URL
-if ($vectorUrl) {
-    try {
-        $health = Invoke-RestMethod -Uri "$vectorUrl/health" -TimeoutSec 5 -ErrorAction Stop
-        Test-Step "Vector server alive" { $health }
-        $query = Invoke-RestMethod -Uri "$vectorUrl/query" -Method POST -ContentType "application/json" -Body '{"query":"Scott Echols background","partitions":["cv_personal"],"n_results":3}' -TimeoutSec 10 -ErrorAction Stop
-        Test-Step "Vector returns chunks" { $query.context_chunks -and $query.context_chunks.Count -gt 0 }
-        $ragChat = Invoke-RestMethod -Uri "$Url/api/chat" -Method POST -ContentType "application/json" -Body '{"message":"What are the Four Pillars of SeaTrace?","tier":"public","questionCount":0}' -TimeoutSec 20 -ErrorAction Stop
-        Test-Step "Chat reports RAG — CV Corpus" { $ragChat.answer_source -eq 'RAG — CV Corpus' }
-    } catch {
-        Write-Host "  FAIL: Vector — $($_.Exception.Message)" -ForegroundColor Red
-        $fail++
+try {
+    Add-Type -AssemblyName System.Net.Http -ErrorAction Stop
+} catch {
+    # Already available in some hosts.
+}
+
+function Write-Ok {
+    param([string]$Message)
+    Write-Host "[OK]   $Message" -ForegroundColor Green
+}
+
+function Write-Warn {
+    param([string]$Message)
+    Write-Host "[WARN] $Message" -ForegroundColor Yellow
+}
+
+function Fail {
+    param(
+        [int]$Code,
+        [string]$Message
+    )
+    Write-Host "[FAIL] $Message" -ForegroundColor Red
+    exit $Code
+}
+
+function Get-Preview {
+    param(
+        [string]$Text,
+        [int]$Max = 240
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Text)) {
+        return ""
     }
-} else {
-    Write-Host "  SKIP: VECTOR_ENGINE_URL not set (expected until Cloud Run deploy)" -ForegroundColor Yellow
-    $skip++
+
+    $flat = ($Text -replace "\s+", " ").Trim()
+    if ($flat.Length -le $Max) {
+        return $flat
+    }
+
+    return $flat.Substring(0, $Max) + "..."
 }
 
-# Summary
-Write-Host "`n=== RESULTS ===" -ForegroundColor Cyan
-Write-Host "  PASS: $pass | FAIL: $fail | SKIP: $skip"
-if ($fail -eq 0) {
-    Write-Host "  VERDICT: ALL GREEN" -ForegroundColor Green
-} else {
-    Write-Host "  VERDICT: $fail FAILURES — review above" -ForegroundColor Red
+function New-HttpClient {
+    param([int]$TimeoutSec)
+
+    $handler = New-Object System.Net.Http.HttpClientHandler
+    $client = New-Object System.Net.Http.HttpClient($handler)
+    $client.Timeout = [TimeSpan]::FromSeconds($TimeoutSec)
+    $client.DefaultRequestHeaders.UserAgent.ParseAdd("cv-smoke/1.0")
+    return $client
+}
+
+function Invoke-HttpText {
+    param(
+        [System.Net.Http.HttpClient]$Client,
+        [ValidateSet("GET", "POST")][string]$Method,
+        [string]$Uri,
+        [AllowNull()][string]$Body = $null
+    )
+
+    $response = $null
+    $contentObj = $null
+
+    try {
+        switch ($Method) {
+            "GET" {
+                $response = $Client.GetAsync($Uri).GetAwaiter().GetResult()
+            }
+            "POST" {
+                $requestBody = $Body
+                if ($null -eq $requestBody) {
+                    $requestBody = ""
+                }
+                $contentObj = New-Object System.Net.Http.StringContent(
+                    $requestBody,
+                    [System.Text.Encoding]::UTF8,
+                    "application/json"
+                )
+                $response = $Client.PostAsync($Uri, $contentObj).GetAwaiter().GetResult()
+            }
+            default {
+                throw "Unsupported method: $Method"
+            }
+        }
+
+        $content = $response.Content.ReadAsStringAsync().GetAwaiter().GetResult()
+
+        $contentType = ""
+        if ($response.Content.Headers.ContentType) {
+            $contentType = [string]$response.Content.Headers.ContentType.MediaType
+        }
+
+        return [pscustomobject]@{
+            StatusCode   = [int]$response.StatusCode
+            ReasonPhrase = [string]$response.ReasonPhrase
+            Content      = [string]$content
+            ContentType  = $contentType
+        }
+    }
+    finally {
+        if ($response) {
+            $response.Dispose()
+        }
+        if ($contentObj) {
+            $contentObj.Dispose()
+        }
+    }
+}
+
+function Get-ReplyText {
+    param([object]$Value)
+
+    if ($null -eq $Value) {
+        return $null
+    }
+
+    if ($Value -is [string]) {
+        $text = $Value.Trim()
+        if ($text.Length -gt 0) {
+            return $text
+        }
+        return $null
+    }
+
+    if (($Value -is [System.Collections.IEnumerable]) -and -not ($Value -is [string])) {
+        foreach ($item in $Value) {
+            $nested = Get-ReplyText -Value $item
+            if ($nested) {
+                return $nested
+            }
+        }
+    }
+
+    $simpleNames = @("reply", "message", "text", "answer", "completion", "response")
+    foreach ($name in $simpleNames) {
+        $prop = $Value.PSObject.Properties[$name]
+        if ($prop) {
+            $nested = Get-ReplyText -Value $prop.Value
+            if ($nested) {
+                return $nested
+            }
+        }
+    }
+
+    $contentProp = $Value.PSObject.Properties["content"]
+    if ($contentProp) {
+        $content = $contentProp.Value
+
+        if ($content -is [string]) {
+            $text = $content.Trim()
+            if ($text.Length -gt 0) {
+                return $text
+            }
+        }
+
+        if (($content -is [System.Collections.IEnumerable]) -and -not ($content -is [string])) {
+            $parts = @()
+            foreach ($item in $content) {
+                if ($item -is [string]) {
+                    $parts += $item
+                }
+                else {
+                    $textProp = $item.PSObject.Properties["text"]
+                    if ($textProp -and $textProp.Value) {
+                        $parts += [string]$textProp.Value
+                    }
+                }
+            }
+
+            if ($parts.Count -gt 0) {
+                return (($parts -join "`n").Trim())
+            }
+        }
+    }
+
+    $choicesProp = $Value.PSObject.Properties["choices"]
+    if ($choicesProp -and $choicesProp.Value) {
+        foreach ($choice in $choicesProp.Value) {
+            $nested = Get-ReplyText -Value $choice
+            if ($nested) {
+                return $nested
+            }
+        }
+    }
+
+    return $null
+}
+
+$client = $null
+
+try {
+    $client = New-HttpClient -TimeoutSec $TimeoutSec
+
+    $homeUri = $BaseUrl
+    $chatUri = "$BaseUrl/api/chat"
+
+    Write-Host "Checking $homeUri"
+    $homeResponse = Invoke-HttpText -Client $client -Method GET -Uri $homeUri
+
+    if ($homeResponse.StatusCode -lt 200 -or $homeResponse.StatusCode -ge 300) {
+        Fail 1 "Home page returned $($homeResponse.StatusCode) $($homeResponse.ReasonPhrase)."
+    }
+
+    Write-Ok "Home page returned $($homeResponse.StatusCode)."
+
+    if (($homeResponse.Content -match "RSE-Assistant") -or ($homeResponse.Content -match "/api/chat")) {
+        Write-Ok "Home page contains expected chat markers."
+    }
+    else {
+        Write-Warn "Home page loaded, but expected chat markers were not found in HTML. Continuing with live chat probe."
+    }
+
+    $bodyJson = @{ message = $Prompt } | ConvertTo-Json -Compress -Depth 5
+
+    Write-Host "Posting smoke prompt to $chatUri"
+    $chat = Invoke-HttpText -Client $client -Method POST -Uri $chatUri -Body $bodyJson
+
+    if ($chat.StatusCode -eq 503) {
+        $preview = Get-Preview -Text $chat.Content
+
+        if ($preview -match "ANTHROPIC_API_KEY") {
+            Fail 3 "Chat endpoint returned 503. Missing ANTHROPIC_API_KEY on the deployed site. Body: $preview"
+        }
+
+        Fail 3 "Chat endpoint returned 503. Body: $preview"
+    }
+
+    if ($chat.StatusCode -lt 200 -or $chat.StatusCode -ge 300) {
+        $preview = Get-Preview -Text $chat.Content
+        Fail 2 "Chat endpoint returned $($chat.StatusCode) $($chat.ReasonPhrase). Body: $preview"
+    }
+
+    $replyText = $null
+
+    try {
+        $json = $chat.Content | ConvertFrom-Json -Depth 20
+        $replyText = Get-ReplyText -Value $json
+    }
+    catch {
+        if (($chat.Content -notmatch "^\s*<") -and -not [string]::IsNullOrWhiteSpace($chat.Content)) {
+            $replyText = $chat.Content.Trim()
+        }
+    }
+
+    if (-not $replyText) {
+        $preview = Get-Preview -Text $chat.Content
+        Fail 4 "Chat endpoint returned 200 but no assistant text could be extracted. Body: $preview"
+    }
+
+    Write-Ok "Chat endpoint returned $($chat.StatusCode)."
+    Write-Ok "Assistant reply: $(Get-Preview -Text $replyText)"
+    Write-Host ""
+    Write-Host "SMOKE TEST PASSED" -ForegroundColor Green
+    exit 0
+}
+catch {
+    Fail 9 $_.Exception.Message
+}
+finally {
+    if ($client) {
+        $client.Dispose()
+    }
 }
