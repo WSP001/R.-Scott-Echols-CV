@@ -1,45 +1,98 @@
 # Phase 5 Live Status Board
-> Last updated: 2026-03-20 — reconciled to local repo state
+> Last updated: 2026-04-05 — updated after AMD/NPU restart backup pass
+> Previous update: 2026-03-20
 > Branch: `feat/phase5-ui-trust-layer`
 > Rule: Each agent reads only their own section.
 
 ---
 
-## Current Truth
+## ⚡ MACHINE RESTART NOTE — 2026-04-05
 
-- The Phase 5 trust-layer UI is already built on this branch.
-- `answer_source` is already wired into `/api/chat`.
-- Manifest-based ingest is already wired into `scripts/embed_engine.py`.
-- Section-based chunking is already wired into `scripts/embed_engine.py`.
-- PDF and DOCX extraction are already wired into `scripts/embed_engine.py`.
-- All 3 public CV files are now present in `knowledge_base/public/cv/`.
-- The manifest ingest run reached the Gemini embedding call and failed only because `GEMINI_API_KEY` was not set in the current shell.
-- Windows console encoding also needs UTF-8 forced for clean manifest output.
+```
+STATUS: RESTART_PENDING
+REASON: AMD Ryzen AI 9 HX / AMD 890 NPU driver update
+REPO_STATE: DIRTY — CLAUDE.md | README.md | scripts/cv-smoke.ps1 modified; .snapshots/ | __pycache__/ | test_api_key.py untracked
+BEHIND_REMOTE: 1 commit — run git pull origin main after restart BEFORE any write
+```
 
-This means the main code work is ahead of the old board. The live blocker is now runtime environment, not missing files.
+**After restart, run in order:**
+1. `git -C "C:\WSP001\R.-Scott-Echols-CV" pull origin main`
+2. `cat AGENT-OPS.md` — read lane rules and blockers
+3. `cat PHASE5_LIVE_STATUS_BOARD.md` — read this file for board state
+4. Check ingest cost guard below BEFORE running embed_engine.py
 
 ---
 
-## Current Blocker
+---
 
-Scott must run the ingest from a shell that has:
+## Current Truth — 2026-04-05 UPDATE (Windsurf/Master session)
 
-- Python 3.13, not the default Python 3.14 shell interpreter
-- `PYTHONIOENCODING=utf-8`
-- `GEMINI_API_KEY` set to a valid Google AI Studio key
-
-Exact PowerShell sequence:
-
-```powershell
-cd C:\WSP001\R.-Scott-Echols-CV
-$env:PYTHONIOENCODING = "utf-8"
-$env:GEMINI_API_KEY = "your_key_here"
-& "C:\Python313\python.exe" scripts\embed_engine.py --from-manifest
-& "C:\Python313\python.exe" scripts\embed_engine.py --stats
-& "C:\Python313\python.exe" scripts\embed_engine.py --query "Who is Scott and what does he specialize in?" --partition cv_personal
+```
+CLOUD_RUN:    https://rse-retrieval-22622354820.us-central1.run.app
+STATUS:       ok
+CHUNKS:       124 (durable — pgvector on Supabase, survives restarts)
+BACKEND:      pgvector
+TABLE:        wsp001_knowledge
+SMOKE_TEST:   17/17 PASS — ALL GREEN (live site robertoscottecholscv.netlify.app)
+INGEST:       ✅ COMPLETE — 124 chunks via embed_engine.py --from-manifest
+VECTOR_URL:   Set in Netlify for CV site ✅ | Verify sirtrav-a2a-studio ⚠️
 ```
 
-If the key is invalid, the run will fail at Google embeddings again.
+**What Windsurf proved (best-case session pattern to replay):**
+1. `psycopg.connect()` to Supabase requires `?sslmode=require` on the connection string
+2. Local test first — `python -c "import psycopg; conn = psycopg.connect(...)"` — before debugging Cloud Run
+3. `echo | gcloud secrets versions add` adds trailing whitespace — use direct `--set-env-vars` for critical secrets
+4. When Cloud Run drops env vars: `--remove-secrets` first, then `--set-env-vars` for the value
+5. Health endpoint shows wrapper error — get real Python exception from `gcloud logging read`
+6. After INGEST_SECRET was dropped → 0 chunks pushed; restored → 124 chunks in one run
+
+**What changed from old board:**
+- ~~BLOCKED_ON_INGEST~~ → ✅ INGEST DONE
+- ~~GEMINI_API_KEY missing~~ → ✅ Set in Cloud Run env vars
+- ~~DATABASE_URL without SSL~~ → ✅ Fixed with `?sslmode=require` direct env var
+- Smoke test: previously untested → ✅ 17/17 PASS including RAG — CV Corpus
+
+**Previous board truth (still valid):**
+- Phase 5 trust-layer UI built on `feat/phase5-ui-trust-layer`
+- `answer_source` wired into `/api/chat`
+- Manifest-based ingest wired into `scripts/embed_engine.py`
+- All 3 public CV files present in `knowledge_base/public/cv/`
+
+---
+
+## Ingest Cost Guard — READ BEFORE RUNNING INGEST
+
+**COST: ~$0.01–$0.05 per full run (Gemini text-embedding-004). Do NOT re-run casually.**
+
+Check if already done first:
+
+```powershell
+& "C:\Python313\python.exe" scripts\embed_engine.py --stats
+```
+
+- If output shows **>0 documents** in `cv_personal` partition → **SKIP re-ingest** — already done.
+- Re-ingest **only if**: new CV file added, schema changed, or `--stats` shows 0 docs.
+
+---
+
+## Current Blocker — UPDATED 2026-04-05
+
+**Previous blocker (RESOLVED):** Scott running ingest with GEMINI_API_KEY
+**Current blocker:** Antigravity QA — run 16/18 checklist against live trust-layer branch
+
+```
+NEXT ACTION: Antigravity — run QA gate
+COMMAND:     See Antigravity section below
+THRESHOLD:   16/18 pass
+UNBLOCKS:    Scott merge approval → Netlify deploy feat/phase5-ui-trust-layer
+```
+
+**Verify live system before QA (costs $0, read-only):**
+```powershell
+$r = Invoke-RestMethod "https://rse-retrieval-22622354820.us-central1.run.app/health" -TimeoutSec 15
+Write-Host "STATUS: $($r.status) | CHUNKS: $($r.chunks) | DURABLE: $($r.durable)"
+# Expected: STATUS: ok | CHUNKS: 124+ | DURABLE: True
+```
 
 ---
 
@@ -47,10 +100,11 @@ If the key is invalid, the run will fail at Google embeddings again.
 
 | Agent | Status | Blocker |
 |-------|--------|---------|
-| **Scott** | ⚠️ ACTIVE BLOCKER | Must run ingest with valid `GEMINI_API_KEY` in the current shell |
-| **Claude Code** | 🟡 CODE COMPLETE / STANDBY | Waiting for env-backed ingest proof or runtime bug report |
-| **Antigravity** | 🔴 BLOCKED | Waiting for successful ingest + stats + query proof |
-| **Codex #2** | 🟢 DONE / HOLD | Waiting on QA pass |
+| **Scott** | ✅ UNBLOCKED | Ingest complete. Next: set `VECTOR_ENGINE_URL` in Netlify for sirtrav-a2a-studio if not done |
+| **Windsurf/Master** | ✅ WIN — DONE | pgvector healthy, 124 chunks durable, smoke test 17/17 PASS |
+| **Claude Code** | ✅ COMPLETE / STANDBY | All code done. Waiting for Antigravity QA result |
+| **Antigravity** | 🔴 ACTION REQUIRED | Run 16/18 QA checklist NOW — ingest proof exists, live system is ready |
+| **Codex #2** | 🟢 DONE / HOLD | Waiting on Antigravity QA pass before merge |
 
 ---
 
