@@ -104,7 +104,7 @@ THEN:      Phase 6 planning begins
 - Re-ingest (Gemini embeddings): ~$0.01-$0.05 — check --stats first
 - Cloud Run retrieval queries: ~$0.00 (scales to zero)
 - Anthropic chat (Claude Opus 4.6): ~$0.01-$0.05/query — rate-limited
-- Netlify edge functions: Free tier
+- Netlify edge functions: Free tier MAXIMIZE PRO LIMITS.
 
 ### What Is Safe To Rerun
 
@@ -238,12 +238,14 @@ TODO:
 
 ```text
 AGENT:         Codex #2
-PREFERRED_CLI: just codex-validate, just codex-preview
+SPECIALTY:     Frontend / UI Shell / Accessibility
+PREFERRED_CLI: just codex-build, just codex-status, just codex-validate
 TODO:
-  - HOLD — waiting on Antigravity QA
-  - implement assigned public/index.html work only
+  - implement assigned public/index.html and public/assets/ work only
   - preserve accessibility in touched UI
+  - keep progress UI honest
   - do not invent new backend transport
+  - treat this repo as static HTML unless a real build system is added
 ```
 
 #### CASE: ANTIGRAVITY-QA-GATE

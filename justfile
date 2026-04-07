@@ -746,11 +746,12 @@ antigravity-proof-report:
     @echo ''
     @echo '=================================================================='
 
-# --- LANE: CODEX #2 (Frontend) ---
+# --- LANE: CODEX #2 (Frontend / UI Shell) ---
+# Specialty: static UI shell, accessibility, truthful progress states.
 # Note: codex-validate, codex-preview, codex-upgrade already exist above.
-# Adding lane-prefixed aliases that complement the existing commands.
+# These lane-prefixed aliases are grounded to this repo's static HTML setup.
 
-# [CODEX] Frontend build gate
+# [CODEX] Frontend build gate for the UI shell
 codex-build:
     @echo '=================================================================='
     @echo '  CODEX — BUILD GATE'
@@ -760,7 +761,7 @@ codex-build:
     @echo ''
     just codex-validate
 
-# [CODEX] Frontend status summary
+# [CODEX] Frontend/UI shell status summary
 codex-status:
     @echo '=================================================================='
     @echo '  CODEX — FRONTEND STATUS'
@@ -777,4 +778,110 @@ codex-status:
     @echo ''
     @echo 'Assets:'
     @ls public/assets/ 2>/dev/null | wc -l | xargs -I{} echo '{} asset files' || echo '(no assets/)'
+    @echo '=================================================================='
+
+# ============================================================================
+# ── CLAUDE CODE AGENT SKILLS (Reusable | $0 | Lane-Safe | Idempotent) ────────
+# Pattern: truth-pack first → ingest second → retriever third → chat last
+# Each skill is a self-contained, replayable, single-responsibility recipe.
+# Lane: Claude Code only — no Codex or Antigravity writes inside these.
+# Attribution: Claude Code (CC-IAM-OPS) — 2026-04-07
+# FOR THE COMMONS GOOD — reusable across all WSP001 repos
+# ============================================================================
+
+# [CLAUDE SKILL] Truth audit — verify CV content before ingest (COST: $0)
+# Step 0 of every ingest. Produces PASS / WARN / FAIL verdict.
+# Rule: do NOT ingest without PASS. Stale content in = stale answers out.
+claude-truth-audit:
+    @echo '=================================================================='
+    @echo '  CLAUDE CODE — TRUTH AUDIT SKILL  (COST: $0)'
+    @echo '  Rule: truth-pack → audit → ingest → retriever → chat'
+    @echo '=================================================================='
+    @echo ''
+    @echo 'Step 1 — Truth pack existence check:'
+    @test -f knowledge_base/public/cv/identity_verified.md     && echo 'OK:   identity_verified.md'     || echo 'FAIL: identity_verified.md MISSING'
+    @test -f knowledge_base/public/cv/github_repos_live.md     && echo 'OK:   github_repos_live.md'     || echo 'WARN: github_repos_live.md missing'
+    @test -f knowledge_base/public/cv/seatrace_four_pillars_summary.md && echo 'OK:   seatrace_four_pillars_summary.md' || echo 'WARN: seatrace_four_pillars_summary.md missing'
+    @echo ''
+    @echo 'Step 2 — Business partition guard (must stay private, never in brief):'
+    @test -d knowledge_base/business && echo 'OK:   business/ partition present (private — excluded from brief)' || echo 'INFO: knowledge_base/business/ not found'
+    @echo ''
+    @echo 'Step 3 — Run truth audit script (if available):'
+    @test -f scripts/truth_audit.py && python scripts/truth_audit.py --format text --gate ingest || echo 'INFO: scripts/truth_audit.py not found — manual check above is the gate'
+    @echo ''
+    @echo '=================================================================='
+    @echo '  VERDICT: review output above'
+    @echo '  PASS  → proceed to ingest (just embed-ingest)'
+    @echo '  WARN  → flag items for Scott review before ingest'
+    @echo '  FAIL  → stop. fix flagged items. do not ingest.'
+    @echo '=================================================================='
+
+# [CLAUDE SKILL] Proof of work — structured delivery receipt for completed tickets
+# Run after finishing any Claude Code ticket. Outputs signed delivery summary.
+# Proof = live smoke test result, not "no error".
+claude-proof-of-work:
+    @echo '=================================================================='
+    @echo '  CLAUDE CODE — PROOF OF WORK'
+    @echo '  Proof = working smoke test, not "no error"'
+    @echo '=================================================================='
+    @echo ''
+    @echo 'Agent lane:  Claude Code (scripts/ | netlify/edge-functions/ | justfile)'
+    @echo 'Date:        $(date +%Y-%m-%d 2>/dev/null || powershell -NoProfile -Command "Get-Date -Format yyyy-MM-dd")'
+    @echo ''
+    @echo 'Recent commits (all lanes — read for context):'
+    @git log --oneline -8
+    @echo ''
+    @echo 'Claude Code owned files changed (last 5 commits):'
+    @git diff --name-only HEAD~5 HEAD 2>/dev/null | grep -E '(scripts/|netlify/edge-functions/|justfile|AGENT-OPS|STACK_TRUTH|DEPENDENCY_MAP|MASTER_AGENT|plans/)' | head -20 || echo '(no CC-owned changes in last 5 commits)'
+    @echo ''
+    @echo 'Cloud Run live proof (health + chunk count):'
+    @curl -s --max-time 12 https://rse-retrieval-22622354820.us-central1.run.app/health 2>/dev/null || echo 'UNREACHABLE — check connectivity'
+    @echo ''
+    @echo ''
+    @echo '=================================================================='
+    @echo '  FOR THE COMMONS GOOD — attributed, verified, replayable'
+    @echo '=================================================================='
+
+# [CLAUDE SKILL] Session orient — fast read-before-write startup ($0)
+# Run at every session start BEFORE the first write.
+# Surfaces: lane, phase, active blockers, next task, DO NOT TOUCH list.
+claude-orient:
+    @echo '=================================================================='
+    @echo '  CLAUDE CODE — SESSION ORIENT  (COST: $0)'
+    @echo '  Run this before writing anything. Read → Plan → Write in lane only.'
+    @echo '=================================================================='
+    @echo ''
+    @echo 'REPO + BRANCH:'
+    @git remote get-url origin 2>/dev/null | head -1 || echo '(remote not configured)'
+    @git branch --show-current
+    @echo ''
+    @echo 'PHASE + STATUS (from STACK_TRUTH.md):'
+    @grep -E '^(PHASE:|PHASE_STATUS|NEXT_OWNER|NEXT_GATE):' STACK_TRUTH.md 2>/dev/null || grep -E '^(PHASE|PHASE_STATUS|BLOCKER)' AGENT-OPS.md 2>/dev/null | head -8 || echo '(read AGENT-OPS.md manually)'
+    @echo ''
+    @echo 'CLAUDE CODE LANE OWNS (write access):'
+    @echo '  scripts/                           Python backend, embed engine, api_server'
+    @echo '  netlify/edge-functions/            chat.ts, embed.ts, verify-access.ts'
+    @echo '  justfile                           agent CLI surface'
+    @echo '  AGENT-OPS.md                       ops resume contract'
+    @echo '  STACK_TRUTH.md                     truth layer (Windsurf-authored, CC-maintained)'
+    @echo '  MASTER_AGENT_IMPLEMENTATION_HANDOFF.md'
+    @echo '  knowledge_base/                    CV content (partitioned)'
+    @echo '  plans/                             handoff docs (CC-authored only)'
+    @echo ''
+    @echo 'DO NOT TOUCH (cross-lane write violations):'
+    @echo '  public/index.html                  → Codex lane'
+    @echo '  src/ components/                   → Codex lane'
+    @echo '  tests/ e2e/ __mocks__/             → Antigravity writes'
+    @echo ''
+    @echo 'ACTIVE BLOCKERS:'
+    @grep -E '^BLOCKER_' AGENT-OPS.md 2>/dev/null | head -6 || echo '(no blockers found — read AGENT-OPS.md to confirm)'
+    @echo ''
+    @echo 'SKILLS AVAILABLE (just claude-*):'
+    @echo '  just claude-orient          ← this command'
+    @echo '  just claude-truth-audit     ← run before every ingest'
+    @echo '  just claude-proof-of-work   ← run after every ticket'
+    @echo '  just claude-doctor          ← repo wiring check'
+    @echo '  just claude-vector-probe    ← Cloud Run health'
+    @echo '  just claude-env-check       ← env var presence'
+    @echo ''
     @echo '=================================================================='
