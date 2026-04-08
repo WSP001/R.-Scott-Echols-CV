@@ -1,6 +1,6 @@
 {
-  "version": "2.1",
-  "last_updated": "2026-03-30",
+  "version": "2.2",
+  "last_updated": "2026-04-07",
   "sources": [
     {
       "id": "cv_public_001",
@@ -241,6 +241,54 @@
       ],
       "chunk_strategy": "heading",
       "priority": 13,
+      "status": "active"
+    },
+    {
+      "id": "cv_public_014",
+      "title": "CV Chatbot Knowledge Brief — Full Career Narrative + Origin Stories",
+      "source_path": "CHATBOT_KNOWLEDGE_BRIEF.md",
+      "normalized_markdown": "knowledge_base/public/cv/CHATBOT_KNOWLEDGE_BRIEF.md",
+      "access_tier": "public",
+      "partition": "cv_personal",
+      "topics": [
+        "career timeline",
+        "ALOHA-net",
+        "WARP Industries",
+        "ROCC-BART",
+        "WorldSeafoodProducers",
+        "SeaTrace",
+        "patent",
+        "SIMP",
+        "Pacific Seafood Group",
+        "Alaska salmon",
+        "origin stories",
+        "credentials",
+        "Sir James Adventures",
+        "biographical depth"
+      ],
+      "chunk_strategy": "heading",
+      "priority": 0,
+      "status": "active"
+    },
+    {
+      "id": "cv_public_015",
+      "title": "Chatbot Q&A Bank v2 — Preload Questions + Full Answers",
+      "source_path": "chatbot_questions_v2.md",
+      "normalized_markdown": "knowledge_base/public/cv/chatbot_questions_v2.md",
+      "access_tier": "public",
+      "partition": "cv_personal",
+      "topics": [
+        "Sir James Adventures",
+        "SirTrav",
+        "SeaTrace",
+        "GitHub repos",
+        "WAFC",
+        "identity separation",
+        "worldseafoodproducers.com",
+        "preload questions"
+      ],
+      "chunk_strategy": "heading",
+      "priority": 0,
       "status": "active"
     },
     {
