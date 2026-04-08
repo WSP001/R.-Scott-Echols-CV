@@ -883,5 +883,108 @@ claude-orient:
     @echo '  just claude-doctor          ← repo wiring check'
     @echo '  just claude-vector-probe    ← Cloud Run health'
     @echo '  just claude-env-check       ← env var presence'
+    @echo '  just validate-manifest      ← manifest source file check'
+    @echo '  just ingest-remote          ← POST chunks to Cloud Run /ingest'
+    @echo '  just brain-claim AGENT RUN  ← claim workspace lock'
+    @echo '  just cold-start             ← cold rail composite (safe)'
+    @echo '  just ingest-and-verify      ← ingest + probe round-trip'
+    @echo '  just full-deploy            ← golden path (HOT)'
     @echo ''
+    @echo '=================================================================='
+
+# ============================================================================
+# ── CLAUDE CODE SKILLS — SESSION 2026-04-07 ADDITIONS ────────────────────────
+# Added after live pgvector + remote-ingest sessions.
+# FOR THE COMMONS GOOD — reusable across all WSP001 repos
+# Attribution: Claude Code (CC-IAM-OPS) — 2026-04-08
+# ============================================================================
+
+# [CLAUDE SKILL] Validate manifest — check all source_paths exist on disk (COLD)
+# Run before any ingest. Shows which source files are present/missing.
+validate-manifest:
+    @echo '=================================================================='
+    @echo '  VALIDATE MANIFEST  (COLD — COST: $0)'
+    @echo '=================================================================='
+    python -c "\
+import json, sys, pathlib; \
+m = json.load(open('data/rse_cv_manifest.json')); \
+sources = m.get('sources', []); \
+print(f'Manifest v{m.get(\"version\",\"?\")} — {len(sources)} sources'); \
+base = pathlib.Path('data'); \
+missing = []; \
+ok = []; \
+[ok.append(s['source_path']) if (base / s['source_path']).exists() else missing.append(s['source_path']) for s in sources]; \
+[print(f'OK:      {p}') for p in ok]; \
+[print(f'MISSING: {p}') for p in missing]; \
+print(); \
+print(f'RESULT: {len(ok)} OK, {len(missing)} MISSING'); \
+sys.exit(1 if missing else 0) \
+"
+    @echo '=================================================================='
+
+# [CLAUDE SKILL] Remote ingest — POST full manifest corpus to Cloud Run /ingest (HOT)
+# Requires VECTOR_ENGINE_URL and INGEST_SECRET set in env / .env
+# Use ingest-and-verify to confirm round-trip after this runs.
+ingest-remote:
+    @echo '=================================================================='
+    @echo '  INGEST REMOTE  (HOT — posts to Cloud Run /ingest)'
+    @echo '  Requires: VECTOR_ENGINE_URL + INGEST_SECRET'
+    @echo '=================================================================='
+    @if [ -z "$$VECTOR_ENGINE_URL" ]; then echo 'FAIL: VECTOR_ENGINE_URL not set'; exit 1; fi
+    @if [ -z "$$INGEST_SECRET" ]; then echo 'FAIL: INGEST_SECRET not set'; exit 1; fi
+    @echo "Target: $$VECTOR_ENGINE_URL"
+    python scripts/embed_engine.py ingest-manifest --manifest data/rse_cv_manifest.json
+    @echo '=================================================================='
+    @echo '  Done — run: just claude-vector-probe to confirm chunk counts'
+    @echo '=================================================================='
+
+# [CLAUDE SKILL] Brain-claim — write workspace lock (.brain-lock) (COLD)
+# Prevents two agents writing to the same repo concurrently.
+# Usage: just brain-claim claude-code run-001
+brain-claim agent run_id:
+    @echo "agent={{agent}}" > .brain-lock
+    @echo "run_id={{run_id}}" >> .brain-lock
+    @date +%Y-%m-%dT%H:%M:%SZ 2>/dev/null >> .brain-lock || powershell -NoProfile -Command "Get-Date -Format 'yyyy-MM-ddTHH:mm:ssZ'" >> .brain-lock
+    @echo "OK: Workspace claimed by {{agent}} / run {{run_id}}"
+
+# [CLAUDE SKILL] Brain-release — delete workspace lock (COLD)
+brain-release:
+    @rm -f .brain-lock && echo 'OK: Workspace released' || echo 'INFO: No lock file found'
+
+# [CLAUDE SKILL] Brain-status — show current lock state (COLD)
+brain-status:
+    @if [ -f .brain-lock ]; then echo '=== LOCKED ==='; cat .brain-lock; else echo 'No lock — workspace free'; fi
+
+# ── COMPOSITE GOLDEN-PATH RECIPES ────────────────────────────────────────────
+
+# [COLD] Cold-start: safe session opener — orient, truth-audit, doctor, env-check
+cold-start:
+    @echo '=================================================================='
+    @echo '  COLD START  (COLD RAIL — COST: $0)'
+    @echo '=================================================================='
+    just claude-orient
+    just claude-truth-audit
+    just claude-doctor
+    just claude-env-check
+    @echo ''
+    @echo 'Cold start complete — safe to proceed to HOT rail with confirmation'
+
+# [HOT] Ingest and verify — remote ingest then probe Cloud Run for chunk counts
+ingest-and-verify: ingest-remote claude-vector-probe
+    @echo 'Ingest + verify complete — review chunk counts above'
+
+# [HOT] Full deploy golden path: truth audit → preflight → ingest → probe
+# Runs every gate in order. Stop on first failure.
+full-deploy:
+    @echo '=================================================================='
+    @echo '  FULL DEPLOY GOLDEN PATH  (HOT RAIL)'
+    @echo '  truth-audit → preflight → ingest-remote → vector-probe'
+    @echo '=================================================================='
+    just claude-truth-audit
+    just preflight
+    just ingest-remote
+    just claude-vector-probe
+    @echo ''
+    @echo '=================================================================='
+    @echo '  Full deploy complete — review output above before merging'
     @echo '=================================================================='
