@@ -781,6 +781,64 @@ codex-status:
     @echo '=================================================================='
 
 # ============================================================================
+# ── ARCHIVE / NON-DESTRUCTIVE RECOVERY (ALL LANES — enforced by rail) ────────
+# Rule: MOVE NOT DELETE. Run BEFORE rewriting any structural file.
+# Every agent runs archive-asset before overwriting. No exceptions.
+# Builds the Library of Assets — captures codebase evolution, never loses work.
+# Usage: just archive-asset public/index.html "reason for archiving"
+# Acting Master directive → Claude Code implementation — 2026-04-07
+# FOR THE COMMONS GOOD — reusable across all WSP001 repos
+# ============================================================================
+
+# [ALL LANES] Archive a file before modification — MOVE, not DELETE
+# Creates: archive/inspirational_scripts/<timestamp>/<filename> + reason.txt
+# After running this, you may safely modify the active file.
+# FORBIDDEN to overwrite structural files without running this first.
+archive-asset FILE REASON:
+    @echo '=================================================================='
+    @echo '  ARCHIVE ASSET — MOVE, NOT DELETE (WSP001 Rail Rule)'
+    @echo '=================================================================='
+    @if [ -f "{{FILE}}" ]; then \
+        TIMESTAMP=$$(date +%Y%m%d_%H%M%S); \
+        FILENAME=$$(basename "{{FILE}}"); \
+        ARCHIVE_DIR="archive/inspirational_scripts/$${TIMESTAMP}"; \
+        mkdir -p "$${ARCHIVE_DIR}"; \
+        cp "{{FILE}}" "$${ARCHIVE_DIR}/$${FILENAME}"; \
+        printf "REASON: {{REASON}}\nSOURCE: {{FILE}}\nDATE: $$(date +%Y-%m-%d)\nARCHIVED_BY: $$(git config user.name 2>/dev/null || echo unknown)\nGIT_BRANCH: $$(git branch --show-current)\nGIT_COMMIT: $$(git rev-parse --short HEAD 2>/dev/null || echo unknown)\n" > "$${ARCHIVE_DIR}/reason.txt"; \
+        echo ""; \
+        echo "OK:       Archived to $${ARCHIVE_DIR}/$${FILENAME}"; \
+        echo "REASON:   {{REASON}}"; \
+        echo "RECOVERY: cp $${ARCHIVE_DIR}/$${FILENAME} {{FILE}}"; \
+        echo ""; \
+        echo "You may now safely modify: {{FILE}}"; \
+    else \
+        echo "FAIL: {{FILE}} not found — verify path before archiving"; \
+        exit 1; \
+    fi
+    @echo '=================================================================='
+
+# [ALL LANES] List all archived assets — Library of Assets index
+archive-list:
+    @echo '=================================================================='
+    @echo '  LIBRARY OF ASSETS — Archive Index'
+    @echo '=================================================================='
+    @if [ -d archive/inspirational_scripts ]; then \
+        for dir in archive/inspirational_scripts/*/; do \
+            echo ""; \
+            echo "ARCHIVE: $$dir"; \
+            ls "$$dir" 2>/dev/null | sed 's/^/  /'; \
+            if [ -f "$${dir}reason.txt" ]; then \
+                echo "  ----"; \
+                cat "$${dir}reason.txt" | sed 's/^/  /'; \
+            fi; \
+        done; \
+    else \
+        echo "(no archives yet — archive/ created on first: just archive-asset <file> <reason>)"; \
+    fi
+    @echo ''
+    @echo '=================================================================='
+
+# ============================================================================
 # ── CLAUDE CODE AGENT SKILLS (Reusable | $0 | Lane-Safe | Idempotent) ────────
 # Pattern: truth-pack first → ingest second → retriever third → chat last
 # Each skill is a self-contained, replayable, single-responsibility recipe.
