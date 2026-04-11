@@ -185,7 +185,7 @@ ${ragContext}
 ADDITIONAL BUSINESS-TIER KNOWLEDGE:
 - SeaTrace API detailed technical specifications and integration guides
 - Agent-to-agent (A2A) protocol implementation patterns and code architecture
-- Gemini Embedding 2 multimodal RAG implementation with Cloud Run / ChromaDB
+- Gemini Embedding 2 multimodal RAG implementation with Cloud Run / Supabase pgvector
 - Enterprise consulting frameworks and engagement models
 - GitHub repositories: WSP001 — all active projects
 - WAFC Business intelligence system
