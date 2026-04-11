@@ -1046,3 +1046,58 @@ full-deploy:
     @echo '=================================================================='
     @echo '  Full deploy complete — review output above before merging'
     @echo '=================================================================='
+
+# ============================================================================
+# ── LAYER 2: PERPLEXITY RESEARCH — Current context before writing ─────────────
+# Design: "Layer 1 = WHO IS SCOTT (CV identity), Layer 2 = WHAT IS HAPPENING NOW"
+# Attribution: Claude Code (CC-IAM-OPS) — 2026-04-10
+# FOR THE COMMONS GOOD — reusable across all WSP001 writing agents
+# ============================================================================
+
+# [COLD] Show Layer 2 architecture — how Perplexity slots into content generation
+perplexity-design:
+    @echo '=================================================================='
+    @echo '  LAYER 2: PERPLEXITY RESEARCH ARCHITECTURE  (COLD)'
+    @echo '=================================================================='
+    @echo ''
+    @echo 'Layer 1: WHO IS SCOTT    → /api/identity.json + pgvector RAG'
+    @echo 'Layer 2: WHAT IS NOW     → Perplexity Sonar API (maritime/fisheries news)'
+    @echo 'Layer 3: WRITE           → Claude Opus 4.6 with Layer 1 + Layer 2 context'
+    @echo ''
+    @echo 'Perplexity env var required: PERPLEXITY_API_KEY'
+    @echo 'Model: sonar (latest news, grounded, no hallucination)'
+    @echo ''
+    @echo 'Use case: Before generating LinkedIn post or consulting brief,'
+    @echo '  fetch current industry context so content is not pre-2026.'
+    @echo ''
+    @echo 'Status:'
+    @if [ -n "$$PERPLEXITY_API_KEY" ]; then echo '  OK: PERPLEXITY_API_KEY is set — Layer 2 ready'; else echo '  NOT SET: PERPLEXITY_API_KEY — add to Netlify env to activate Layer 2'; fi
+    @echo '=================================================================='
+
+# [COLD] Test Perplexity API with a fisheries industry query
+perplexity-test query="latest news in fisheries traceability and IUU fishing 2026":
+    @echo '=================================================================='
+    @echo '  PERPLEXITY TEST  (COLD — read-only probe)'
+    @echo '=================================================================='
+    @if [ -z "$$PERPLEXITY_API_KEY" ]; then echo 'FAIL: PERPLEXITY_API_KEY not set'; exit 1; fi
+    python -c "
+import urllib.request, json, os
+key = os.environ['PERPLEXITY_API_KEY']
+body = json.dumps({
+    'model': 'sonar',
+    'messages': [{'role': 'user', 'content': '{{query}}'}]
+}).encode()
+req = urllib.request.Request(
+    'https://api.perplexity.ai/chat/completions',
+    data=body,
+    headers={'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json'}
+)
+with urllib.request.urlopen(req, timeout=20) as r:
+    d = json.load(r)
+    print(d['choices'][0]['message']['content'][:800])
+"
+    @echo '=================================================================='
+
+# [COLD] Check Perplexity env var presence only (never logs the key value)
+perplexity-env-check:
+    @if [ -n "$$PERPLEXITY_API_KEY" ]; then echo 'OK: PERPLEXITY_API_KEY is set'; else echo 'NOT SET: PERPLEXITY_API_KEY'; echo '  Get key: https://www.perplexity.ai/settings/api'; echo '  Add to Netlify: netlify env:set PERPLEXITY_API_KEY sk-...'; fi
