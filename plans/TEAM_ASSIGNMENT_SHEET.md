@@ -1,147 +1,321 @@
-# TEAM ASSIGNMENT SHEET
-## robertoscottecholscv CV Chatbot — Production Deployment
-### March 21, 2026 — Issued by Claude (Cowork)
+# TEAM_ASSIGNMENT_SHEET.md — Finish-Line Dispatch
 
----
+**Version:** 2.0.0
+**Last Updated:** 2026-04-11
+**Signed by:** Windsurf/Cascade (Acting Master, WSP001)
+**Owner of truth:** Scott / Acting Master
+**Previous version:** Archived to archive/inspirational_scripts/20260411_team_sheet/
 
-## WHAT CLAUDE (COWORK) DELIVERED TODAY ✅
-
-| Deliverable | File | Status |
-|---|---|---|
-| Master Career Timeline 1979–Present | `Scott_Echols_Master_Career_Timeline.docx` | ✅ DONE |
-| Chatbot Knowledge Brief + System Prompt | `CHATBOT_KNOWLEDGE_BRIEF.md` | ✅ DONE |
-| Netlify Config Template | `netlify.toml` | ✅ DONE |
-| Antigravity QA Checklist (18 tests) | `ANTIGRAVITY_QA_CHECKLIST.md` | ✅ DONE |
-| Agent Assignment Sheet | This file | ✅ DONE |
-
-All files ready in outputs folder. Copy to repo as directed below.
-
----
-
-## CLAUDE CODE CLI — YOUR ASSIGNMENTS
-
-**Priority 1 (blocking everything else):**
-```
-1. Copy CHATBOT_KNOWLEDGE_BRIEF.md into knowledge_base/docs/
-2. Copy netlify.toml into repo root (C:\WSP001\R.-Scott-Echols-CV\)
-   - Replace FASTAPI_BACKEND_URL placeholder with actual endpoint
-3. Confirm knowledge_base/public/cv/ has all 4 files:
-   - 061722CURRICULUM VITAE OF ROBERT SCOTT ECHOLS (2)-1.docx
-   - CURRICULUM VITAE OF ROBERT SCOTT ECHOLS (2) (1).docx
-   - SeaTrace - Robert Scott Echols - CV.PDF
-   - Scott_Echols_Master_Career_Timeline.docx
-4. Update embed manifest to include Scott_Echols_Master_Career_Timeline.docx
-   with partition = cv_personal, tier = 1
-5. Report back: FastAPI endpoint URL confirmed, netlify.toml written,
-   manifest updated. Do not run ingest — Scott runs ingest manually.
-```
-
-**Priority 2 (after Scott confirms ingest success):**
-```
-6. Feed CHATBOT_KNOWLEDGE_BRIEF.md content into system prompt
-   (src/config/systemPrompt.ts or equivalent)
-7. Verify /healthz returns current git-sha
-8. Confirm CORS allows https://robertoscottecholscv.netlify.app
-9. Report: system prompt updated, healthz confirmed, CORS verified
+```text
+MODE:   Read first, then execute by lane
+RULE:   One lane at a time. Proof before narrative. Move not delete.
+PURPOSE: Give every teammate a clear assignment, command surface, and done signal.
 ```
 
 ---
 
-## SCOTT — YOUR ASSIGNMENTS (only you can do these)
+## 1. Shared Operating Rules
 
-**Step 1 — Run the ingest (do this first, today):**
+### Read-First Rule
+
+Before writing anything, read:
+
+1. repo status (`git status -sb`)
+2. recent commits (`git log --oneline -8`)
+3. stack truth (`STACK_TRUTH.md`)
+4. current board / next gate (`AGENT-OPS.md`, `PHASE5_LIVE_STATUS_BOARD.md`)
+5. your lane only
+
+### Lane Rule
+
+- One row = one lane
+- Read across lanes if needed
+- Write only in your assigned lane
+- Do not widen scope without a new dispatch
+
+### Proof Rule
+
+A task is only done when there is observable proof:
+
+- build passed
+- smoke passed
+- probe passed
+- QA passed
+- artifact written
+- PR opened / merge completed
+
+### Archive Rule
+
+Before destructive structural changes:
+
+- archive first, record reason, then replace
+- `just archive-asset FILE=<path> REASON="<why>"`
+- `just archive-list`
+
+---
+
+## 2. Shared CLI Surface
+
+### Master Favorites
+
+```text
+just cockpit
+just stack-truth
+just qa-ready
+```
+
+### Claude Code Favorites
+
+```text
+just claude-orient
+just doctor
+just claude-truth-audit
+just validate-manifest
+just claude-vector-probe
+just claude-env-check
+just cold-start
+just full-deploy
+```
+
+### Codex Favorites
+
+```text
+just codex-validate
+just codex-build
+just codex-status
+```
+
+### Antigravity Favorites
+
+```text
+just antigravity-qa
+just antigravity-smoke
+just antigravity-proof-report
+just cv-smoke-cloud
+```
+
+### Archive (all lanes)
+
+```text
+just archive-asset FILE=<path> REASON="<why>"
+just archive-list
+```
+
+---
+
+## 3. CV Repo Assignments
+
+**Repo:** `C:\WSP001\R.-Scott-Echols-CV`
+
+### Read-First Order
+
 ```powershell
-cd C:\WSP001\R.-Scott-Echols-CV
-$env:PYTHONIOENCODING = "utf-8"
-$env:GEMINI_API_KEY = "YOUR_REAL_KEY_HERE"
-& "C:\Python313\python.exe" scripts\embed_engine.py --from-manifest
-& "C:\Python313\python.exe" scripts\embed_engine.py --stats
-& "C:\Python313\python.exe" scripts\embed_engine.py --query "Tell me about ALOHA-net and WARP Industries" --partition cv_personal
-```
-Report chunk count and proof query result to Claude Code.
-
-**Step 2 — Set env vars in Netlify Dashboard:**
-```
-https://app.netlify.com → robertoscottecholscv → Site Settings → Environment Variables
-
-Add these three:
-  GEMINI_API_KEY       = [your Gemini key]
-  ANTHROPIC_API_KEY    = [your Anthropic key]
-  VITE_API_BASE_URL    = [your FastAPI endpoint URL]
+git status -sb
+git log --oneline -8
+type AGENT-OPS.md
+type STACK_TRUTH.md
+type PHASE5_LIVE_STATUS_BOARD.md
 ```
 
-**Step 3 — Netfirms SSL cert (separate from everything else):**
+### Scott / Acting Master
+
+```text
+LANE:       governance / merge / truth / env vars / phase gates
+FILES:      AGENT-OPS.md, STACK_TRUTH.md, PHASE5_LIVE_STATUS_BOARD.md
+CLI:        just cockpit, just stack-truth, just qa-ready
 ```
-Log into netfirms.com → SSL/TLS → Add cert for seatrace.worldseafoodproducers.com
-Request wildcard cert: *.worldseafoodproducers.com
-OR add SAN (Subject Alternative Name) for the subdomain
-This is independent of the chatbot — can be done any time
+
+**Do next:**
+
+1. Merge `feat/phase5-ui-trust-layer` branch
+2. Add `PERPLEXITY_API_KEY` to Netlify env (enables Layer 2 research)
+3. Verify live state after deploy
+4. Name next owner for Phase 6 work
+
+**Done signal:** Phase 5 merged, Netlify deploy verified, next owner named.
+
+### Claude Code
+
+```text
+LANE:       backend / ops / scripts / justfile / truth gates
+FILES:      justfile, scripts/, netlify/edge-functions/, AGENT-OPS.md, STACK_TRUTH.md
+CLI:        just claude-orient, just validate-manifest, just claude-truth-audit,
+            just doctor, just claude-env-check, just claude-proof-of-work, just full-deploy
+```
+
+**Do next:**
+
+1. Keep truth-audit local, cached, and enforced (pre-commit hook installed)
+2. Maintain justfile recipes thin and replayable
+3. Do not replace free truth-audit with paid LLM logic
+4. Only touch backend/ops/docs lane
+
+**Done signal:** Truth audit passes, hooks work, justfile commands verified.
+
+### Codex #2
+
+```text
+LANE:       frontend only if explicitly assigned
+FILES:      public/index.html, public/assets/, public/data/*
+CLI:        just codex-validate, just codex-build, just codex-status
+```
+
+**Do next:**
+
+1. Execute audit checklist (`plans/CODEX_TODO_CHECKLIST_2026-04-10.md`) BEFORE any edits
+2. Touch frontend only when specifically dispatched
+3. Archive before structural rewrite (`just archive-asset`)
+
+**Done signal:** Assigned frontend diff exists and stays in lane.
+
+### Antigravity
+
+```text
+LANE:       QA only — verify, do not implement
+FILES:      QA proof docs, live verification results
+CLI:        just antigravity-qa, just antigravity-smoke, just cv-smoke-cloud, just claude-vector-probe
+```
+
+**Do next:**
+
+1. Run post-deploy smoke after Phase 5 merge
+2. Verify CV trust-layer displays correct RAG state
+3. Return PASS / PASS_WITH_NOTES / BLOCKED / FAIL
+
+**Done signal:** QA report with evidence, not narrative.
+
+---
+
+## 4. Studio Repo Assignments
+
+**Repo:** `C:\WSP001\SirTrav-A2A-Studio`
+
+### Read-First Order
+
+```powershell
+git status -sb
+git log --oneline -8
+type STACK_TRUTH.md
+type plans\SESSION-TRUTH-2026-04-05.md
+type plans\HANDOFF_CODEX2_CX-019.md
+type plans\TEAM_HANDOFF_BOARD_CODEX2_APP_PROGRESS.md
+```
+
+### Scott / Acting Master
+
+```text
+LANE:       governance / PR / next owner / merge approval
+CLI:        just cockpit, just stack-truth, just qa-ready, just studio-status
+```
+
+**Do next:**
+
+1. Check PR #29 state and branch state
+2. Confirm Stack Truth is current
+3. Approve merge only after Claude Code fixes `--build-gate`
+
+**Done signal:** PR state understood, next owner named, merge decision grounded.
+
+### Claude Code
+
+```text
+LANE:       backend / ops / scripts / gates / netlify.toml
+CLI:        just claude-orient, just doctor, just studio-status, just seed-brief,
+            just sanity-test-local, just build-gate, just verify-cloud, just netlify-gate
+```
+
+**Do next:**
+
+1. Fix `scripts/sanity-test.mjs` — add `--build-gate` flag that skips function endpoint fetches during Netlify build
+2. Update `netlify.toml` build command: `npm run build && node scripts/sanity-test.mjs --build-gate`
+3. Keep seed bridge and operational docs machine-readable
+
+**Done signal:** `npm run build && node scripts/sanity-test.mjs --build-gate` passes, PR #29 deploy succeeds.
+
+### Codex #2
+
+```text
+LANE:       frontend shell / progress UI / accessibility in touched lane
+FILES:      src/App.jsx, src/components/PipelineProgress.tsx, related UI files only
+CLI:        just codex-validate, just build-gate, just studio-status
+```
+
+**Do next:**
+
+1. Implement assigned UI work only
+2. Keep progress honest and in-place
+3. Preserve existing transport — do not invent new polling/API flows
+
+**Done signal:** Build passes, UI diff stays in lane.
+
+### Antigravity
+
+```text
+LANE:       QA only
+CLI:        just antigravity-qa, just build-gate, just verify-cloud, just studio-status
+```
+
+**Do next:**
+
+1. Validate PR #29 scope after Claude Code fix lands
+2. Return merge recommendation
+3. Do not code
+
+**Done signal:** QA output returns PASS / PASS_WITH_NOTES / BLOCKED / FAIL.
+
+---
+
+## 5. Finish-Line Priorities
+
+### CV Repo
+
+```text
+P0: Scott merges Phase 5 trust-layer branch
+P0: Verify live deploy (just cv-smoke-cloud)
+P1: Scott adds PERPLEXITY_API_KEY to Netlify env
+P1: Claude Code maintains truth-audit hooks + cache
+P2: Codex executes audit checklist then patches trust UI
+```
+
+### Studio Repo
+
+```text
+P0: Claude Code fixes --build-gate in sanity-test.mjs
+P0: Scott approves PR #29 after fix + QA
+P1: Keep shared-kernel truth current
+P2: Route frontend work only to Codex lane
 ```
 
 ---
 
-## ANTIGRAVITY — YOUR ASSIGNMENTS
+## 6. Horizon Architecture Directive (2026-04-11)
 
-**HOLD until Claude Code confirms:**
-- [ ] Ingest ran clean (Scott confirms chunk count > 0)
-- [ ] System prompt updated with CHATBOT_KNOWLEDGE_BRIEF content
-- [ ] Netlify deploy successful
+```text
+COMPRESSION SHIFT: 6-8x context expansion coming (TurboQuant KV cache).
+  ACTION: Stop aggressive chunking. Keep source docs whole in knowledge_base/.
+  The CV Truth Pack will load in entirety as persistent session context.
 
-**Then execute:**
-```
-Run ANTIGRAVITY_QA_CHECKLIST.md in full (18 tests)
-Test URL: https://robertoscottecholscv.netlify.app (NOT localhost)
-Score sheet → report back to team
-GREEN LIGHT threshold: 16/18 pass
-Any Tier 1 failure = HOLD regardless of score
-```
+COMPUTE SHIFT: Native Wasm in transformer weights coming.
+  ACTION: Keep justfile commands thin — orchestration only.
+  Agents will handle heavy compute internally during inference.
 
----
-
-## CODEX #2 — YOUR ASSIGNMENTS
-
-```
-HOLD POSITION
-No frontend work until Antigravity QA returns GREEN LIGHT
-Do not touch chat.ts
-Do not touch embed_engine.py
-Do not own Gemini migration
-Await Antigravity signoff
+DIRECTIVE: Maintain strict lane discipline today so we are ready to scale tomorrow.
+  Move not delete. Archive for inspiration. Build for the Commons Good.
 ```
 
 ---
 
-## WHAT MAKES THE CHATBOT SMARTER — PRIORITY RANKED
+## 7. Final Team Standard
 
-| # | Action | Owner | Impact |
-|---|--------|-------|--------|
-| 1 | Run ingest with GEMINI_API_KEY | Scott | 🔴 CRITICAL — nothing works without this |
-| 2 | Feed CHATBOT_KNOWLEDGE_BRIEF as system prompt | Claude Code | 🔴 HIGH — 40yr history now queryable |
-| 3 | Partition-aware retrieval (cv_personal vs cv_seatrace) | Claude Code | 🟡 MEDIUM — better answer targeting |
-| 4 | Two-turn memory test on deployed URL | Antigravity | 🟡 MEDIUM — proves conversational quality |
-| 5 | SSL cert on seatrace subdomain | Scott/Netfirms | 🟡 MEDIUM — investor credibility |
-| 6 | Source attribution labels on answers | Claude Code | 🟢 NICE — transparency for users |
-| 7 | Fallback honesty instruction in system prompt | Claude Code | 🟢 NICE — prevents hallucination |
-| 8 | Rate limiting on /auth/token | Claude Code | 🟢 NICE — security hardening |
-| 9 | SLO panel in Grafana (99.9% / 200ms) | Claude Code | 🟢 NICE — investor metrics dashboard |
+```text
+We work by:
+  - truth first
+  - one lane at a time
+  - stable CLI rails
+  - archive before destructive change
+  - proof before claim
+  - next owner named every time
+```
 
----
-
-## VALUATION IMPACT TRACKER
-
-| Milestone | Uplift | Owner | Status |
-|---|---|---|---|
-| Phase 0-2 Deployment | +0.20x | Scott | ✅ Done |
-| API Integration | +0.10x | Claude Code | ✅ Done |
-| Rate Limiting | +0.05x | Claude Code | 🔲 Pending |
-| CI/CD Pipeline | +0.05x | Claude Code | ✅ Done |
-| Kong Gateway | +0.15x | Claude Code | 🔲 Pending |
-| Prometheus Metrics | +0.10x | Claude Code | 🔲 Pending |
-| **40yr Career in Chatbot** | **+0.10x** | **All** | **🔲 Ingest pending** |
-| **CURRENT TOTAL** | **+0.45x** | | |
-| **TARGET** | **+0.65x** | | |
-
----
-
-*All deliverable files in outputs folder. Team, execute your lanes.*
-*Next sync point: after Scott confirms ingest chunk count.*
+*For the Commons Good*
+**Acting Master: Windsurf/Cascade | Human Admin: Roberto Scott Echols / WSP001 | 2026-04-11**
