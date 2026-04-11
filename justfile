@@ -960,25 +960,35 @@ claude-orient:
 # [CLAUDE SKILL] Validate manifest — check all source_paths exist on disk (COLD)
 # Run before any ingest. Shows which source files are present/missing.
 validate-manifest:
-    @echo '=================================================================='
-    @echo '  VALIDATE MANIFEST  (COLD — COST: $0)'
-    @echo '=================================================================='
-    python -c "\
-import json, sys, pathlib; \
-m = json.load(open('data/rse_cv_manifest.json')); \
-sources = m.get('sources', []); \
-print(f'Manifest v{m.get(\"version\",\"?\")} — {len(sources)} sources'); \
-base = pathlib.Path('data'); \
-missing = []; \
-ok = []; \
-[ok.append(s['source_path']) if (base / s['source_path']).exists() else missing.append(s['source_path']) for s in sources]; \
-[print(f'OK:      {p}') for p in ok]; \
-[print(f'MISSING: {p}') for p in missing]; \
-print(); \
-print(f'RESULT: {len(ok)} OK, {len(missing)} MISSING'); \
-sys.exit(1 if missing else 0) \
-"
-    @echo '=================================================================='
+    #!/usr/bin/env python3
+    import json, sys, pathlib
+    print('==================================================================')
+    print('  VALIDATE MANIFEST  (COLD — COST: $0)')
+    print('==================================================================')
+    m = json.load(open('data/rse_cv_manifest.json'))
+    sources = m.get('sources', [])
+    print(f'Manifest v{m.get("version","?")} — {len(sources)} sources')
+    base = pathlib.Path('knowledge_base')
+    missing = []
+    ok = []
+    for s in sources:
+        sp = s.get('source_path', '')
+        candidates = [
+            base / s.get('access_tier', 'public') / 'cv' / sp,
+            pathlib.Path('docs') / sp,
+        ]
+        if any(c.exists() for c in candidates):
+            ok.append(sp)
+        else:
+            missing.append(sp)
+    for p in ok:
+        print(f'OK:      {p}')
+    for p in missing:
+        print(f'MISSING: {p}')
+    print()
+    print(f'RESULT: {len(ok)} OK, {len(missing)} MISSING')
+    print('==================================================================')
+    sys.exit(1 if missing else 0)
 
 # [CLAUDE SKILL] Remote ingest — POST full manifest corpus to Cloud Run /ingest (HOT)
 # Requires VECTOR_ENGINE_URL and INGEST_SECRET set in env / .env
@@ -1076,27 +1086,28 @@ perplexity-design:
 
 # [COLD] Test Perplexity API with a fisheries industry query
 perplexity-test query="latest news in fisheries traceability and IUU fishing 2026":
-    @echo '=================================================================='
-    @echo '  PERPLEXITY TEST  (COLD — read-only probe)'
-    @echo '=================================================================='
-    @if [ -z "$$PERPLEXITY_API_KEY" ]; then echo 'FAIL: PERPLEXITY_API_KEY not set'; exit 1; fi
-    python -c "
-import urllib.request, json, os
-key = os.environ['PERPLEXITY_API_KEY']
-body = json.dumps({
-    'model': 'sonar',
-    'messages': [{'role': 'user', 'content': '{{query}}'}]
-}).encode()
-req = urllib.request.Request(
-    'https://api.perplexity.ai/chat/completions',
-    data=body,
-    headers={'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json'}
-)
-with urllib.request.urlopen(req, timeout=20) as r:
-    d = json.load(r)
-    print(d['choices'][0]['message']['content'][:800])
-"
-    @echo '=================================================================='
+    #!/usr/bin/env python3
+    import urllib.request, json, os, sys
+    print('==================================================================')
+    print('  PERPLEXITY TEST  (COLD — read-only probe)')
+    print('==================================================================')
+    key = os.environ.get('PERPLEXITY_API_KEY', '')
+    if not key:
+        print('FAIL: PERPLEXITY_API_KEY not set')
+        sys.exit(1)
+    body = json.dumps({
+        'model': 'sonar',
+        'messages': [{'role': 'user', 'content': '{{query}}'}]
+    }).encode()
+    req = urllib.request.Request(
+        'https://api.perplexity.ai/chat/completions',
+        data=body,
+        headers={'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json'}
+    )
+    with urllib.request.urlopen(req, timeout=20) as r:
+        d = json.load(r)
+        print(d['choices'][0]['message']['content'][:800])
+    print('==================================================================')
 
 # [COLD] Check Perplexity env var presence only (never logs the key value)
 perplexity-env-check:

@@ -1,10 +1,11 @@
-# CODEX_INTERVIEW_PROMPT.md — File-Backed Agent Interview Template
+# CODEX_INTERVIEW_PROMPT.md — Deterministic Agent Rail Interview
 
-**Version:** 1.0.0
+**Version:** 1.1.0
 **Last Updated:** 2026-04-10
 **Signed by:** Windsurf/Cascade (Acting Master, WSP001)
 **Purpose:** Reusable, file-grounded prompt for Codex #2 interview sessions in the CV repo.
-**Improvement over Codex draft:** Corrected file paths, grounded every claim to verified disk state, added JSON schema with Codex's 4-bucket extension.
+**Operating Mode:** Deterministic Agent Rail System.
+**Improvement over Codex draft:** Corrected file paths, grounded every claim to verified disk state, made MOVE NOT DELETE enforceable via `archive-asset`, and added a file-backed JSON contract that separates current truth from target standards.
 
 ---
 
@@ -17,6 +18,10 @@ Your lane in this repo is frontend/UI shell truth and file-backed repo verificat
 Mission: answer with file-backed truth only.
 No "I usually." No invented paths.
 Every claim must map to an exact file, path, just recipe, git fact, or command output.
+Interpretation model:
+  EXTRACT  -> read verified repo files first
+  TRANSFORM -> run preflight and observe actual command results
+  LOAD -> emit JSON only, using the schema below
 ```
 
 ---
@@ -185,7 +190,7 @@ Output must conform to the schema below.
   "title": "CodexInterviewResponse",
   "description": "File-backed agent interview output — separates current truth from proposed future state.",
   "type": "object",
-  "required": ["agent", "repo", "run_id", "timestamp", "observed_from_files", "observed_from_commands", "missing_primitives", "recommended_standards"],
+  "required": ["agent", "repo", "run_id", "timestamp", "rail_contract", "attribution", "observed_from_files", "observed_from_commands", "missing_primitives", "recommended_standards"],
   "properties": {
     "agent": {
       "type": "string",
@@ -203,6 +208,41 @@ Output must conform to the schema below.
       "type": "string",
       "format": "date-time",
       "description": "ISO 8601 timestamp of interview completion"
+    },
+    "rail_contract": {
+      "type": "object",
+      "description": "The non-destructive rail rules active for this session.",
+      "required": ["write_scope", "hot_actions_allowed", "archive_required_before_structural_write"],
+      "properties": {
+        "write_scope": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Files or folders Codex may write in this repo"
+        },
+        "hot_actions_allowed": {
+          "type": "boolean",
+          "description": "Whether HOT actions were permitted in this interview session"
+        },
+        "archive_required_before_structural_write": {
+          "type": "boolean",
+          "description": "Whether archive-asset must run before overwriting structural files"
+        }
+      }
+    },
+    "attribution": {
+      "type": "object",
+      "description": "Commons attribution metadata for artifacts produced from this prompt.",
+      "required": ["architecture", "engineering"],
+      "properties": {
+        "architecture": {
+          "type": "string",
+          "description": "Architecture attribution line"
+        },
+        "engineering": {
+          "type": "string",
+          "description": "Engineering attribution line"
+        }
+      }
     },
     "observed_from_files": {
       "type": "array",
@@ -429,6 +469,19 @@ full-deploy              — truth-audit + preflight + ingest-remote + vector-pr
 ```text
 clean-test               — rm snapshots/tmp/debug logs
 ```
+
+---
+
+## ATTRIBUTION RULE
+
+If Codex writes a markdown or text artifact during an interview run, append:
+
+```text
+Architecture -> Scott Echols / WSP001 (For the Commons Good)
+Engineering -> Codex (ChatGPT Business Seat #2)
+```
+
+If the output must be JSON only, put those same values in the `attribution` object and do not add free text outside the payload.
 
 ---
 
