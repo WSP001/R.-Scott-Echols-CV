@@ -317,9 +317,27 @@ persona-check:
 truth-check:
     python scripts/truth_audit.py --format text
 
-# Enterprise truth gate with PASS/WARN/FAIL verdict
+# Enterprise truth gate with PASS/WARN/FAIL verdict — writes .cache/CV_TRUTH_AUDIT_PASS.json
 truth-audit:
-    python scripts/truth_audit.py --format text --gate ingest
+    @mkdir -p .cache
+    python scripts/truth_audit.py --format text --gate ingest --output .cache/CV_TRUTH_AUDIT_PASS.json
+    @echo ''
+    @echo 'Cache: .cache/CV_TRUTH_AUDIT_PASS.json'
+    @echo 'Downstream agents: check this file instead of re-running audit'
+
+# Install git pre-commit hook — runs truth_audit.py before every commit ($0, no API)
+install-hooks:
+    @cp .git/hooks/pre-commit /dev/null 2>/dev/null || true
+    @echo '#!/usr/bin/env bash' > .git/hooks/pre-commit
+    @echo '# CV Truth Audit pre-commit gate — see scripts/truth_audit.py' >> .git/hooks/pre-commit
+    @echo 'REPO_ROOT="$(git rev-parse --show-toplevel)"' >> .git/hooks/pre-commit
+    @echo 'mkdir -p "$REPO_ROOT/.cache"' >> .git/hooks/pre-commit
+    @echo 'python "$REPO_ROOT/scripts/truth_audit.py" --format text --output "$REPO_ROOT/.cache/CV_TRUTH_AUDIT_PASS.json" --gate pre-commit' >> .git/hooks/pre-commit
+    @echo 'STATUS=$?' >> .git/hooks/pre-commit
+    @echo '[ $STATUS -ne 0 ] && echo "[pre-commit] BLOCKED: fix issues above" && exit 1 || exit 0' >> .git/hooks/pre-commit
+    @chmod +x .git/hooks/pre-commit
+    @echo 'OK: pre-commit hook installed (.git/hooks/pre-commit)'
+    @echo 'Test: git commit (will run truth_audit.py first, $0, no API calls)'
 
 # Ingest verified identity pack ONLY (safest first ingest)
 ingest-identity:
@@ -864,9 +882,11 @@ claude-truth-audit:
     @echo 'Step 2 — Business partition guard (must stay private, never in brief):'
     @test -d knowledge_base/business && echo 'OK:   business/ partition present (private — excluded from brief)' || echo 'INFO: knowledge_base/business/ not found'
     @echo ''
-    @echo 'Step 3 — Run truth audit script (if available):'
-    @test -f scripts/truth_audit.py && python scripts/truth_audit.py --format text --gate ingest || echo 'INFO: scripts/truth_audit.py not found — manual check above is the gate'
+    @echo 'Step 3 — Run truth audit script + write cache (COST: $0 — pure local regex):'
+    @mkdir -p .cache
+    @test -f scripts/truth_audit.py && python scripts/truth_audit.py --format text --gate ingest --output .cache/CV_TRUTH_AUDIT_PASS.json || echo 'INFO: scripts/truth_audit.py not found'
     @echo ''
+    @echo 'Cache: .cache/CV_TRUTH_AUDIT_PASS.json  ← downstream agents check this'
     @echo '=================================================================='
     @echo '  VERDICT: review output above'
     @echo '  PASS  → proceed to ingest (just embed-ingest)'
