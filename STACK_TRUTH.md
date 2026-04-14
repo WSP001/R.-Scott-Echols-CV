@@ -1,11 +1,19 @@
-# STACK_TRUTH.md — R. Scott Echols CV / WSP001 Canonical Operating Truth
+# STACK_TRUTH.md — WSP001 Shared Kernel Truth Layer
 
-**Version:** 2.0.0
-**Last Updated:** 2026-04-06
+**Version:** 2.1.0
+**Last Updated:** 2026-04-14
 **Signed by:** Windsurf/Cascade (Acting Master, WSP001)
 **Human Admin:** Roberto Scott Echols
 **Canonical Path:** C:\WSP001\R.-Scott-Echols-CV
 **Live Site:** <https://robertoscottecholscv.netlify.app>
+
+```text
+STATUS: ACTIVE
+OWNER: Scott / Acting Master
+MODE: READ_FIRST
+PROOF_RULE: PROOF_BEFORE_NARRATIVE
+SAFETY_RULE: MOVE_NOT_DELETE
+```
 
 > This is the **single operational truth file** for the CV repo.
 > Every agent reads this at session start.

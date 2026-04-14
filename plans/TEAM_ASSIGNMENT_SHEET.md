@@ -1,15 +1,19 @@
-# TEAM_ASSIGNMENT_SHEET.md — Finish-Line Dispatch
+# TEAM_ASSIGNMENT_SHEET.md — WSP001 Active Lane Assignments
 
-**Version:** 2.0.0
-**Last Updated:** 2026-04-11
+**Version:** 2.1.0
+**Last Updated:** 2026-04-14
 **Signed by:** Windsurf/Cascade (Acting Master, WSP001)
-**Owner of truth:** Scott / Acting Master
+**Human Admin:** Roberto Scott Echols
 **Previous version:** Archived to archive/inspirational_scripts/20260411_team_sheet/
 
 ```text
-MODE:   Read first, then execute by lane
-RULE:   One lane at a time. Proof before narrative. Move not delete.
-PURPOSE: Give every teammate a clear assignment, command surface, and done signal.
+STATUS: ACTIVE
+OWNER: Scott / Acting Master
+MODE: READ_FIRST
+PROOF_RULE: PROOF_BEFORE_NARRATIVE
+SAFETY_RULE: MOVE_NOT_DELETE
+ASSIGNMENT_MODE: ONE_LANE_AT_A_TIME
+DONE_SIGNAL_RULE: REQUIRED
 ```
 
 ---

@@ -1,10 +1,20 @@
 # TEAM_OPERATING_RULES.md — WSP001 Multi-Agent Operating Contract
 
-**Version:** 1.0.0
+**Version:** 1.1.0
 **Last Updated:** 2026-04-14
 **Signed by:** Windsurf/Cascade (Acting Master, WSP001)
 **Human Admin:** Roberto Scott Echols
 **Scope:** All WSP001 repos — CV, Studio, SeaTrace, Sir James
+
+```text
+STATUS: ACTIVE
+OWNER: Scott / Acting Master
+MODE: READ_FIRST
+PROOF_RULE: PROOF_BEFORE_NARRATIVE
+SAFETY_RULE: MOVE_NOT_DELETE
+COMMAND_RULE: LIVE_COMMANDS_ONLY
+NEXT_OWNER_RULE: REQUIRED
+```
 
 ```text
 RULE: Read first. Act in lane. Prove with CLI. Record truth. Hand off next owner.
