@@ -37,15 +37,48 @@ Important repo truth:
 
 These items should be checked before any frontend write:
 
-- [ ] Confirm `public/index.html` is the live publish target from `netlify.toml`
-- [ ] Compare frontend trust shell against `docs/agent-contracts.md`
-- [ ] Verify `source-pill` behavior matches `retrieval_mode`
-- [ ] Verify `answer_source`, `provenance.retrieval_mode`, `provenance.project_source`, and `rag_context_used` are represented honestly in the UI
-- [ ] Verify the `VECTOR_ENGINE_URL` status indicator requirement in `MASTER_AGENT_IMPLEMENTATION_HANDOFF.md`
-- [ ] Verify current `data-testid` coverage for chat UI
-- [ ] Verify current ARIA labeling and keyboard behavior for chat input / submit / business unlock shell
-- [ ] Record lane drift note: `scripts/upgrade_cv.py` is outside Codex write lane
-- [ ] Record lane drift note: repo-root `index.html` is not the Netlify publish target
+- [x] Confirm `public/index.html` is the live publish target from `netlify.toml`
+  Evidence:
+  `netlify.toml` → `[build] publish = "public"`
+- [x] Compare frontend trust shell against `docs/agent-contracts.md`
+  Evidence:
+  `docs/agent-contracts.md:254` → `data-testid="source-pill"` MUST reflect `retrieval_mode`
+  `docs/agent-contracts.md:258` → `vector-active` → `RAG — {project_source} Corpus`
+  `docs/agent-contracts.md:278` → `provenance.retrieval_mode` MUST match `rag_context_used`
+- [x] Verify `source-pill` behavior matches `retrieval_mode`
+  Evidence:
+  `public/index.html:3405` previously used `source ${metaInfo.mode}`
+  `netlify/edge-functions/chat.ts:383-384` returns exact `answer_source` values:
+  `RAG — Business Corpus`, `RAG — CV Corpus`, `Verified Profile Pack — Business`, `Verified Profile Pack — Public`
+- [x] Verify `answer_source`, `provenance.retrieval_mode`, `provenance.project_source`, and `rag_context_used` are represented honestly in the UI
+  Evidence:
+  `public/index.html:3535` and `public/index.html:3545` use `data.answer_source`
+  `docs/agent-contracts.md:240-246` defines `rag_context_used`, `answer_source`, `project_source`, `retrieval_mode`
+- [x] Verify the `VECTOR_ENGINE_URL` status indicator requirement in `MASTER_AGENT_IMPLEMENTATION_HANDOFF.md`
+  Evidence:
+  `MASTER_AGENT_IMPLEMENTATION_HANDOFF.md:176` → `Add VECTOR_ENGINE_URL status indicator to chat panel (shows "RAG Active" when /api/retrieve is live)`
+- [x] Verify current `data-testid` coverage for chat UI
+  Evidence:
+  `public/index.html:2654` → `data-testid="tier-badge"`
+  `public/index.html:2655` → `data-testid="question-count"`
+  `public/index.html:2708` → `data-testid="chat-input"`
+  `public/index.html:2709` → `data-testid="chat-submit"`
+  `public/index.html:2717` → `data-testid="access-gate"`
+  `public/index.html:3406` → `data-testid="source-pill"`
+- [x] Verify current ARIA labeling and keyboard behavior for chat input / submit / business unlock shell
+  Evidence:
+  `public/index.html:2633` → `aria-label="Open AI assistant"`
+  `public/index.html:2641` → `role="dialog" aria-label="RSE Assistant"`
+  `public/index.html:2709` → send button has `aria-label="Send"`
+  `public/index.html:3670` → `handleChatKey(event)` exists
+  Missing before edit: no ARIA label on access key input, no keyboard handler on business unlock input
+- [x] Record lane drift note: `scripts/upgrade_cv.py` is outside Codex write lane
+  Evidence:
+  `plans/TEAM_ASSIGNMENT_SHEET.md` → Codex lane is `public/index.html`, `public/assets/`, `public/data/*`
+  `scripts/upgrade_cv.py` exists in `scripts/`
+- [x] Record lane drift note: repo-root `index.html` is not the Netlify publish target
+  Evidence:
+  `netlify.toml` → `publish = "public"`
 
 Recommended audit commands:
 
@@ -63,15 +96,31 @@ Get-Content netlify.toml -First 20
 
 Only after the audit above is complete:
 
-- [ ] Update `public/index.html` to show retrieval active / inactive more clearly
-- [ ] Align trust/source pill text and classes with actual `retrieval_mode` states
-- [ ] Keep `public`, `business`, and `fallback` states honest and visible
-- [ ] Add `VECTOR_ENGINE_URL` status indicator to the chat panel
-- [ ] Add or tighten `data-testid` attributes for test automation
-- [ ] Add or tighten ARIA labels for accessibility
-- [ ] Add or tighten keyboard support for the chat shell
+- [x] Update `public/index.html` to show retrieval active / inactive more clearly
+- [x] Align trust/source pill text and classes with actual `retrieval_mode` states
+- [x] Keep `public`, `business`, and `fallback` states honest and visible
+- [x] Add `VECTOR_ENGINE_URL` status indicator to the chat panel
+- [x] Add or tighten `data-testid` attributes for test automation
+- [x] Add or tighten ARIA labels for accessibility
+- [x] Add or tighten keyboard support for the chat shell
 - [ ] Update `public/data/*` only if verified display data requires it
-- [ ] If a structural rewrite is needed, run `just archive-asset public/index.html "<reason>"` first
+- [x] If a structural rewrite is needed, run `just archive-asset public/index.html "<reason>"` first
+  Evidence:
+  `just archive-asset` failed in PowerShell due to POSIX shell syntax in the recipe.
+  Preserved equivalent archive manually at:
+  `archive/inspirational_scripts/20260414_170327/index.html`
+
+---
+
+## Audit Gaps Found
+
+- `source-pill` classing was keyed to trust mode instead of backend `answer_source`
+- no dedicated retrieval status pill existed in the trust shell
+- chat subtitle incorrectly said `Powered by Gemini` instead of the live Claude Opus chat runtime
+- business unlock input lacked an ARIA label
+- business unlock input had no Enter-key handler
+- business unlock controls lacked dedicated `data-testid` hooks
+- `just codex-validate` is not Windows-safe in the current repo because it calls `wc`
 
 ---
 
@@ -93,11 +142,14 @@ These items belong to other agents and should not be edited by Codex #2:
 
 Mark these when done:
 
-- [ ] Audit complete
-- [ ] In-lane UI edits complete
+- [x] Audit complete
+- [x] In-lane UI edits complete
 - [ ] `just codex-validate` passes
-- [ ] Lane-drift notes documented
-- [ ] Ready for Scott review
+  Blocked:
+  `just codex-validate` fails under PowerShell because `wc` is not installed:
+  `wc : The term 'wc' is not recognized as the name of a cmdlet`
+- [x] Lane-drift notes documented
+- [x] Ready for Scott review
 
 ---
 

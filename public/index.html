@@ -2647,7 +2647,7 @@
       </div>
       <div>
         <div class="chat-name">RSE-Assistant</div>
-        <div class="chat-subtitle" id="chat-subtitle">Powered by Gemini · Ask me anything</div>
+        <div class="chat-subtitle" id="chat-subtitle">Powered by Claude Opus 4.6 · Ask me anything</div>
       </div>
     </div>
     <div class="chat-header-controls">
@@ -2665,6 +2665,7 @@
     <div class="chat-trust-row">
       <span class="chat-trust-pill public" id="trust-mode-badge">Public Profile</span>
       <span class="chat-trust-pill pending" id="trust-source-pill">Metadata Pending</span>
+      <span class="chat-trust-pill pending" id="trust-rag-pill" data-testid="rag-status">Retrieval Pending</span>
       <span class="chat-trust-pill ghost" id="trust-note-pill">Trust Layer Ready</span>
     </div>
     <div class="chat-trust-copy" id="trust-copy">Public profile mode is active. Verified profile answers and fallback notices appear here so the site stays honest when retrieval is unavailable.</div>
@@ -2705,7 +2706,8 @@
 
   <div class="chat-input-area">
     <textarea id="chat-input" placeholder="Ask about Scott's work, skills, or projects..." rows="1"
-      onkeydown="handleChatKey(event)" oninput="autoResize(this)" data-testid="chat-input"></textarea>
+      onkeydown="handleChatKey(event)" oninput="autoResize(this)" data-testid="chat-input"
+      aria-label="Ask a question about Scott Echols"></textarea>
     <button id="chat-send" onclick="sendMessage()" aria-label="Send" data-testid="chat-submit">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
         <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
@@ -2722,8 +2724,10 @@
     <div class="gate-state-copy" id="gate-state-copy">Public profile mode is active. Unlock business knowledge when you're ready.</div>
     <div class="gate-input-row">
       <input class="gate-input" type="password" id="access-key-input"
-        placeholder="Enter business access key..." />
-      <button class="gate-btn" onclick="verifyAccess()">Unlock</button>
+        placeholder="Enter business access key..." aria-label="Business access key"
+        data-testid="access-key-input" onkeydown="handleAccessKey(event)" />
+      <button class="gate-btn" onclick="verifyAccess()" aria-label="Unlock business access"
+        data-testid="access-key-submit">Unlock</button>
     </div>
     <div class="gate-msg" id="gate-msg">Premium tier unlocks full knowledge base & technical deep-dives</div>
   </div>
@@ -2807,6 +2811,48 @@ function initChatBubble() {
   });
 }
 
+function getSourceClassName(sourceLabel = '', mode = 'public') {
+  if (sourceLabel === 'RAG — Business Corpus') return 'business';
+  if (sourceLabel === 'RAG — CV Corpus') return 'public';
+  if (sourceLabel === 'Verified Profile Pack — Business') return 'business';
+  if (sourceLabel === 'Verified Profile Pack — Public') return 'public';
+  if (sourceLabel === 'Unlock Confirmed') return 'business';
+  if (sourceLabel === 'Service Notice') return 'fallback';
+  if (mode === 'fallback') return 'fallback';
+  return 'pending';
+}
+
+function getRagIndicator(sourceLabel = '', mode = 'public') {
+  if (sourceLabel === 'RAG — Business Corpus') {
+    return {
+      label: 'RAG Active',
+      className: 'business'
+    };
+  }
+  if (sourceLabel === 'RAG — CV Corpus') {
+    return {
+      label: 'RAG Active',
+      className: 'public'
+    };
+  }
+  if (sourceLabel.startsWith('Verified Profile Pack')) {
+    return {
+      label: 'Seed Only',
+      className: mode === 'business' ? 'business' : 'public'
+    };
+  }
+  if (sourceLabel === 'Service Notice' || mode === 'fallback') {
+    return {
+      label: 'Fallback Active',
+      className: 'fallback'
+    };
+  }
+  return {
+    label: 'Retrieval Pending',
+    className: 'pending'
+  };
+}
+
 function setLatestResponseTarget(node) {
   document.querySelectorAll('[data-testid="chat-response"]').forEach(el => {
     el.removeAttribute('data-testid');
@@ -2819,10 +2865,15 @@ function setLatestResponseTarget(node) {
 function createMessageMeta(overrides = {}) {
   const mode = overrides.mode || state.trustMode || (state.tier === 'business' ? 'business' : 'public');
   const config = TRUST_MODE_CONTENT[mode] || TRUST_MODE_CONTENT.public;
+  const sourceLabel = overrides.sourceLabel || 'Metadata Pending';
+  const ragIndicator = getRagIndicator(sourceLabel, mode);
   return {
     mode,
     label: overrides.label || config.label,
-    sourceLabel: overrides.sourceLabel || 'Metadata Pending',
+    sourceLabel,
+    sourceClassName: overrides.sourceClassName || getSourceClassName(sourceLabel, mode),
+    ragLabel: overrides.ragLabel || ragIndicator.label,
+    ragClassName: overrides.ragClassName || ragIndicator.className,
     note: overrides.note || config.note
   };
 }
@@ -2831,16 +2882,22 @@ function setTrustMode(mode, overrides = {}) {
   const config = TRUST_MODE_CONTENT[mode] || TRUST_MODE_CONTENT.public;
   const modeBadge = document.getElementById('trust-mode-badge');
   const sourcePill = document.getElementById('trust-source-pill');
+  const ragPill = document.getElementById('trust-rag-pill');
   const notePill = document.getElementById('trust-note-pill');
   const copy = document.getElementById('trust-copy');
   const shell = document.getElementById('chat-trust-shell');
-  if (!modeBadge || !sourcePill || !notePill || !copy || !shell) return;
+  if (!modeBadge || !sourcePill || !ragPill || !notePill || !copy || !shell) return;
 
   state.trustMode = mode;
   modeBadge.textContent = overrides.label || config.label;
   modeBadge.className = `chat-trust-pill ${config.className}`;
-  sourcePill.textContent = overrides.sourceLabel || 'Metadata Pending';
-  sourcePill.className = `chat-trust-pill ${overrides.sourceClassName || 'pending'}`;
+  const sourceLabel = overrides.sourceLabel || 'Metadata Pending';
+  const sourceClassName = overrides.sourceClassName || getSourceClassName(sourceLabel, mode);
+  const ragIndicator = getRagIndicator(sourceLabel, mode);
+  sourcePill.textContent = sourceLabel;
+  sourcePill.className = `chat-trust-pill ${sourceClassName}`;
+  ragPill.textContent = overrides.ragLabel || ragIndicator.label;
+  ragPill.className = `chat-trust-pill ${overrides.ragClassName || ragIndicator.className}`;
   notePill.textContent = overrides.noteLabel || 'Trust Layer Ready';
   notePill.className = `chat-trust-pill ${overrides.noteClassName || 'ghost'}`;
   copy.textContent = overrides.copy || config.copy;
@@ -3402,7 +3459,7 @@ function addMessage(role, text, meta = null) {
     metaRow.appendChild(modePill);
 
     const sourcePill = document.createElement('span');
-    sourcePill.className = `msg-meta-pill source ${metaInfo.mode}`;
+    sourcePill.className = `msg-meta-pill source ${metaInfo.sourceClassName}`;
     sourcePill.setAttribute('data-testid', 'source-pill');
     sourcePill.textContent = metaInfo.sourceLabel;
     metaRow.appendChild(sourcePill);
@@ -3640,7 +3697,7 @@ async function verifyAccess() {
       const badge = document.getElementById('tier-badge');
       badge.textContent = 'Business Access';
       badge.classList.add('business');
-      document.getElementById('chat-subtitle').textContent = 'Powered by Gemini · Full KB Unlocked';
+      document.getElementById('chat-subtitle').textContent = 'Powered by Claude Opus 4.6 · Full KB Unlocked';
       gateMsg.textContent = '✓ ' + data.message;
       gateMsg.style.color = 'var(--cyan)';
       document.getElementById('access-key-input').value = '';
@@ -3669,6 +3726,13 @@ async function verifyAccess() {
 
 function handleChatKey(e) {
   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+}
+
+function handleAccessKey(e) {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    verifyAccess();
+  }
 }
 
 function autoResize(el) {
