@@ -1,0 +1,4185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Built with Perplexity Computer — https://www.perplexity.ai/computer -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="R. Scott Echols — Senior Software Developer, Technical Lead & Marine Intelligence AI Architect. Specializing in agentic AI systems, fisheries supply chain optimization, and enterprise cloud solutions." />
+  <meta name="author" content="R. Scott Echols" />
+  <meta property="og:title" content="R. Scott Echols — World Seafood Producers" />
+  <meta property="og:description" content="Senior Software Developer & AI Systems Architect specializing in marine intelligence, agentic AI, and enterprise cloud." />
+  <meta property="og:type" content="website" />
+  <title>R. Scott Echols — World Seafood Producers</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600,700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── Design Tokens ─────────────────────────────── */
+    :root {
+      --bg: #0a0b0d;
+      --bg-2: #111318;
+      --bg-3: #181b22;
+      --surface: #1c202b;
+      --surface-2: #252a38;
+      --border: rgba(255,255,255,0.07);
+      --border-2: rgba(255,255,255,0.12);
+      --text: #e8eaf0;
+      --text-2: #9ba3b8;
+      --text-3: #6b7490;
+      --gold: #c9a84c;
+      --gold-2: #e8c877;
+      --cyan: #4ecdc4;
+      --cyan-2: #7eddd6;
+      --purple: #7c6af7;
+      --red: #e55353;
+      --font-body: 'Inter', sans-serif;
+      --font-display: 'Space Grotesk', sans-serif;
+      --font-hero: 'Clash Display', 'Space Grotesk', sans-serif;
+      --radius: 12px;
+      --radius-lg: 20px;
+      --shadow: 0 8px 32px rgba(0,0,0,0.4);
+      --shadow-lg: 0 24px 64px rgba(0,0,0,0.6);
+      --glow-gold: 0 0 20px rgba(201,168,76,0.3);
+      --glow-cyan: 0 0 20px rgba(78,205,196,0.3);
+      --transition: 0.25s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    /* ── Reset ─────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { overflow-x: hidden; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+      cursor: none;
+      overflow-x: hidden;
+    }
+    ::selection { background: rgba(201,168,76,0.25); color: var(--gold-2); }
+
+    /* ── Loading Screen ──────────────────────────────── */
+    #loader {
+      position: fixed; inset: 0; z-index: 10000;
+      background: var(--bg);
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 1.5rem;
+      transition: opacity 0.5s ease, visibility 0.5s ease;
+    }
+    #loader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+    .loader-logo {
+      animation: loaderSpin 1.5s ease-in-out infinite;
+    }
+    @keyframes loaderSpin {
+      0% { transform: rotate(0deg) scale(1); }
+      50% { transform: rotate(180deg) scale(1.1); }
+      100% { transform: rotate(360deg) scale(1); }
+    }
+    .loader-text {
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      color: var(--text-3);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+    .loader-bar {
+      width: 120px; height: 2px;
+      background: var(--surface);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .loader-bar-fill {
+      height: 100%; width: 0;
+      background: linear-gradient(90deg, var(--gold), var(--gold-2));
+      animation: loaderFill 1.5s ease forwards;
+    }
+    @keyframes loaderFill { to { width: 100%; } }
+
+    /* ── Custom Cursor ────────────────────────────────── */
+    .cursor-dot {
+      position: fixed; z-index: 9999;
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--gold);
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      transition: width 0.2s, height 0.2s, background 0.2s;
+    }
+    .cursor-ring {
+      position: fixed; z-index: 9998;
+      width: 36px; height: 36px; border-radius: 50%;
+      border: 1.5px solid rgba(201,168,76,0.4);
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      transition: width 0.3s, height 0.3s, border-color 0.3s, background 0.3s;
+    }
+    .cursor-hover .cursor-dot {
+      width: 14px; height: 14px;
+      background: var(--cyan);
+    }
+    .cursor-hover .cursor-ring {
+      width: 50px; height: 50px;
+      border-color: rgba(78,205,196,0.5);
+      background: rgba(78,205,196,0.05);
+    }
+
+    @media (max-width: 768px) {
+      .cursor-dot, .cursor-ring { display: none !important; }
+      body { cursor: auto; }
+    }
+
+    /* ── Nav ────────────────────────────────────────── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 clamp(1.5rem, 5vw, 4rem);
+      background: rgba(10,11,13,0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      transition: var(--transition);
+    }
+    .nav-logo {
+      display: flex; align-items: center; gap: 10px;
+      text-decoration: none;
+      font-family: var(--font-display); font-weight: 700; font-size: 1.1rem;
+      color: var(--text);
+    }
+    .nav-logo svg { flex-shrink: 0; }
+    .nav-links {
+      display: flex; align-items: center; gap: 2rem;
+      list-style: none;
+    }
+    .nav-links a {
+      color: var(--text-2); text-decoration: none;
+      font-size: 0.875rem; font-weight: 500;
+      transition: color var(--transition);
+      position: relative;
+    }
+    .nav-links a::after {
+      content: ''; position: absolute; bottom: -4px; left: 0;
+      width: 0; height: 1px; background: var(--gold);
+      transition: width var(--transition);
+    }
+    .nav-links a:hover { color: var(--text); }
+    .nav-links a:hover::after { width: 100%; }
+    .nav-links a.active { color: var(--gold-2); }
+    .nav-links a.active::after { width: 100%; }
+    .nav-cta {
+      background: linear-gradient(135deg, var(--gold), var(--gold-2));
+      color: var(--bg) !important;
+      padding: 8px 20px; border-radius: 8px;
+      font-weight: 600 !important;
+      transition: box-shadow var(--transition), transform var(--transition) !important;
+    }
+    .nav-cta::after { display: none !important; }
+    .nav-cta:hover { box-shadow: var(--glow-gold) !important; transform: translateY(-1px); }
+    .nav-cta.active { color: var(--bg) !important; }
+
+    .hamburger {
+      display: none; flex-direction: column; gap: 5px;
+      cursor: pointer; padding: 8px; border: none; background: none;
+    }
+    .hamburger span {
+      display: block; width: 22px; height: 2px;
+      background: var(--text-2); border-radius: 2px;
+      transition: var(--transition);
+    }
+
+    /* ── Hero ──────────────────────────────────────── */
+    #hero {
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      position: relative; overflow: hidden;
+      padding: 8rem clamp(1.5rem, 5vw, 4rem) 4rem;
+    }
+    #hero-canvas {
+      position: absolute; inset: 0; z-index: 0;
+      opacity: 0.6;
+    }
+    #hero-three {
+      position: absolute; inset: 0; z-index: 1;
+    }
+    .hero-content {
+      position: relative; z-index: 2;
+      max-width: 800px;
+      text-align: center;
+      background: radial-gradient(ellipse 600px 400px at center, rgba(0,0,0,0.3) 0%, transparent 70%);
+      padding: 3rem 2rem;
+      border-radius: 24px;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.3);
+      padding: 6px 16px; border-radius: 100px;
+      font-size: 0.8rem; font-weight: 500; color: var(--gold-2);
+      margin-bottom: 2rem;
+      opacity: 0;
+    }
+    .hero-badge-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--gold); animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.3); }
+    }
+    .hero-name {
+      font-family: var(--font-hero);
+      font-size: clamp(3.2rem, 8vw, 6.5rem);
+      font-weight: 700; line-height: 1.0;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, #fff 0%, var(--gold-2) 60%, var(--gold) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 1rem;
+      opacity: 0;
+    }
+    .hero-title {
+      font-size: clamp(1rem, 2.5vw, 1.3rem);
+      color: var(--text-2); font-weight: 400;
+      min-height: 2em;
+      margin-bottom: 1.5rem;
+      opacity: 0;
+    }
+    .hero-title span { color: #7eddd6; font-weight: 500; text-shadow: 0 0 20px rgba(78,205,196,0.5); }
+    .hero-desc {
+      font-size: clamp(0.95rem, 1.8vw, 1.1rem);
+      color: rgba(232,234,240,0.9); line-height: 1.8;
+      max-width: 600px; margin: 0 auto 2.5rem;
+      opacity: 0;
+    }
+    .hero-actions {
+      display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;
+      opacity: 0;
+    }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 14px 28px; border-radius: var(--radius);
+      font-family: var(--font-body); font-weight: 600; font-size: 0.95rem;
+      text-decoration: none; cursor: pointer; border: none;
+      transition: all var(--transition);
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--gold), var(--gold-2));
+      color: var(--bg);
+    }
+    .btn-primary:hover { box-shadow: var(--glow-gold); transform: translateY(-2px); }
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid var(--border-2);
+      color: var(--text-2);
+    }
+    .btn-secondary:hover { border-color: var(--gold); color: var(--gold-2); background: rgba(201,168,76,0.05); }
+    .hero-scroll {
+      position: absolute; bottom: 2.5rem; left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      color: var(--text-3); font-size: 0.75rem;
+      opacity: 0;
+    }
+    .scroll-line {
+      width: 1px; height: 50px;
+      background: linear-gradient(to bottom, transparent, var(--gold));
+      animation: scrollPulse 2s infinite;
+    }
+    @keyframes scrollPulse { 0%,100% { opacity:0.3; } 50% { opacity:1; } }
+
+    /* ── Sections ───────────────────────────────────── */
+    section { padding: clamp(4rem, 8vw, 7rem) clamp(1.5rem, 5vw, 4rem); position: relative; }
+    .section-label {
+      display: inline-block;
+      font-size: 0.75rem; font-weight: 600; letter-spacing: 0.15em;
+      text-transform: uppercase; color: var(--gold);
+      margin-bottom: 1rem;
+    }
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 700; line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin-bottom: 1.5rem;
+    }
+    .section-desc {
+      color: var(--text-2); font-size: 1.05rem;
+      max-width: 600px; line-height: 1.8;
+    }
+    .container { max-width: 1200px; margin: 0 auto; }
+    .section-header { margin-bottom: 4rem; }
+
+    /* Section gradient mesh backgrounds */
+    .section-mesh {
+      position: absolute; inset: 0; z-index: -1; opacity: 0.4;
+      pointer-events: none;
+    }
+
+    /* ── About ─────────────────────────────────────── */
+    #about { background: var(--bg-2); }
+    .about-grid {
+      display: grid; grid-template-columns: 1fr 2fr; gap: 5rem;
+      align-items: start;
+    }
+    .about-photo-wrap { position: relative; }
+    .about-photo {
+      width: 100%; aspect-ratio: 3/4;
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+      border: 2px dashed var(--border-2);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 12px; cursor: pointer;
+      transition: border-color var(--transition);
+      overflow: hidden; position: relative;
+    }
+    .about-photo:hover { border-color: var(--gold); }
+    .about-photo-label { color: var(--text-3); font-size: 0.85rem; }
+    .about-photo img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
+    #photo-upload { display: none; }
+    .about-photo-badge {
+      position: absolute; bottom: 16px; right: -12px;
+      background: linear-gradient(135deg, var(--gold), var(--gold-2));
+      color: var(--bg); font-weight: 700; font-size: 0.8rem;
+      padding: 10px 16px; border-radius: 10px;
+      box-shadow: var(--shadow);
+    }
+    .about-stats {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.25rem;
+      text-align: center;
+      transition: border-color var(--transition), transform var(--transition);
+    }
+    .stat-card:hover { border-color: var(--gold); transform: translateY(-3px); }
+    .stat-num {
+      font-family: var(--font-display); font-size: 2rem;
+      font-weight: 700; color: var(--gold-2);
+    }
+    .stat-label { font-size: 0.75rem; color: var(--text-3); margin-top: 4px; }
+    .about-bio {
+      color: var(--text-2); line-height: 1.9; font-size: 1rem;
+      border-left: 2px solid var(--gold); padding-left: 1.5rem;
+      cursor: text;
+    }
+    .about-bio:focus-within { border-color: var(--cyan); }
+    .about-bio p[contenteditable]:focus { outline: none; color: var(--text); }
+
+    /* ── Experience Timeline ────────────────────────── */
+    #experience { background: var(--bg); }
+    .timeline {
+      position: relative;
+      max-width: 900px; margin: 0 auto;
+    }
+    .timeline::before {
+      content: '';
+      position: absolute; left: 50%; top: 0; bottom: 0;
+      width: 1px; background: linear-gradient(to bottom, transparent, var(--gold), transparent);
+      transform: translateX(-50%);
+    }
+    .timeline-item {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 2rem; margin-bottom: 3rem; position: relative;
+    }
+    .timeline-item:nth-child(odd) .timeline-card { grid-column: 1; }
+    .timeline-item:nth-child(odd) .timeline-empty { grid-column: 2; }
+    .timeline-item:nth-child(even) .timeline-card { grid-column: 2; }
+    .timeline-item:nth-child(even) .timeline-empty { grid-column: 1; order: -1; }
+    .timeline-dot {
+      position: absolute; left: 50%; top: 24px;
+      width: 12px; height: 12px; border-radius: 50%;
+      background: var(--gold); border: 3px solid var(--bg);
+      transform: translateX(-50%);
+      box-shadow: var(--glow-gold);
+      animation: dotPulse 3s ease-in-out infinite;
+    }
+    @keyframes dotPulse {
+      0%, 100% { box-shadow: 0 0 8px rgba(201,168,76,0.3); }
+      50% { box-shadow: 0 0 20px rgba(201,168,76,0.6), 0 0 40px rgba(201,168,76,0.2); }
+    }
+    .timeline-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem;
+      transition: border-color var(--transition), transform var(--transition);
+      cursor: text;
+    }
+    .timeline-card:hover { border-color: var(--border-2); transform: translateY(-2px); }
+    .timeline-period {
+      font-size: 0.75rem; color: var(--gold); font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px;
+    }
+    .timeline-role {
+      font-family: var(--font-display); font-size: 1.05rem; font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .timeline-company { font-size: 0.875rem; color: var(--cyan); margin-bottom: 8px; }
+    .timeline-desc { font-size: 0.875rem; color: var(--text-2); line-height: 1.7; }
+
+    /* ── Skills ─────────────────────────────────────── */
+    #skills { background: var(--bg-2); }
+    .skills-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+    .skill-group {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.75rem;
+      transition: border-color var(--transition);
+    }
+    .skill-group:hover { border-color: var(--border-2); }
+    .skill-group-title {
+      font-family: var(--font-display); font-size: 0.95rem;
+      font-weight: 600; margin-bottom: 1.25rem;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .skill-group-icon {
+      width: 28px; height: 28px; border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.9rem;
+    }
+    .skill-item { margin-bottom: 1rem; }
+    .skill-header { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.875rem; }
+    .skill-pct { color: var(--gold); font-weight: 600; font-size: 0.8rem; }
+    .skill-bar { height: 4px; background: var(--bg-3); border-radius: 2px; overflow: hidden; }
+    .skill-fill {
+      height: 100%; border-radius: 2px;
+      background: linear-gradient(90deg, var(--gold), var(--gold-2));
+      width: 0; transition: width 1.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .skill-fill.cyan { background: linear-gradient(90deg, var(--cyan), var(--cyan-2)); }
+    .skill-fill.purple { background: linear-gradient(90deg, var(--purple), #a89aff); }
+
+    /* ── Projects ───────────────────────────────────── */
+    #projects { background: var(--bg); }
+    .projects-filters {
+      display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 2.5rem;
+    }
+    .filter-btn {
+      background: transparent; border: 1px solid var(--border);
+      color: var(--text-2); padding: 8px 20px; border-radius: 8px;
+      font-size: 0.85rem; font-weight: 500; cursor: pointer;
+      transition: all var(--transition);
+    }
+    .filter-btn:hover, .filter-btn.active {
+      background: rgba(201,168,76,0.1); border-color: var(--gold); color: var(--gold-2);
+    }
+    .projects-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.5rem;
+    }
+    .project-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden;
+      cursor: pointer; transition: all var(--transition);
+      transform-style: preserve-3d;
+      position: relative;
+    }
+    .projects-grid .slot-1 { order: 1; }
+    .projects-grid .slot-2 { order: 2; }
+    .projects-grid .slot-3 { order: 3; }
+    .projects-grid .slot-4 { order: 4; }
+    .projects-grid .slot-5 { order: 5; }
+    .projects-grid .slot-6 { order: 6; }
+    .project-card::before {
+      content: '';
+      position: absolute; inset: 0; z-index: 1;
+      border-radius: var(--radius);
+      border: 1px solid transparent;
+      transition: border-color 0.4s ease;
+      pointer-events: none;
+    }
+    .project-card:hover::before {
+      border-color: rgba(201,168,76,0.4);
+      box-shadow: 0 0 30px rgba(201,168,76,0.1);
+    }
+    .project-card.flagship-seatrace {
+      border-color: rgba(78,205,196,0.42);
+      box-shadow: 0 0 0 1px rgba(78,205,196,0.22), 0 18px 48px rgba(7,31,35,0.45);
+    }
+    .project-card.flagship-seatrace::before {
+      border-color: rgba(78,205,196,0.45);
+      box-shadow: 0 0 42px rgba(78,205,196,0.16);
+    }
+    .project-card.flagship-seatrace .emblem-stage {
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.12),
+        0 28px 58px rgba(0,0,0,0.42),
+        0 0 30px rgba(78,205,196,0.18);
+    }
+    .project-card.flagship-seatrace:hover .emblem-stage {
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.16),
+        0 34px 70px rgba(0,0,0,0.5),
+        0 0 52px rgba(78,205,196,0.28);
+    }
+    /* Glossy reflection sweep */
+    .project-card::after {
+      content: '';
+      position: absolute; inset: 0; z-index: 2;
+      background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.05) 45%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 55%, transparent 60%);
+      transform: translateX(-100%);
+      transition: transform 0.6s ease;
+      pointer-events: none;
+      border-radius: var(--radius);
+    }
+    .project-card:hover::after {
+      transform: translateX(100%);
+    }
+    .project-thumb {
+      height: 180px; background: var(--bg-3);
+      position: relative; overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .project-thumb-bg {
+      position: absolute; inset: 0;
+      background: var(--bg-3);
+    }
+    /* ── Project Emblem Stage (replaces emoji icons) ─── */
+    .project-thumb-icon { display: none; } /* legacy — hidden, replaced by emblem-stage */
+
+    .emblem-stage {
+      position: relative; z-index: 2;
+      width: 108px; height: 108px;
+      border-radius: 26px;
+      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(160deg, rgba(255,255,255,0.11) 0%, rgba(255,255,255,0.03) 100%);
+      border: 1px solid rgba(255,255,255,0.13);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.1),
+        0 24px 48px rgba(0,0,0,0.38),
+        0 0 0 1px rgba(255,255,255,0.04);
+      backdrop-filter: blur(12px) saturate(130%);
+      transform-style: preserve-3d;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      animation: emblemFloat 5s ease-in-out infinite;
+    }
+    .emblem-stage::before {
+      content: '';
+      position: absolute; inset: 10px;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.07);
+      pointer-events: none;
+    }
+    /* Glass highlight sweep on hover */
+    .emblem-stage::after {
+      content: '';
+      position: absolute; inset: 0;
+      border-radius: 26px;
+      background: linear-gradient(110deg,
+        transparent 30%,
+        rgba(255,255,255,0.06) 45%,
+        rgba(255,255,255,0.18) 50%,
+        rgba(255,255,255,0.06) 55%,
+        transparent 70%);
+      transform: translateX(-120%);
+      transition: transform 0.7s ease;
+      pointer-events: none;
+    }
+    .project-card:hover .emblem-stage::after { transform: translateX(120%); }
+    .project-card:hover .emblem-stage {
+      transform: translateY(-6px) translateZ(12px) scale(1.04);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.15),
+        0 32px 64px rgba(0,0,0,0.45),
+        0 0 40px rgba(78,205,196,0.12);
+    }
+    .emblem-stage svg {
+      width: 62px; height: 62px;
+      filter: drop-shadow(0 6px 14px rgba(0,0,0,0.4));
+      transition: filter 0.3s ease;
+    }
+    .project-card:hover .emblem-stage svg {
+      filter: drop-shadow(0 10px 22px rgba(78,205,196,0.35));
+    }
+    @keyframes emblemFloat {
+      0%,100% { transform: translateY(0) rotate(-0.5deg); }
+      50%      { transform: translateY(-9px) rotate(0.5deg); }
+    }
+
+    /* ── Glass thumb overlay layer ──────────────────── */
+    .project-thumb {
+      position: relative;
+    }
+    .thumb-glass-layer {
+      position: absolute; inset: 0; z-index: 1;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 25% 20%, rgba(255,255,255,0.07), transparent 38%),
+        radial-gradient(circle at 75% 80%, rgba(78,205,196,0.04), transparent 30%),
+        linear-gradient(180deg, rgba(255,255,255,0.04) 0%, transparent 50%, rgba(0,0,0,0.08) 100%);
+      backdrop-filter: blur(0px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      transition: backdrop-filter 0.4s ease;
+    }
+    .project-card:hover .thumb-glass-layer {
+      backdrop-filter: blur(2px) saturate(110%);
+    }
+    .project-tag {
+      position: absolute; top: 12px; right: 12px;
+      background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
+      padding: 4px 12px; border-radius: 6px;
+      font-size: 0.7rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .project-body { padding: 1.5rem; position: relative; z-index: 3; }
+    .project-title {
+      font-family: var(--font-display); font-size: 1.05rem;
+      font-weight: 600; margin-bottom: 8px;
+    }
+    .project-desc { font-size: 0.875rem; color: var(--text-2); line-height: 1.7; margin-bottom: 1rem; }
+    .project-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: -0.2rem 0 1rem;
+    }
+    .project-meta-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.04);
+      color: var(--text-2);
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .project-meta-chip.live {
+      border-color: rgba(78,205,196,0.35);
+      color: var(--cyan);
+    }
+    .project-meta-chip.progress {
+      border-color: rgba(201,168,76,0.35);
+      color: var(--gold);
+    }
+    .project-meta-chip.personal {
+      border-color: rgba(124,106,247,0.35);
+      color: var(--purple);
+    }
+    .project-tech { display: flex; gap: 6px; flex-wrap: wrap; }
+    .tech-badge {
+      background: var(--bg-3); color: var(--text-3);
+      padding: 4px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: 500;
+    }
+
+    /* ── Services ───────────────────────────────────── */
+    #services { background: var(--bg-2); }
+    .services-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem;
+    }
+    .service-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 2rem;
+      transition: all var(--transition);
+    }
+    .service-card:hover { border-color: var(--gold); transform: translateY(-3px); box-shadow: var(--shadow); }
+    .service-icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      background: rgba(201,168,76,0.1); border: 1px solid rgba(201,168,76,0.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem; margin-bottom: 1.25rem;
+    }
+    .service-title {
+      font-family: var(--font-display); font-size: 1.05rem;
+      font-weight: 600; margin-bottom: 8px;
+    }
+    .service-desc { font-size: 0.875rem; color: var(--text-2); line-height: 1.75; }
+
+    /* ── Testimonials ────────────────────────────────── */
+    #testimonials { background: var(--bg); overflow: hidden; }
+    .testimonials-track {
+      display: flex; gap: 1.5rem; overflow-x: auto;
+      padding-bottom: 1rem; scrollbar-width: thin;
+      scrollbar-color: var(--border-2) transparent;
+    }
+    .testimonial-card {
+      flex-shrink: 0; width: 360px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 2rem;
+    }
+    .testimonial-stars { color: var(--gold); margin-bottom: 1rem; font-size: 0.9rem; }
+    .testimonial-text { font-size: 0.95rem; color: var(--text-2); line-height: 1.8; margin-bottom: 1.25rem; font-style: italic; }
+    .testimonial-author { display: flex; align-items: center; gap: 12px; }
+    .testimonial-avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: var(--surface-2); border: 2px solid var(--border-2);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; color: var(--gold);
+    }
+    .testimonial-name { font-weight: 600; font-size: 0.9rem; }
+    .testimonial-role { font-size: 0.78rem; color: var(--text-3); }
+
+    /* ── Contact ────────────────────────────────────── */
+    #contact { background: var(--bg-2); }
+    .contact-grid { display: grid; grid-template-columns: 1fr 1.4fr; gap: 5rem; align-items: start; }
+    .contact-info { display: flex; flex-direction: column; gap: 1.5rem; }
+    .contact-item { display: flex; align-items: flex-start; gap: 14px; }
+    .contact-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      background: var(--surface); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; flex-shrink: 0;
+    }
+    .contact-label { font-size: 0.75rem; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.1em; }
+    .contact-val { font-size: 0.95rem; color: var(--text); margin-top: 2px; }
+    .contact-form { display: flex; flex-direction: column; gap: 1rem; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-label { font-size: 0.8rem; font-weight: 500; color: var(--text-2); }
+    .form-input, .form-textarea, .form-select {
+      background: var(--surface); border: 1px solid var(--border);
+      color: var(--text); padding: 12px 16px; border-radius: var(--radius);
+      font-family: var(--font-body); font-size: 0.9rem;
+      transition: border-color var(--transition);
+      width: 100%; resize: none;
+    }
+    .form-input:focus, .form-textarea:focus, .form-select:focus {
+      outline: none; border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(201,168,76,0.1);
+    }
+    .form-textarea { min-height: 120px; }
+    .form-submit {
+      background: linear-gradient(135deg, var(--gold), var(--gold-2));
+      color: var(--bg); padding: 14px 32px; border-radius: var(--radius);
+      font-weight: 700; font-size: 0.95rem; cursor: pointer;
+      border: none; transition: all var(--transition); align-self: flex-start;
+    }
+    .form-submit:hover { box-shadow: var(--glow-gold); transform: translateY(-2px); }
+
+    /* honeypot */
+    .hp-field { display: none !important; }
+
+    /* ── Chatbot ────────────────────────────────────── */
+    #chat-bubble {
+      position: fixed; bottom: 28px; right: 28px; z-index: 1000;
+      width: 68px; height: 68px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold), var(--gold-2));
+      cursor: pointer; border: none;
+      box-shadow: 0 4px 20px rgba(201,168,76,0.5);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transform: scale(0);
+      transition: transform var(--transition), box-shadow var(--transition);
+    }
+    #chat-bubble:hover { transform: scale(1.08) !important; box-shadow: 0 8px 30px rgba(201,168,76,0.6); }
+    #chat-bubble svg { color: var(--bg); }
+    .bubble-ring {
+      position: absolute; inset: -8px; border-radius: 50%;
+      border: 2px solid rgba(201,168,76,0.4);
+      animation: ringPulse 3s infinite;
+    }
+    .bubble-ring-2 {
+      position: absolute; inset: -14px; border-radius: 50%;
+      border: 1px solid rgba(201,168,76,0.2);
+      animation: ringPulse 3s 0.5s infinite;
+    }
+    @keyframes ringPulse {
+      0%,100% { transform: scale(1); opacity: 0.6; }
+      50% { transform: scale(1.2); opacity: 0; }
+    }
+    /* Bounce animation for chat bubble */
+    @keyframes chatBounce {
+      0%, 100% { transform: scale(1) translateY(0); }
+      50% { transform: scale(1) translateY(-4px); }
+    }
+    #chat-bubble.bouncing { animation: chatBounce 2s ease-in-out infinite; }
+    /* Shimmer effect */
+    #chat-bubble::after {
+      content: '';
+      position: absolute; inset: 0; border-radius: 50%;
+      background: linear-gradient(135deg, transparent 30%, rgba(255,255,255,0.2) 50%, transparent 70%);
+      animation: shimmer 3s ease-in-out infinite;
+    }
+    @keyframes shimmer {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    #chat-window {
+      position: fixed; bottom: 110px; right: 28px; z-index: 1000;
+      width: min(420px, calc(100vw - 56px));
+      height: min(580px, calc(100vh - 160px));
+      background: var(--bg-2);
+      border: 1px solid var(--border-2);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      display: flex; flex-direction: column;
+      overflow: hidden;
+      transform: scale(0.9) translateY(20px);
+      opacity: 0; pointer-events: none;
+      transform-origin: bottom right;
+      transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+    }
+    #chat-window.open {
+      transform: scale(1) translateY(0);
+      opacity: 1; pointer-events: all;
+    }
+
+    .chat-header {
+      background: var(--surface);
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .chat-header-info { display: flex; align-items: center; gap: 10px; }
+    .chat-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold), var(--gold-2));
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 0.85rem; color: var(--bg);
+      position: relative;
+    }
+    .chat-status-dot {
+      position: absolute; bottom: 1px; right: 1px;
+      width: 9px; height: 9px; border-radius: 50%;
+      background: #22c55e; border: 2px solid var(--surface);
+    }
+    .chat-name { font-weight: 600; font-size: 0.9rem; }
+    .chat-subtitle { font-size: 0.72rem; color: var(--text-3); margin-top: 1px; }
+    .chat-header-controls {
+      display: flex; gap: 8px; align-items: center;
+      flex-wrap: wrap; justify-content: flex-end;
+    }
+    .chat-tier-badge {
+      font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; padding: 3px 10px; border-radius: 100px;
+      background: rgba(78,205,196,0.12); color: var(--cyan); border: 1px solid rgba(78,205,196,0.3);
+    }
+    .chat-tier-badge.business {
+      background: rgba(201,168,76,0.15); color: var(--gold-2); border-color: rgba(201,168,76,0.4);
+    }
+    .chat-close {
+      background: none; border: none; color: var(--text-3);
+      cursor: pointer; padding: 4px; border-radius: 6px;
+      transition: color var(--transition);
+    }
+    .chat-close:hover { color: var(--text); }
+    .chat-trust-shell {
+      padding: 0.9rem 1rem 0.85rem;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(201,168,76,0.03));
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .chat-trust-row {
+      display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+    }
+    .chat-trust-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 5px 10px; border-radius: 999px;
+      font-size: 0.66rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.06em;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--text-2);
+    }
+    .chat-trust-pill::before {
+      content: '';
+      width: 7px; height: 7px; border-radius: 50%;
+      background: currentColor; opacity: 0.85;
+    }
+    .chat-trust-pill.public {
+      color: var(--cyan);
+      border-color: rgba(78,205,196,0.35);
+      background: rgba(78,205,196,0.08);
+    }
+    .chat-trust-pill.business {
+      color: var(--gold-2);
+      border-color: rgba(201,168,76,0.35);
+      background: rgba(201,168,76,0.1);
+    }
+    .chat-trust-pill.fallback {
+      color: #f59e0b;
+      border-color: rgba(245,158,11,0.35);
+      background: rgba(245,158,11,0.08);
+    }
+    .chat-trust-pill.pending {
+      color: var(--text-2);
+      border-color: var(--border-2);
+      background: rgba(255,255,255,0.03);
+    }
+    .chat-trust-pill.ghost {
+      color: var(--text-3);
+      border-style: dashed;
+      background: transparent;
+    }
+    .chat-trust-copy {
+      font-size: 0.74rem;
+      color: var(--text-3);
+      line-height: 1.55;
+    }
+
+    .chat-messages {
+      flex: 1; overflow-y: auto; padding: 1rem;
+      display: flex; flex-direction: column; gap: 1rem;
+      scrollbar-width: thin; scrollbar-color: var(--border) transparent;
+    }
+    .msg { display: flex; gap: 10px; max-width: 85%; }
+    .msg.user { align-self: flex-end; flex-direction: row-reverse; }
+    .msg-stack {
+      display: flex; flex-direction: column; gap: 8px;
+      min-width: 0;
+    }
+    .msg-bubble {
+      padding: 10px 14px; border-radius: 16px;
+      font-size: 0.875rem; line-height: 1.6;
+    }
+    .msg.bot .msg-bubble {
+      background: var(--surface); border-radius: 4px 16px 16px 16px;
+      color: var(--text);
+    }
+    .msg.user .msg-bubble {
+      background: linear-gradient(135deg, var(--gold), var(--gold-2));
+      color: var(--bg); font-weight: 500;
+      border-radius: 16px 4px 16px 16px;
+    }
+    .msg-avatar {
+      width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--gold), var(--gold-2));
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 0.7rem; color: var(--bg);
+      align-self: flex-end;
+    }
+    .msg-meta {
+      display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+    }
+    .msg-meta-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 9px; border-radius: 999px;
+      font-size: 0.64rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.03);
+      color: var(--text-3);
+    }
+    .msg-meta-pill::before {
+      content: '';
+      width: 6px; height: 6px; border-radius: 50%;
+      background: currentColor; opacity: 0.8;
+    }
+    .msg-meta-pill.public {
+      color: var(--cyan);
+      border-color: rgba(78,205,196,0.28);
+    }
+    .msg-meta-pill.business {
+      color: var(--gold-2);
+      border-color: rgba(201,168,76,0.3);
+    }
+    .msg-meta-pill.fallback {
+      color: #f59e0b;
+      border-color: rgba(245,158,11,0.3);
+    }
+    .msg-meta-pill.source {
+      color: var(--text-2);
+      border-style: dashed;
+    }
+    .msg-meta-note {
+      flex-basis: 100%;
+      font-size: 0.72rem;
+      color: var(--text-3);
+      line-height: 1.5;
+      padding-left: 2px;
+    }
+
+    .typing-indicator {
+      display: flex; gap: 4px; align-items: center;
+      padding: 10px 14px;
+    }
+    .typing-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--text-3); animation: typingBounce 1.4s infinite;
+    }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes typingBounce {
+      0%,60%,100% { transform: translateY(0); }
+      30% { transform: translateY(-6px); }
+    }
+
+    .chat-preload-shell {
+      padding: 0 1rem 0.35rem;
+      display: flex; flex-direction: column; gap: 4px;
+      flex-shrink: 0;
+    }
+    .chat-preload-title {
+      font-size: 0.7rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.09em;
+      color: var(--gold);
+    }
+    .chat-preload-note {
+      font-size: 0.74rem;
+      color: var(--text-3);
+      line-height: 1.45;
+    }
+    .chat-quick-actions {
+      padding: 0 1rem 0.85rem;
+      display: grid; gap: 8px;
+      grid-template-columns: 1fr;
+      flex-shrink: 0;
+    }
+    .quick-btn {
+      background: var(--surface-2); border: 1px solid var(--border);
+      color: var(--text-2); padding: 10px 12px; border-radius: 14px;
+      font-size: 0.75rem; cursor: pointer;
+      transition: all var(--transition);
+      display: flex; gap: 10px; align-items: flex-start;
+      white-space: normal; text-align: left;
+    }
+    .quick-btn:hover { border-color: var(--gold); color: var(--gold-2); background: rgba(201,168,76,0.08); }
+    .quick-btn-index {
+      width: 24px; height: 24px; border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      background: rgba(201,168,76,0.15);
+      color: var(--gold-2);
+      font-size: 0.72rem; font-weight: 700;
+      flex-shrink: 0;
+    }
+    .quick-btn-copy {
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .quick-btn-label {
+      font-size: 0.79rem;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.45;
+    }
+    .quick-btn-meta {
+      font-size: 0.72rem;
+      color: var(--text-3);
+      line-height: 1.45;
+    }
+
+    .chat-input-area {
+      padding: 0.75rem 1rem;
+      border-top: 1px solid var(--border);
+      display: flex; gap: 8px; align-items: flex-end;
+      flex-shrink: 0;
+    }
+    #chat-input {
+      flex: 1; background: var(--surface);
+      border: 1px solid var(--border); color: var(--text);
+      padding: 10px 14px; border-radius: 12px;
+      font-family: var(--font-body); font-size: 0.875rem;
+      resize: none; max-height: 120px; min-height: 40px;
+      transition: border-color var(--transition);
+      line-height: 1.5;
+    }
+    #chat-input:focus { outline: none; border-color: var(--gold); }
+    #chat-send {
+      width: 40px; height: 40px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--gold), var(--gold-2));
+      border: none; cursor: pointer; color: var(--bg);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: all var(--transition);
+    }
+    #chat-send:hover { transform: scale(1.05); box-shadow: var(--glow-gold); }
+    #chat-send:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    /* Business access gate */
+    .chat-gate {
+      padding: 1rem;
+      background: rgba(201,168,76,0.05);
+      border-top: 1px solid rgba(201,168,76,0.15);
+      border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+      flex-shrink: 0;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .chat-gate[data-state="validating"] {
+      background: rgba(201,168,76,0.08);
+      border-top-color: rgba(201,168,76,0.4);
+    }
+    .chat-gate[data-state="unlocked"] {
+      background: rgba(78,205,196,0.07);
+      border-top-color: rgba(78,205,196,0.25);
+    }
+    .chat-gate[data-state="unlocked"] .gate-title {
+      color: var(--cyan);
+    }
+    .chat-gate-header {
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    }
+    .gate-title {
+      font-size: 0.75rem; font-weight: 600; color: var(--gold);
+      text-transform: uppercase; letter-spacing: 0.1em;
+    }
+    .gate-state-pill {
+      display: inline-flex; align-items: center;
+      padding: 4px 10px; border-radius: 999px;
+      font-size: 0.66rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.06em;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--text-2);
+    }
+    .gate-state-pill.locked {
+      color: var(--text-2);
+      border-color: var(--border-2);
+    }
+    .gate-state-pill.validating {
+      color: var(--gold-2);
+      border-color: rgba(201,168,76,0.4);
+      background: rgba(201,168,76,0.1);
+    }
+    .gate-state-pill.unlocked {
+      color: var(--cyan);
+      border-color: rgba(78,205,196,0.35);
+      background: rgba(78,205,196,0.09);
+    }
+    .gate-state-copy {
+      font-size: 0.74rem;
+      color: var(--text-2);
+      line-height: 1.5;
+    }
+    .gate-input-row { display: flex; gap: 8px; }
+    .gate-input {
+      flex: 1; background: var(--surface); border: 1px solid var(--border);
+      color: var(--text); padding: 8px 12px; border-radius: 8px;
+      font-size: 0.8rem; font-family: var(--font-body);
+    }
+    .gate-input:focus { outline: none; border-color: var(--gold); }
+    .gate-input:disabled { opacity: 0.7; cursor: not-allowed; }
+    .gate-btn {
+      background: linear-gradient(135deg, var(--gold), var(--gold-2));
+      color: var(--bg); padding: 8px 16px; border-radius: 8px;
+      font-size: 0.8rem; font-weight: 600; border: none; cursor: pointer;
+      transition: all var(--transition); white-space: nowrap;
+    }
+    .gate-btn:hover { box-shadow: var(--glow-gold); }
+    .gate-btn:disabled { opacity: 0.7; cursor: not-allowed; box-shadow: none; }
+    .gate-msg { font-size: 0.72rem; color: var(--text-3); }
+
+
+    /* ── Logo Prism ──────────────────────────────────── */
+    .logo-prism-wrap {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 2rem;
+      perspective: 1400px;
+    }
+    .logo-prism {
+      background: linear-gradient(135deg, rgba(255,255,255,0.07) 0%, rgba(201,168,76,0.04) 40%, rgba(78,205,196,0.04) 100%);
+      backdrop-filter: blur(32px) saturate(1.6);
+      border: 1px solid rgba(201,168,76,0.4);
+      border-radius: 50%;
+      padding: 18px;
+      box-shadow:
+        0 28px 70px rgba(0,0,0,0.55),
+        inset 0 0 30px rgba(201,168,76,0.1),
+        inset 0 0 60px rgba(78,205,196,0.05),
+        0 0 50px rgba(78,205,196,0.12),
+        0 0 100px rgba(201,168,76,0.08);
+      transition: transform 0.1s ease-out, box-shadow 0.3s ease;
+      cursor: pointer;
+      position: relative;
+    }
+    /* Outer orbit ring */
+    .logo-prism::before {
+      content: '';
+      position: absolute;
+      inset: -20px;
+      border-radius: 50%;
+      border: 1px solid rgba(201,168,76,0.18);
+      animation: orbitSpin 8s linear infinite;
+      pointer-events: none;
+    }
+    /* Inner orbit ring */
+    .logo-prism::after {
+      content: '';
+      position: absolute;
+      inset: -12px;
+      border-radius: 50%;
+      border: 1px dashed rgba(78,205,196,0.2);
+      animation: orbitSpin 5s linear infinite reverse;
+      pointer-events: none;
+    }
+    @keyframes orbitSpin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .logo-prism:hover {
+      box-shadow:
+        0 40px 100px rgba(0,0,0,0.65),
+        inset 0 0 40px rgba(201,168,76,0.18),
+        inset 0 0 80px rgba(78,205,196,0.08),
+        0 0 80px rgba(78,205,196,0.25),
+        0 0 140px rgba(201,168,76,0.12);
+    }
+    .floating-logo {
+      width: 160px;
+      height: 160px;
+      object-fit: cover;
+      border-radius: 50%;
+      animation: float-logo 6s ease-in-out infinite;
+      display: block;
+      filter: drop-shadow(0 0 16px rgba(201,168,76,0.3));
+    }
+    @keyframes float-logo {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      33% { transform: translateY(-14px) rotate(1.5deg); }
+      66% { transform: translateY(-7px) rotate(-1deg); }
+    }
+
+    /* ── Scroll Progress Bar ─────────────────────────── */
+    #scroll-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 0%;
+      height: 2px;
+      background: linear-gradient(90deg, var(--gold), var(--gold-2), var(--cyan));
+      z-index: 10001;
+      transition: width 0.05s linear;
+    }
+
+    /* ── Section Numbers ─────────────────────────────── */
+    .section-number {
+      font-size: 8rem;
+      opacity: 0.03;
+      position: absolute;
+      top: 1rem;
+      right: 2rem;
+      font-family: var(--font-display);
+      color: var(--gold);
+      line-height: 1;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    /* ── Question Counter ────────────────────────────── */
+    .question-counter {
+      font-size: 0.65rem;
+      color: var(--text-3);
+      background: var(--surface-2);
+      padding: 3px 8px;
+      border-radius: 100px;
+      border: 1px solid var(--border);
+    }
+
+    /* ── Chat Gate Pulsing ───────────────────────────── */
+    .chat-gate.pulsing {
+      animation: gatePulse 2s ease-in-out infinite;
+      border-color: var(--gold);
+    }
+    @keyframes gatePulse {
+      0%, 100% { border-top-color: rgba(201,168,76,0.15); }
+      50% { border-top-color: rgba(201,168,76,0.6); }
+    }
+
+    /* ── Footer Gradient Border ──────────────────────── */
+    footer {
+      position: relative;
+    }
+    footer::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), var(--cyan), var(--gold), transparent);
+      background-size: 200% 100%;
+      animation: footerGradient 4s linear infinite;
+    }
+    @keyframes footerGradient {
+      0% { background-position: 0% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    /* ── Timeline Expandable ─────────────────────────── */
+    .timeline-card {
+      overflow: hidden;
+      cursor: pointer;
+    }
+    .timeline-card .timeline-desc {
+      max-height: 4.5em;
+      overflow: hidden;
+      transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .timeline-card.expanded .timeline-desc {
+      max-height: 500px;
+    }
+    .timeline-card .expand-hint {
+      font-size: 0.7rem;
+      color: var(--text-3);
+      margin-top: 6px;
+      transition: opacity 0.3s;
+    }
+    .timeline-card.expanded .expand-hint {
+      opacity: 0;
+    }
+
+    /* ── Timeline Achievement Chips ─────────────────── */
+    .timeline-achievements {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      margin-top: 10px;
+    }
+    .achievement-chip {
+      background: rgba(201,168,76,0.08);
+      border: 1px solid rgba(201,168,76,0.2);
+      color: var(--gold-2);
+      padding: 3px 10px; border-radius: 20px;
+      font-size: 0.68rem; font-weight: 500;
+    }
+    .achievement-chip.cyan {
+      background: rgba(78,205,196,0.08);
+      border-color: rgba(78,205,196,0.2);
+      color: var(--cyan);
+    }
+
+    /* ── Project card expanded overlay ──────────────── */
+    .project-card .project-expand {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.5s cubic-bezier(0.4,0,0.2,1), opacity 0.4s ease;
+      opacity: 0;
+    }
+    .project-card.expanded .project-expand {
+      max-height: 300px;
+      opacity: 1;
+    }
+    .project-expand {
+      margin-top: 10px; padding-top: 10px;
+      border-top: 1px solid var(--border);
+      font-size: 0.8rem; color: var(--text-2); line-height: 1.7;
+    }
+    .project-expand ul {
+      margin: 6px 0 0 1rem; display: flex; flex-direction: column; gap: 4px;
+    }
+    .project-pillar {
+      display: grid; grid-template-columns: repeat(2,1fr); gap: 8px;
+      margin-top: 8px;
+    }
+    .pillar-item {
+      background: var(--bg-3); border-radius: 8px;
+      padding: 8px 10px; border: 1px solid var(--border);
+      transition: border-color 0.2s;
+    }
+    .pillar-item:hover { border-color: var(--cyan); }
+    .pillar-name {
+      font-size: 0.7rem; color: var(--cyan);
+      font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;
+    }
+    .pillar-desc {
+      font-size: 0.72rem; color: var(--text-3); margin-top: 2px;
+    }
+    .project-card .expand-cta {
+      font-size: 0.68rem; color: var(--text-3);
+      margin-top: 6px; display: inline-block;
+    }
+    .project-card.expanded .expand-cta { display: none; }
+    .project-live-link {
+      display: inline-flex; align-items: center; gap: 5px;
+      margin-top: 8px; font-size: 0.78rem; color: var(--gold-2);
+      text-decoration: none; font-weight: 500;
+      transition: color 0.2s;
+    }
+    .project-live-link:hover { color: var(--cyan); }
+
+    /* ── Footer ─────────────────────────────────────── */
+    footer {
+      background: var(--bg);
+      border-top: none;
+      padding: 2.5rem clamp(1.5rem, 5vw, 4rem);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 1rem;
+    }
+    .footer-copy { color: var(--text-3); font-size: 0.85rem; }
+    .footer-pplx a {
+      color: var(--text-3); text-decoration: none; font-size: 0.8rem;
+      transition: color var(--transition);
+    }
+    .footer-pplx a:hover { color: var(--gold); }
+
+    /* ── Animations ──────────────────────────────────── */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; } to { opacity: 1; }
+    }
+
+    /* GSAP will handle reveals instead of the old observer */
+    .reveal { opacity: 0; transform: translateY(30px); }
+
+    /* Editable placeholders */
+    [contenteditable] {
+      cursor: text;
+      border-radius: 4px;
+      transition: outline var(--transition);
+    }
+    [contenteditable]:hover { outline: 2px dashed rgba(201,168,76,0.3); }
+    [contenteditable]:focus { outline: 2px solid rgba(78,205,196,0.5); }
+
+    /* ── Mobile ──────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .hamburger { display: flex; }
+      .about-grid { grid-template-columns: 1fr; gap: 2rem; }
+      .about-stats { grid-template-columns: repeat(2,1fr); }
+      .timeline::before { left: 0; }
+      .timeline-item { grid-template-columns: 1fr; }
+      .timeline-item .timeline-card,
+      .timeline-item .timeline-empty,
+      .timeline-item:nth-child(even) .timeline-card,
+      .timeline-item:nth-child(even) .timeline-empty { grid-column: 1; order: unset; }
+      .timeline-dot { left: 0; }
+      .contact-grid { grid-template-columns: 1fr; gap: 2rem; }
+      .form-row { grid-template-columns: 1fr; }
+      .projects-grid { grid-template-columns: 1fr; }
+      #hero-three { opacity: 0.4; }
+    }
+
+    /* ── Extra small mobile ──────────────────────────── */
+    @media (max-width: 480px) {
+      .floating-logo { width: 120px; height: 120px; }
+      .hero-name { font-size: clamp(2.2rem, 8vw, 5.5rem) !important; }
+      #chat-window {
+        width: calc(100vw - 24px) !important;
+        right: 12px !important;
+        bottom: 90px !important;
+      }
+      .chat-header { align-items: flex-start; }
+      .chat-header-controls { justify-content: flex-start; }
+      .chat-trust-shell { padding-top: 0.8rem; }
+      .quick-btn { padding: 9px 10px; }
+      .section-number { font-size: 4rem; right: 1rem; }
+    }
+
+    /* ── Sir James Adventures Music Player ────────────────── */
+    .sj-card { position: relative; }
+    .sj-badge {
+      display: inline-block;
+      font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; padding: 2px 8px; border-radius: 20px;
+      background: rgba(139,92,246,0.15); color: #8b5cf6;
+      border: 1px solid rgba(139,92,246,0.3); margin-left: 0.5rem;
+      vertical-align: middle;
+    }
+    .sj-player {
+      margin: 0.9rem 0 0.7rem;
+      background: rgba(139,92,246,0.07);
+      border: 1px solid rgba(139,92,246,0.22);
+      border-radius: 10px; padding: 0.7rem 0.9rem;
+    }
+    .sj-player-label {
+      font-size: 0.65rem; color: #8b5cf6; text-transform: uppercase;
+      letter-spacing: 0.1em; margin-bottom: 0.35rem; opacity: 0.8;
+    }
+    .sj-player-track {
+      font-size: 0.88rem; color: var(--text); font-weight: 500;
+      margin-bottom: 0.5rem; cursor: pointer; white-space: nowrap;
+      overflow: hidden; text-overflow: ellipsis; max-width: 100%;
+      transition: color 0.2s;
+    }
+    .sj-player-track:hover { color: #8b5cf6; }
+    .sj-controls { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
+    .sj-btn {
+      background: rgba(139,92,246,0.12); border: 1px solid rgba(139,92,246,0.28);
+      color: #8b5cf6; border-radius: 6px; padding: 0.28rem 0.6rem;
+      cursor: pointer; font-size: 0.88rem; transition: all 0.18s; line-height: 1;
+    }
+    .sj-btn:hover { background: rgba(139,92,246,0.28); }
+    .sj-btn.sj-play-btn { font-size: 1rem; padding: 0.32rem 0.8rem; }
+    .sj-btn.sj-star-btn.fav { color: #fbbf24; border-color: rgba(251,191,36,0.4); background: rgba(251,191,36,0.1); }
+    .sj-fav-ct { font-size: 0.75rem; color: #fbbf24; min-width: 2rem; }
+    .sj-track-list {
+      margin-top: 0.6rem; max-height: 140px; overflow-y: auto;
+      background: rgba(0,0,0,0.25); border-radius: 6px; padding: 0.3rem;
+      display: none;
+    }
+    .sj-track-list.open { display: block; }
+    .sj-track-item {
+      padding: 0.3rem 0.5rem; font-size: 0.78rem; color: var(--text-muted);
+      cursor: pointer; border-radius: 4px; display: flex; gap: 0.5rem;
+      align-items: center; transition: background 0.15s;
+    }
+    .sj-track-item:hover { background: rgba(139,92,246,0.1); color: var(--text); }
+    .sj-track-item.playing { color: #8b5cf6; background: rgba(139,92,246,0.14); font-weight: 500; }
+    .sj-status { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.3rem; min-height: 1rem; }
+    .sj-card-links { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 0.75rem; }
+    .sj-link {
+      display: inline-block; font-size: 0.78rem; padding: 0.3rem 0.75rem;
+      border-radius: 6px; text-decoration: none; transition: all 0.18s;
+      border: 1px solid; font-weight: 500;
+    }
+    .sj-link.primary {
+      color: #8b5cf6; border-color: rgba(139,92,246,0.4);
+      background: rgba(139,92,246,0.08);
+    }
+    .sj-link.primary:hover { background: rgba(139,92,246,0.2); }
+    .sj-link.secondary {
+      color: var(--text-muted); border-color: rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.03);
+    }
+    .sj-link.secondary:hover { background: rgba(255,255,255,0.07); color: var(--text); }
+  </style>
+</head>
+<body>
+
+<!-- ── Scroll Progress Bar ──────────────────────────── -->
+<div id="scroll-progress"></div>
+
+<!-- ── Loading Screen ─────────────────────────────────── -->
+<div id="loader">
+  <svg class="loader-logo" width="64" height="64" viewBox="0 0 32 32" fill="none">
+    <polygon points="16,2 30,10 30,22 16,30 2,22 2,10" stroke="#c9a84c" stroke-width="1.5" fill="rgba(201,168,76,0.08)"/>
+    <polygon points="16,7 25,12 25,20 16,25 7,20 7,12" stroke="#4ecdc4" stroke-width="1" fill="none" opacity="0.6"/>
+    <circle cx="16" cy="16" r="3" fill="#c9a84c"/>
+  </svg>
+  <div class="loader-bar"><div class="loader-bar-fill"></div></div>
+  <div class="loader-text">Loading Experience</div>
+</div>
+
+<!-- ── Custom Cursor ──────────────────────────────────── -->
+<div class="cursor-dot" id="cursor-dot"></div>
+<div class="cursor-ring" id="cursor-ring"></div>
+
+<!-- ── Navigation ─────────────────────────────────── -->
+<nav>
+  <a href="#hero" class="nav-logo">
+    <!-- SVG Logo: Obsidian Architect mark -->
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="RSE logo">
+      <polygon points="16,2 30,10 30,22 16,30 2,22 2,10" stroke="#c9a84c" stroke-width="1.5" fill="rgba(201,168,76,0.08)"/>
+      <polygon points="16,7 25,12 25,20 16,25 7,20 7,12" stroke="#4ecdc4" stroke-width="1" fill="none" opacity="0.6"/>
+      <circle cx="16" cy="16" r="3" fill="#c9a84c"/>
+    </svg>
+    <span>R. Scott Echols</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#services">Services</a></li>
+    <li><a href="#contact" class="nav-cta">Contact</a></li>
+  </ul>
+  <button class="hamburger" aria-label="Menu" onclick="toggleMenu()">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- ── Hero ──────────────────────────────────────────── -->
+<section id="hero">
+  <canvas id="hero-canvas"></canvas>
+  <div id="hero-three"></div>
+  <div class="hero-content">
+    <div class="hero-badge">
+      <div class="hero-badge-dot"></div>
+      Open to Enterprise Engagements &amp; AI Consulting
+    </div>
+    <div class="logo-prism-wrap reveal">
+      <div class="logo-prism">
+        <img src="/wsp-logo.jpg" alt="World Seafood Producers" class="floating-logo" />
+      </div>
+    </div>
+    <h1 class="hero-name">R. Scott Echols</h1>
+    <p class="hero-title">
+      <span id="typing-text">Solutions Architect</span>
+    </p>
+    <p class="hero-desc">
+      Senior Software Developer &amp; Technical Lead building intelligent systems at the intersection
+      of marine/fisheries technology, agentic AI, and enterprise cloud infrastructure.
+    </p>
+    <div class="hero-actions">
+      <a href="#projects" class="btn btn-primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+        </svg>
+        View Projects
+      </a>
+      <a href="#contact" class="btn btn-secondary">Get In Touch</a>
+    </div>
+  </div>
+  <div class="hero-scroll">
+    <div class="scroll-line"></div>
+    <span>Scroll</span>
+  </div>
+</section>
+
+<!-- ── About ─────────────────────────────────────────── -->
+<section id="about">
+  <div class="section-number">01</div>
+  <div class="container">
+    <div class="about-grid">
+      <div class="about-photo-wrap reveal">
+        <div class="about-photo" onclick="document.getElementById('photo-upload').click()" title="Click to upload your photo">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1.5">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+          </svg>
+          <span class="about-photo-label">Click to upload photo</span>
+        </div>
+        <input type="file" id="photo-upload" accept="image/*" onchange="handlePhotoUpload(event)" />
+        <div class="about-photo-badge">Open to Work</div>
+      </div>
+
+      <div class="reveal" style="transition-delay:0.1s">
+        <div class="about-stats">
+          <div class="stat-card">
+            <div class="stat-num" data-count="40" contenteditable="true">0+</div>
+            <div class="stat-label">Years Experience</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" data-count="40" contenteditable="true">0+</div>
+            <div class="stat-label">Projects Delivered</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" data-count="15" contenteditable="true">0+</div>
+            <div class="stat-label">Enterprise Clients</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" data-count="30" contenteditable="true">0+</div>
+            <div class="stat-label">Technologies</div>
+          </div>
+        </div>
+        <div class="section-label">About</div>
+        <h2 class="section-title">Marine Intelligence<br>Meets AI Architecture</h2>
+        <div class="about-bio">
+          <p contenteditable="true">
+            I lead with World Seafood Producers and SeaTrace as the business flagship: traceability, fisheries-domain
+            operations, compliance logic, and production software built for real-world marine supply chains. My work
+            combines software delivery, AI-assisted systems, and long-track domain knowledge without collapsing business,
+            research, and personal studio lanes into one story.
+          </p>
+          <br/>
+          <p contenteditable="true">
+            SirTrav-A2A-Studio is my personal studio and A2A production lane. It objectively draws grounded context
+            from this CV corpus to shape producer briefs, social posts, and media workflows using agent-to-agent
+            orchestration, Gemini Embedding 2 multimodal RAG, and Claude integration. SeaTrace remains the marine
+            business platform; SirTrav is the supporting studio for content, release workflows, and creative R&amp;D.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Experience ──────────────────────────────────── -->
+<section id="experience">
+  <div class="section-number">02</div>
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-label">Experience</div>
+      <h2 class="section-title">Career Timeline</h2>
+      <p class="section-desc">40+ year career spanning digital communications engineering, advanced robotics, marine intelligence, and agentic AI systems.</p>
+    </div>
+    <div class="timeline">
+
+      <!-- 1: Current — AI & SeaTrace Era -->
+      <div class="timeline-item reveal">
+        <div class="timeline-dot" style="background:var(--gold);box-shadow:0 0 12px var(--gold)"></div>
+        <div class="timeline-card" style="border-color:rgba(212,175,55,0.25)">
+          <div class="timeline-period" style="color:var(--gold)">2022 — Present</div>
+          <div class="timeline-role">Founder &amp; AI Systems Architect</div>
+          <div class="timeline-company">World Seafood Producers · SirTrav-A2A-Studio · WARP Industries</div>
+          <div class="timeline-desc">
+            Architected the SeaTrace Four Pillars marine intelligence platform — vessel tracking (SeaSide), catch
+            verification (DeckSide), supply chain management (DockSide), and consumer traceability (MarketSide) —
+            with a $4.2M stack operator valuation. Built SirTrav-A2A-Studio: a D2A (Doc-to-Agent) multi-agent
+            video production platform using Gemini 2.0 Flash + Gemini Embedding 2 multimodal RAG over Netlify Edge Functions.
+            Designed A2A (agent-to-agent) protocol architecture for fully orchestrated AI production pipelines.
+          </div>
+          <div class="timeline-achievements">
+            <span class="achievement-chip" style="border-color:rgba(212,175,55,0.4);color:var(--gold)">💰 $4.2M Stack Valuation</span>
+            <span class="achievement-chip">🤖 A2A Multi-Agent Protocol</span>
+            <span class="achievement-chip cyan">🌊 SeaTrace Four Pillars API</span>
+            <span class="achievement-chip cyan">⚡ Gemini 2.0 Flash + RAG</span>
+          </div>
+        </div>
+        <div class="timeline-empty"></div>
+      </div>
+
+      <!-- Sir James Adventures — Personal Creative (NOT SeaTrace business) -->
+      <div class="timeline-item reveal">
+        <div class="timeline-dot" style="background:#8b5cf6;box-shadow:0 0 14px rgba(139,92,246,0.7)"></div>
+        <div class="timeline-empty"></div>
+        <div class="timeline-card sj-card" style="border-color:rgba(139,92,246,0.28);background:rgba(139,92,246,0.03)">
+          <div class="timeline-period" style="color:#8b5cf6">
+            2024 — Present
+            <span class="sj-badge">Personal Creative</span>
+          </div>
+          <div class="timeline-role">Creator / Gramps — Interactive Children's Book Series</div>
+          <div class="timeline-company">Sir James Adventures &nbsp;·&nbsp; SirTrav Studio &nbsp;·&nbsp; WSP001</div>
+          <div class="timeline-desc">
+            AI-illustrated interactive children's adventure series created for grandson Sir James.
+            History as it applies today — kids learn while having fun alongside parents.
+            Sir James, a young aspiring knight, navigates multi-directional pathways toward the right
+            bridge to cross. Gramps (Scott, personified) guides from the background — speaking only when
+            truly needed, the voice of a wise knight. Claude, the loyal red-boned hound, is always nearby.
+            Parents co-write the next chapter alongside the AI.
+            <br><strong style="color:#8b5cf6">Book001 live — 80 scenes, 10 chapters. Book002 in production.</strong>
+          </div>
+
+          <!-- Sir James Music Player -->
+          <div class="sj-player" id="sjPlayer">
+            <div class="sj-player-label">🎵 Sir James Adventures — Soundtrack</div>
+            <div class="sj-player-track" id="sjTrackName" title="Click to show song list">Sir James Theme ▾</div>
+            <div class="sj-controls">
+              <button class="sj-btn" id="sjPrev" title="Previous">⏮</button>
+              <button class="sj-btn sj-play-btn" id="sjPlay" title="Play / Pause">▶ Play</button>
+              <button class="sj-btn" id="sjNext" title="Next">⏭</button>
+              <button class="sj-btn sj-star-btn" id="sjStar" title="Mark favorite">☆</button>
+              <span class="sj-fav-ct" id="sjFavCt"></span>
+            </div>
+            <div class="sj-track-list" id="sjTrackList"></div>
+            <div class="sj-status" id="sjStatus"></div>
+            <audio id="sjAudio" preload="none"></audio>
+          </div>
+
+          <div class="timeline-achievements">
+            <span class="achievement-chip" style="border-color:rgba(139,92,246,0.35);color:#8b5cf6">📚 Book001 — 80 Scenes / 10 Chapters</span>
+            <span class="achievement-chip">🎨 AI Illustration Pipeline</span>
+            <span class="achievement-chip" style="border-color:rgba(139,92,246,0.3)">👨‍👧 Parent Interactive Dashboard</span>
+            <span class="achievement-chip">📖 Book002 In Production</span>
+          </div>
+          <div class="sj-card-links">
+            <a href="https://sirjamesadventure2024.netlify.app" target="_blank" class="sj-link primary">📖 Read Book001</a>
+            <a href="https://github.com/WSP001/SirJamesAdventures" target="_blank" class="sj-link secondary">⌨ GitHub</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2: Full-Stack Dev Era -->
+      <div class="timeline-item reveal">
+        <div class="timeline-dot"></div>
+        <div class="timeline-empty"></div>
+        <div class="timeline-card">
+          <div class="timeline-period">2018 — 2022</div>
+          <div class="timeline-role">Senior Full-Stack Developer &amp; Data Engineer</div>
+          <div class="timeline-company">World Seafood Producers · Enterprise Maritime Consulting</div>
+          <div class="timeline-desc">
+            Full-stack development with JavaScript/Node.js, Python, and TypeScript. Designed and delivered
+            Power BI dashboards for fisheries supply chain analytics serving enterprise maritime clients.
+            Managed GitHub CI/CD workflows, API vault configurations, and multi-service integration stacks.
+            Built automated testing frameworks and crash-prevention systems, reducing production incidents by 70%.
+            Transitioned legacy fisheries data systems to cloud-native architectures.
+          </div>
+          <div class="timeline-achievements">
+            <span class="achievement-chip">📊 Power BI Dashboards</span>
+            <span class="achievement-chip">JS / Node.js / Python / TS</span>
+            <span class="achievement-chip cyan">🔒 API Vault Management</span>
+            <span class="achievement-chip">⬇️ 70% Incident Reduction</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3: DevOps Era -->
+      <div class="timeline-item reveal">
+        <div class="timeline-dot"></div>
+        <div class="timeline-card">
+          <div class="timeline-period">2015 — 2018</div>
+          <div class="timeline-role">Software Developer &amp; DevOps Engineer</div>
+          <div class="timeline-company">World Seafood Producers · Maritime Tech Clients</div>
+          <div class="timeline-desc">
+            Cloud infrastructure design and API lifecycle management across enterprise maritime platforms.
+            Established CI/CD pipelines, API-driven development practices, and multi-tool integration frameworks.
+            PowerShell automation, environment vault configuration, and DevOps toolchain optimization.
+            Developed predictive data analytics patterns enhancing institutional monitoring capabilities
+            for fisheries supply chain operations.
+          </div>
+          <div class="timeline-achievements">
+            <span class="achievement-chip">☁️ CI/CD &amp; Cloud Infra</span>
+            <span class="achievement-chip">PowerShell Automation</span>
+            <span class="achievement-chip cyan">API Lifecycle Management</span>
+          </div>
+        </div>
+        <div class="timeline-empty"></div>
+      </div>
+
+      <!-- 4: SIMP / NOAA Era -->
+      <div class="timeline-item reveal">
+        <div class="timeline-dot"></div>
+        <div class="timeline-empty"></div>
+        <div class="timeline-card">
+          <div class="timeline-period">2010 — 2015</div>
+          <div class="timeline-role">SIMP Framework Architect &amp; Fisheries Technology Consultant</div>
+          <div class="timeline-company">NOAA / NMFS · U.S. Government Advisory · WSP</div>
+          <div class="timeline-desc">
+            Original framework final draftsman and architect of the U.S. Seafood Import Monitoring Program (SIMP)
+            digital components for NOAA/NMFS. Advised on electronic monitoring (EM) and electronic reporting (ER)
+            systems for global seafood chain management. Designed the International Trusted Traders Program (ITTP).
+            Conducted MSY (Maximum Sustainable Yield) activity analysis and biomass effort surveys.
+            Facilitated stakeholder engagement across government agencies, NGOs, and seafood enterprise shareholders.
+          </div>
+          <div class="timeline-achievements">
+            <span class="achievement-chip cyan">🏛️ SIMP Original Architect</span>
+            <span class="achievement-chip">ITTP Program Designer</span>
+            <span class="achievement-chip">🐟 IUU Prevention Systems</span>
+            <span class="achievement-chip">HACCP Compliance</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5: Pacific Seafood Group -->
+      <div class="timeline-item reveal">
+        <div class="timeline-dot"></div>
+        <div class="timeline-card">
+          <div class="timeline-period">2003 — 2006</div>
+          <div class="timeline-role">Salmon Category Manager</div>
+          <div class="timeline-company">Pacific Seafood Group (PSG)</div>
+          <div class="timeline-desc">
+            Managed wild salmon production across coordinated fishing vessel fleets — including F/V recruitment,
+            on-board QC training, buyer/seller procurement, primary and secondary processing, cold storage,
+            and full distribution logistics. Increased revenues from $1M to $20M in two seasons.
+            Authored the PSG "Salmon Book 101–201" quality control manual — adopted by the Alaska Seafood
+            Marketing Institute (ASMI) as an industry-wide standard still in use today.
+          </div>
+          <div class="timeline-achievements">
+            <span class="achievement-chip" style="color:var(--cyan)">📈 $1M → $20M in 2 Seasons</span>
+            <span class="achievement-chip">ASMI Quality Standards</span>
+            <span class="achievement-chip cyan">🐟 Salmon Book Author</span>
+          </div>
+        </div>
+        <div class="timeline-empty"></div>
+      </div>
+
+      <!-- 6: Alaska Salmon Restoration / Fleet Ops -->
+      <div class="timeline-item reveal">
+        <div class="timeline-dot"></div>
+        <div class="timeline-empty"></div>
+        <div class="timeline-card">
+          <div class="timeline-period">1990 — 2003</div>
+          <div class="timeline-role">Fleet Operations Commander &amp; State Salmon Restoration Representative</div>
+          <div class="timeline-company">World Seafood Producers · State of Alaska (Sen. Ben Stevens)</div>
+          <div class="timeline-desc">
+            Assigned to the Alaska State Salmon Restoration Committee by Chairman Senator Ben Stevens. Achieved
+            21 consecutive seasons of record-setting salmon grounds prices and crew shares. Instituted the
+            first public hatchery cost / private ranch recovery partnership contract with DIPAC — a standard
+            still in use today. Represented Governor Murkowski's Wild Salmon program using WSP as a statewide
+            model for quality control training. Managed $5–$20M seasonal fleet budgets for 22 years.
+            Trained 300+ fishing crews in gear optimization, handling procedures, and processing techniques.
+            Operated R/V Pioneer in Micronesia conducting new biomass surveys for bottom fish and deep cold-water
+            shrimp/lobster — developing new viable fisheries and markets.
+          </div>
+          <div class="timeline-achievements">
+            <span class="achievement-chip cyan">🏆 21 Record Seasons</span>
+            <span class="achievement-chip">⚓ USCG Licensed Captain</span>
+            <span class="achievement-chip">🌏 R/V Pioneer · Micronesia</span>
+            <span class="achievement-chip">💵 $5–20M Fleet Budget</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 7: WSP Founding -->
+      <div class="timeline-item reveal">
+        <div class="timeline-dot" style="background:var(--gold);box-shadow:0 0 12px var(--gold)"></div>
+        <div class="timeline-card" style="border-color:rgba(212,175,55,0.2)">
+          <div class="timeline-period" style="color:var(--gold)">1988 — Present</div>
+          <div class="timeline-role">Founder &amp; CEO</div>
+          <div class="timeline-company">World Seafood Producers (WSP001) · Auke Bay, Alaska</div>
+          <div class="timeline-desc">
+            Co-founded World Seafood Producers in 1988 as the funding vehicle for WARP Industries robotics R&D.
+            Worked with mentor Senator Ted Stevens to establish the Alaska Science &amp; Technology Foundation —
+            a $107M legislative endowment. WSP secured a $2.2M public grant (UAA Technologies) matched by
+            $2.2M WSP private R&amp;D investment. Today WSP operates SeaTrace (marine traceability platform),
+            SirTrav-A2A-Studio (AI agent production platform), and the WAFC Business Intelligence System.
+            Bilingual English/Spanish; experience with multicultural and indigenous fishing communities globally.
+          </div>
+          <div class="timeline-achievements">
+            <span class="achievement-chip" style="color:var(--gold);border-color:rgba(212,175,55,0.4)">🏛️ Founded 1988</span>
+            <span class="achievement-chip">$107M AK S&amp;T Endowment</span>
+            <span class="achievement-chip cyan">$4.4M R&amp;D Secured</span>
+            <span class="achievement-chip">🌎 Bilingual EN/ES</span>
+          </div>
+        </div>
+        <div class="timeline-empty"></div>
+      </div>
+
+      <!-- 8: WARP Industries / ROCC-BART -->
+      <div class="timeline-item reveal">
+        <div class="timeline-dot"></div>
+        <div class="timeline-empty"></div>
+        <div class="timeline-card">
+          <div class="timeline-period">1987 — Present</div>
+          <div class="timeline-role">Co-Founder &amp; R&amp;D Lead — Advanced Robotics</div>
+          <div class="timeline-company">WARP Industries (World Automated Robotic Producers)</div>
+          <div class="timeline-desc">
+            Co-founded WARP Industries and designed the ROCC-BART hexapod robot (Robotic Operated Cargo Carrier —
+            Biomimetic Autonomous Robot Technology). ROCC-BART featured a tandem S-100 bus, 12× Motorola 68000
+            processors, RAM-based stereo vision, and was air-drop capable — predating Boston Dynamics by 17 years.
+            Funded by Senator Ted Stevens / Alaska S&amp;T Foundation $2.2M grant with $2.2M WSP private match.
+            Prototype series 001–003 manufactured. Innovative fishing gear applications developed from ROCC-BART
+            biomimetic technologies.
+          </div>
+          <div class="timeline-achievements">
+            <span class="achievement-chip">🤖 ROCC-BART Hexapod (001–003)</span>
+            <span class="achievement-chip cyan">17 Yrs Pre-Boston Dynamics</span>
+            <span class="achievement-chip">Motorola 68000 · S-100 Bus</span>
+            <span class="achievement-chip">💰 $4.4M Grant + Match</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 9: Early Network Systems Work -->
+      <div class="timeline-item reveal">
+        <div class="timeline-dot"></div>
+        <div class="timeline-card">
+          <div class="timeline-period">1985 — 1990</div>
+          <div class="timeline-role">Network Systems &amp; Protocol Work</div>
+          <div class="timeline-company">Early technical history under source review</div>
+          <div class="timeline-desc">
+            The public profile tracks meaningful early network systems and protocol work from this era,
+            but the supporting documents are being revalidated before detailed claims are restated here.
+            For now, this site keeps the period high-level instead of presenting unsupported specifics
+            as settled fact.
+          </div>
+          <div class="timeline-achievements">
+            <span class="achievement-chip cyan">Source Review Active</span>
+            <span class="achievement-chip">Protocol History Preserved</span>
+            <span class="achievement-chip">Truth-First Profile</span>
+          </div>
+        </div>
+        <div class="timeline-empty"></div>
+      </div>
+
+      <!-- 10: Communications Study & Research -->
+      <div class="timeline-item reveal">
+        <div class="timeline-dot" style="background:var(--cyan);box-shadow:var(--glow-cyan)"></div>
+        <div class="timeline-empty"></div>
+        <div class="timeline-card" style="border-color:rgba(78,205,196,0.2)">
+          <div class="timeline-period" style="color:var(--cyan)">1984 — 1987</div>
+          <div class="timeline-role">Communications Study &amp; Technical Research</div>
+          <div class="timeline-company">Detailed source package under review</div>
+          <div class="timeline-desc">
+            Historical education and communications-research materials exist in the source archive, but
+            this public site is intentionally avoiding unsupported detail until the cleaned identity corpus
+            is re-ingested. The rule is simple: read verified sources first, then write.
+          </div>
+          <div class="timeline-achievements">
+            <span class="achievement-chip cyan">Source Package Pending</span>
+            <span class="achievement-chip cyan">Vector Rebuild Ready</span>
+            <span class="achievement-chip">Education Review</span>
+            <span class="achievement-chip">No Fake Precision</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 11: Education Foundation -->
+      <div class="timeline-item reveal">
+        <div class="timeline-dot" style="background:var(--gold);box-shadow:0 0 12px var(--gold)"></div>
+        <div class="timeline-card" style="border-color:rgba(212,175,55,0.2)">
+          <div class="timeline-period" style="color:var(--gold)">1979 — 1984</div>
+          <div class="timeline-role">Education Foundation</div>
+          <div class="timeline-company">DCHS → Lees McRae College → University of Georgia</div>
+          <div class="timeline-desc">
+            Graduated Dodge County High School, Eastman, Georgia (1979). Football scholarship to Lees McRae
+            College, Banner Elk, NC (1979–1982). International Business at University of Georgia, Athens (1982–1984).
+            Additional education and certification details are being revalidated against source files before
+            this public profile expands them further.
+          </div>
+          <div class="timeline-achievements">
+            <span class="achievement-chip" style="color:var(--gold);border-color:rgba(212,175,55,0.4)">🎓 DCHS 1979</span>
+            <span class="achievement-chip">🏈 Football Scholarship</span>
+            <span class="achievement-chip cyan">Verified Basics First</span>
+            <span class="achievement-chip cyan">📚 Additional credentials under review</span>
+          </div>
+        </div>
+        <div class="timeline-empty"></div>
+      </div>
+
+      <!-- 12: DCHS Football Legacy -->
+      <div class="timeline-item reveal">
+        <div class="timeline-dot" style="background:var(--gold);box-shadow:0 0 12px var(--gold)"></div>
+        <div class="timeline-card" style="border-color:rgba(212,175,55,0.2)">
+          <div class="timeline-period" style="color:var(--gold)">1975 — 1979 &nbsp;·&nbsp; <span style="font-size:0.75em;opacity:0.75">LEGACY</span></div>
+          <div class="timeline-role">Student-Athlete &amp; Early Background Archive</div>
+          <div class="timeline-company">Dodge County High School &nbsp;·&nbsp; Eastman, Georgia &nbsp;·&nbsp; Legacy materials under review</div>
+          <div class="timeline-desc">
+            This period marks the athletic and personal foundation behind Scott's later work. The public site
+            currently confirms Dodge County High School and a football scholarship path into Lees McRae College,
+            while additional narrative details from this era remain in archive review. The truth-first rule here
+            is to preserve the period without restating unsupported specifics until the cleaned source package is attached.
+          </div>
+          <div class="timeline-achievements">
+            <span class="achievement-chip" style="color:var(--gold);border-color:rgba(212,175,55,0.4)">🏈 Football Scholarship — Lees McRae</span>
+            <span class="achievement-chip cyan">Source Review Active</span>
+            <span class="achievement-chip">🎓 DCHS Class of 1979</span>
+            <span class="achievement-chip">📋 Legacy Archive Preserved</span>
+          </div>
+          <div class="sj-card-links">
+            <a href="https://dchs-football-org.netlify.app" target="_blank" class="sj-link">🏈 DCHS Football Site</a>
+            <a href="https://github.com/WSP001/DCHS-Football-" target="_blank" class="sj-link secondary">⌨ DCHS Football GitHub</a>
+          </div>
+        </div>
+        <div class="timeline-empty"></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── Skills ──────────────────────────────────────── -->
+<section id="skills">
+  <div class="section-number">03</div>
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-label">Skills</div>
+      <h2 class="section-title">Technical Expertise</h2>
+    </div>
+    <div class="skills-grid">
+      <div class="skill-group reveal">
+        <div class="skill-group-title">
+          <div class="skill-group-icon" style="background:rgba(201,168,76,0.1)">☁️</div>
+          Cloud &amp; DevOps
+        </div>
+        <div class="skill-item"><div class="skill-header"><span>Netlify / CI&shy;CD</span><span class="skill-pct">95%</span></div><div class="skill-bar"><div class="skill-fill" data-width="95"></div></div></div>
+        <div class="skill-item"><div class="skill-header"><span>GitHub Workflows</span><span class="skill-pct">92%</span></div><div class="skill-bar"><div class="skill-fill" data-width="92"></div></div></div>
+        <div class="skill-item"><div class="skill-header"><span>Environment Config &amp; Vaults</span><span class="skill-pct">90%</span></div><div class="skill-bar"><div class="skill-fill" data-width="90"></div></div></div>
+        <div class="skill-item"><div class="skill-header"><span>API Management</span><span class="skill-pct">93%</span></div><div class="skill-bar"><div class="skill-fill" data-width="93"></div></div></div>
+      </div>
+
+      <div class="skill-group reveal">
+        <div class="skill-group-title">
+          <div class="skill-group-icon" style="background:rgba(78,205,196,0.1)">💻</div>
+          Development
+        </div>
+        <div class="skill-item"><div class="skill-header"><span>JavaScript / Node.js</span><span class="skill-pct">92%</span></div><div class="skill-bar"><div class="skill-fill cyan" data-width="92"></div></div></div>
+        <div class="skill-item"><div class="skill-header"><span>Python</span><span class="skill-pct">85%</span></div><div class="skill-bar"><div class="skill-fill cyan" data-width="85"></div></div></div>
+        <div class="skill-item"><div class="skill-header"><span>PowerShell</span><span class="skill-pct">88%</span></div><div class="skill-bar"><div class="skill-fill cyan" data-width="88"></div></div></div>
+        <div class="skill-item"><div class="skill-header"><span>React / Modern JS</span><span class="skill-pct">78%</span></div><div class="skill-bar"><div class="skill-fill cyan" data-width="78"></div></div></div>
+      </div>
+
+      <div class="skill-group reveal">
+        <div class="skill-group-title">
+          <div class="skill-group-icon" style="background:rgba(124,106,247,0.1)">🤖</div>
+          Agentic AI
+        </div>
+        <div class="skill-item"><div class="skill-header"><span>Claude API / Anthropic</span><span class="skill-pct">95%</span></div><div class="skill-bar"><div class="skill-fill purple" data-width="95"></div></div></div>
+        <div class="skill-item"><div class="skill-header"><span>Gemini Embedding 2</span><span class="skill-pct">88%</span></div><div class="skill-bar"><div class="skill-fill purple" data-width="88"></div></div></div>
+        <div class="skill-item"><div class="skill-header"><span>Multi-Agent Systems</span><span class="skill-pct">90%</span></div><div class="skill-bar"><div class="skill-fill purple" data-width="90"></div></div></div>
+        <div class="skill-item"><div class="skill-header"><span>RAG Pipelines</span><span class="skill-pct">85%</span></div><div class="skill-bar"><div class="skill-fill purple" data-width="85"></div></div></div>
+      </div>
+
+      <div class="skill-group reveal">
+        <div class="skill-group-title">
+          <div class="skill-group-icon" style="background:rgba(201,168,76,0.1)">📊</div>
+          Data &amp; Domain
+        </div>
+        <div class="skill-item"><div class="skill-header"><span>Power BI</span><span class="skill-pct">90%</span></div><div class="skill-bar"><div class="skill-fill" data-width="90"></div></div></div>
+        <div class="skill-item"><div class="skill-header"><span>Marine / Fisheries Domain</span><span class="skill-pct">97%</span></div><div class="skill-bar"><div class="skill-fill" data-width="97"></div></div></div>
+        <div class="skill-item"><div class="skill-header"><span>Supply Chain Optimization</span><span class="skill-pct">92%</span></div><div class="skill-bar"><div class="skill-fill" data-width="92"></div></div></div>
+        <div class="skill-item"><div class="skill-header"><span>Technical Documentation</span><span class="skill-pct">94%</span></div><div class="skill-bar"><div class="skill-fill" data-width="94"></div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Projects ──────────────────────────────────────── -->
+<section id="projects">
+  <div class="section-number">04</div>
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-label">Projects</div>
+      <h2 class="section-title">Featured Work</h2>
+    </div>
+    <div class="projects-filters reveal">
+      <button class="filter-btn active" onclick="filterProjects('all', this)">All</button>
+      <button class="filter-btn" onclick="filterProjects('marine', this)">Marine Tech</button>
+      <button class="filter-btn" onclick="filterProjects('creative', this)">Creative</button>
+      <button class="filter-btn" onclick="filterProjects('ai', this)">Agentic AI</button>
+      <button class="filter-btn" onclick="filterProjects('cloud', this)">Cloud</button>
+    </div>
+    <div class="projects-grid">
+      <div class="project-card reveal slot-4" data-cat="ai" data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.15">
+        <div class="project-thumb">
+          <div class="project-thumb-bg" style="background:linear-gradient(135deg,#1a1040,#0d1a2e)"></div>
+          <div class="thumb-glass-layer"></div>
+          <!-- SirTrav A2A Studio Emblem: three interlocked agent rings + central node -->
+          <div class="emblem-stage">
+            <svg viewBox="0 0 62 62" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="SirTrav A2A Studio">
+              <!-- Outer orbit ring -->
+              <circle cx="31" cy="31" r="27" stroke="rgba(124,106,247,0.5)" stroke-width="1" stroke-dasharray="4 3"/>
+              <!-- Three agent nodes on orbit -->
+              <circle cx="31" cy="5" r="5" fill="rgba(124,106,247,0.85)" />
+              <circle cx="53" cy="43" r="5" fill="rgba(78,205,196,0.85)" />
+              <circle cx="9" cy="43" r="5" fill="rgba(201,168,76,0.85)" />
+              <!-- Connector lines: A2A protocol -->
+              <line x1="31" y1="10" x2="31" y2="22" stroke="rgba(124,106,247,0.4)" stroke-width="1"/>
+              <line x1="48" y1="40" x2="37" y2="34" stroke="rgba(78,205,196,0.4)" stroke-width="1"/>
+              <line x1="14" y1="40" x2="25" y2="34" stroke="rgba(201,168,76,0.4)" stroke-width="1"/>
+              <!-- Central WSP node -->
+              <circle cx="31" cy="31" r="9" fill="rgba(20,14,40,0.9)" stroke="rgba(124,106,247,0.7)" stroke-width="1.5"/>
+              <text x="31" y="35" text-anchor="middle" font-size="7" font-family="monospace" font-weight="700" fill="rgba(255,255,255,0.9)">A2A</text>
+            </svg>
+          </div>
+          <div class="project-tag" style="color:var(--purple)">Agentic AI</div>
+        </div>
+        <div class="project-body">
+          <div class="project-title" contenteditable="true">SirTrav-A2A-Studio</div>
+          <div class="project-desc" contenteditable="true">
+            Personal studio pipeline for grounded content production — seven-agent A2A orchestration that turns
+            verified CV context into producer briefs, social-ready copy, and media workflows without blurring it
+            into SeaTrace business systems.
+          </div>
+          <div class="project-meta">
+            <span class="project-meta-chip">Role: Founder &amp; AI Systems Architect</span>
+            <span class="project-meta-chip live">Status: Live</span>
+          </div>
+          <div class="project-tech">
+            <span class="tech-badge">Claude API</span>
+            <span class="tech-badge">Gemini Embed 2</span>
+            <span class="tech-badge">Node.js</span>
+            <span class="tech-badge">Netlify</span>
+          </div>
+          <div class="project-expand">
+            Claude Opus 4.6 powers the conversational layer; Gemini Embedding 2 maps text, images, video,
+            audio, and PDFs into a unified vector space for cross-modal retrieval. The current studio lane
+            is focused on grounded producer briefs, social media posting support, and publishable creative assets
+            built from verified CV material.
+            <a href="https://sirtrav-a2a-studio.netlify.app" target="_blank" rel="noopener" class="project-live-link">
+              🔗 Live Platform →
+            </a>
+          </div>
+          <span class="expand-cta">↓ Click for technical details</span>
+        </div>
+      </div>
+
+      <div class="project-card reveal slot-2" data-cat="creative" data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.15">
+        <div class="project-thumb">
+          <div class="project-thumb-bg" style="background:linear-gradient(135deg,#0d2a1a,#0a1a2e)"></div>
+          <div class="thumb-glass-layer"></div>
+          <!-- Fisheries Supply Chain Emblem: compass rose + fish tail silhouette -->
+          <div class="emblem-stage">
+            <svg viewBox="0 0 62 62" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Fisheries Supply Chain">
+              <!-- Compass outer ring -->
+              <circle cx="31" cy="31" r="26" stroke="rgba(78,205,196,0.4)" stroke-width="1"/>
+              <!-- Compass cardinal points -->
+              <polygon points="31,7 34,20 28,20" fill="rgba(78,205,196,0.9)"/>
+              <polygon points="31,55 34,42 28,42" fill="rgba(78,205,196,0.4)"/>
+              <polygon points="7,31 20,28 20,34" fill="rgba(78,205,196,0.4)"/>
+              <polygon points="55,31 42,28 42,34" fill="rgba(78,205,196,0.7)"/>
+              <!-- Fish body -->
+              <ellipse cx="31" cy="31" rx="9" ry="6" fill="rgba(78,205,196,0.2)" stroke="rgba(78,205,196,0.7)" stroke-width="1"/>
+              <!-- Fish tail -->
+              <path d="M40,31 L46,25 L46,37 Z" fill="rgba(78,205,196,0.6)"/>
+              <!-- Fish eye -->
+              <circle cx="26" cy="30" r="1.5" fill="rgba(255,255,255,0.9)"/>
+              <!-- Supply chain dots -->
+              <circle cx="14" cy="14" r="2" fill="rgba(201,168,76,0.6)"/>
+              <circle cx="48" cy="14" r="2" fill="rgba(201,168,76,0.6)"/>
+              <circle cx="14" cy="48" r="2" fill="rgba(201,168,76,0.6)"/>
+              <circle cx="48" cy="48" r="2" fill="rgba(201,168,76,0.6)"/>
+            </svg>
+          </div>
+          <div class="project-tag" style="color:var(--purple)">Creative</div>
+        </div>
+        <div class="project-body">
+          <div class="project-title" contenteditable="true">Sir James Adventures</div>
+          <div class="project-desc" contenteditable="true">
+            Creative series of kids-learning-while-they're-having-fun books for Sir James, combining AI
+            illustration, branching chapter logic, soundtrack, and parent-guided storytelling.
+          </div>
+          <div class="project-meta">
+            <span class="project-meta-chip personal">Role: Creator / Gramps</span>
+            <span class="project-meta-chip live">Status: Book001 Live</span>
+            <span class="project-meta-chip progress">Book002 In Production</span>
+          </div>
+          <div class="project-tech">
+            <span class="tech-badge">Interactive Storytelling</span>
+            <span class="tech-badge">AI Illustration</span>
+            <span class="tech-badge">Audio</span>
+            <span class="tech-badge">Parent Dashboard</span>
+          </div>
+          <div class="project-expand">
+            Personal creative series kept separate from SeaTrace business systems. Book002 is live in its current
+            final Netlify build, chapter scenes are browseable, and Book003 is the next story-world lane.
+            <a href="https://sirjames-book002-final.netlify.app/" target="_blank" rel="noopener" class="project-live-link">
+              🔗 Book002 Final →
+            </a>
+            <a href="https://sirjames-book003.netlify.app/" target="_blank" rel="noopener" class="project-live-link">
+              🔗 Book003 →
+            </a>
+          </div>
+          <span class="expand-cta">↓ Click for story-world details</span>
+        </div>
+      </div>
+
+      <div class="project-card reveal slot-3" data-cat="cloud" data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.15">
+        <div class="project-thumb">
+          <div class="project-thumb-bg" style="background:linear-gradient(135deg,#1a1005,#2a1a05)"></div>
+          <div class="thumb-glass-layer"></div>
+          <!-- Netlify Edge Platform Emblem: lightning bolt inside hexagon grid -->
+          <div class="emblem-stage">
+            <svg viewBox="0 0 62 62" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Netlify Edge Platform">
+              <!-- Hexagon frame -->
+              <polygon points="31,4 54,17.5 54,44.5 31,58 8,44.5 8,17.5" stroke="rgba(201,168,76,0.5)" stroke-width="1" fill="rgba(201,168,76,0.04)"/>
+              <!-- Inner hexagon -->
+              <polygon points="31,14 46,22.5 46,39.5 31,48 16,39.5 16,22.5" stroke="rgba(201,168,76,0.25)" stroke-width="1" fill="none"/>
+              <!-- Lightning bolt: CDN edge speed -->
+              <path d="M34,12 L26,32 L33,32 L28,50 L38,28 L31,28 Z" fill="rgba(201,168,76,0.9)" stroke="rgba(201,168,76,0.4)" stroke-width="0.5"/>
+              <!-- Corner CDN nodes -->
+              <circle cx="31" cy="4" r="2" fill="rgba(201,168,76,0.7)"/>
+              <circle cx="54" cy="17.5" r="2" fill="rgba(201,168,76,0.5)"/>
+              <circle cx="54" cy="44.5" r="2" fill="rgba(201,168,76,0.5)"/>
+            </svg>
+          </div>
+          <div class="project-tag" style="color:var(--gold)">Cloud/DevOps</div>
+        </div>
+        <div class="project-body">
+          <div class="project-title" contenteditable="true">WSP2Agent Control Tower Hub</div>
+          <div class="project-desc" contenteditable="true">
+            Control-tower build for WSP001 workflows, agent handoffs, and operating-system visibility across
+            the broader stack. Hosted on Netlify and positioned as a hub rather than a SeaTrace or SirTrav identity lane.
+          </div>
+          <div class="project-tech">
+            <span class="tech-badge">Control Tower</span>
+            <span class="tech-badge">Netlify</span>
+            <span class="tech-badge">Workflows</span>
+            <span class="tech-badge">Hub Build</span>
+          </div>
+          <div class="project-expand">
+            WSP2Agent is the control-tower side of the current buildout: a hub for agent routing, oversight,
+            and shared workflow visibility across the Commons Good stack.
+            <a href="https://wsp2agent.netlify.app" target="_blank" rel="noopener" class="project-live-link">
+              🔗 wsp2agent.netlify.app →
+            </a>
+          </div>
+          <span class="expand-cta">↓ Click for hub notes</span>
+        </div>
+      </div>
+
+      <div class="project-card reveal slot-5" data-cat="ai" data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.15">
+        <div class="project-thumb">
+          <div class="project-thumb-bg" style="background:linear-gradient(135deg,#1a0520,#0d0520)"></div>
+          <div class="thumb-glass-layer"></div>
+          <!-- Multimodal RAG Emblem: stacked vector rings (tree rings = embedded knowledge) -->
+          <div class="emblem-stage">
+            <svg viewBox="0 0 62 62" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Multimodal RAG Pipeline">
+              <!-- Stacked knowledge rings (tree ring / vector layer analogy) -->
+              <circle cx="31" cy="31" r="26" stroke="rgba(124,106,247,0.2)" stroke-width="1"/>
+              <circle cx="31" cy="31" r="21" stroke="rgba(124,106,247,0.3)" stroke-width="1"/>
+              <circle cx="31" cy="31" r="16" stroke="rgba(124,106,247,0.45)" stroke-width="1"/>
+              <circle cx="31" cy="31" r="11" stroke="rgba(124,106,247,0.6)" stroke-width="1.5"/>
+              <circle cx="31" cy="31" r="6"  stroke="rgba(124,106,247,0.8)" stroke-width="1.5"/>
+              <!-- Central core: the embedding point -->
+              <circle cx="31" cy="31" r="3" fill="rgba(124,106,247,1)"/>
+              <!-- Radiating query spokes -->
+              <line x1="31" y1="5"  x2="31" y2="14" stroke="rgba(124,106,247,0.5)" stroke-width="1" stroke-dasharray="2 2"/>
+              <line x1="31" y1="48" x2="31" y2="57" stroke="rgba(124,106,247,0.5)" stroke-width="1" stroke-dasharray="2 2"/>
+              <line x1="5"  y1="31" x2="14" y2="31" stroke="rgba(124,106,247,0.5)" stroke-width="1" stroke-dasharray="2 2"/>
+              <line x1="48" y1="31" x2="57" y2="31" stroke="rgba(124,106,247,0.5)" stroke-width="1" stroke-dasharray="2 2"/>
+            </svg>
+          </div>
+          <div class="project-tag" style="color:var(--purple)">Agentic AI</div>
+        </div>
+        <div class="project-body">
+          <div class="project-title" contenteditable="true">Multimodal RAG Pipeline</div>
+          <div class="project-desc" contenteditable="true">
+            Gemini Embedding 2 pipeline mapping text, images, video, audio, and PDFs into a unified
+            vector space. Enables cross-modal search and multimodal knowledge base retrieval.
+          </div>
+          <div class="project-tech">
+            <span class="tech-badge">Gemini Embed 2</span>
+            <span class="tech-badge">Vector DB</span>
+            <span class="tech-badge">RAG</span>
+            <span class="tech-badge">Python</span>
+          </div>
+          <div class="project-expand">
+            <strong>Knowledge partitions:</strong>
+            <ul>
+              <li><em>cv_personal</em> — Resume &amp; career timeline (public tier)</li>
+              <li><em>cv_projects</em> — SirTrav, SeaTrace, WAFC (public tier)</li>
+              <li><em>business_seatrace</em> — Four Pillars API docs (business tier)</li>
+              <li><em>business_proposals</em> — Client proposals &amp; pricing (business tier)</li>
+              <li><em>recreational</em> — Personal interests (invitation only)</li>
+            </ul>
+          </div>
+          <span class="expand-cta">↓ Click to see KB partitions</span>
+        </div>
+      </div>
+
+      <div class="project-card reveal flagship-seatrace slot-1" data-cat="marine" data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.15">
+        <div class="project-thumb">
+          <div class="project-thumb-bg" style="background:linear-gradient(135deg,#051a1a,#0a2020)"></div>
+          <div class="thumb-glass-layer"></div>
+          <!-- SeaTrace Four Pillars Emblem: anchor + four-quadrant shield (coat of arms) -->
+          <div class="emblem-stage">
+            <svg viewBox="0 0 62 62" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="SeaTrace Four Pillars">
+              <!-- Shield outline -->
+              <path d="M31,4 L54,14 L54,36 Q54,52 31,60 Q8,52 8,36 L8,14 Z" stroke="rgba(78,205,196,0.6)" stroke-width="1.5" fill="rgba(78,205,196,0.04)"/>
+              <!-- Four-quadrant dividers -->
+              <line x1="31" y1="8" x2="31" y2="56" stroke="rgba(78,205,196,0.3)" stroke-width="1"/>
+              <line x1="10" y1="32" x2="52" y2="32" stroke="rgba(78,205,196,0.3)" stroke-width="1"/>
+              <!-- Q1: SeaSide wave -->
+              <path d="M13,20 Q17,16 21,20 Q25,24 19,24" stroke="rgba(78,205,196,0.8)" stroke-width="1.5" fill="none"/>
+              <!-- Q2: DeckSide anchor -->
+              <circle cx="42" cy="20" r="3" stroke="rgba(201,168,76,0.8)" stroke-width="1.5" fill="none"/>
+              <line x1="42" y1="23" x2="42" y2="28" stroke="rgba(201,168,76,0.8)" stroke-width="1.5"/>
+              <line x1="38" y1="27" x2="46" y2="27" stroke="rgba(201,168,76,0.8)" stroke-width="1.5"/>
+              <!-- Q3: DockSide box -->
+              <rect x="14" y="38" width="10" height="8" rx="1" stroke="rgba(124,106,247,0.7)" stroke-width="1.5" fill="none"/>
+              <!-- Q4: MarketSide QR dot grid -->
+              <rect x="35" y="38" width="3" height="3" fill="rgba(78,205,196,0.7)"/>
+              <rect x="40" y="38" width="3" height="3" fill="rgba(78,205,196,0.7)"/>
+              <rect x="35" y="43" width="3" height="3" fill="rgba(78,205,196,0.7)"/>
+              <rect x="40" y="43" width="3" height="3" fill="rgba(78,205,196,0.3)"/>
+            </svg>
+          </div>
+          <div class="project-tag" style="color:var(--cyan)">Marine Tech</div>
+        </div>
+        <div class="project-body">
+          <div class="project-title" contenteditable="true">SeaTrace — Four Pillars Traceability API</div>
+          <div class="project-desc" contenteditable="true">
+            Maritime supply chain traceability platform built on the Four Pillars:
+            SeaSide, DeckSide, DockSide, and MarketSide for vessel operators, docks, distributors, and consumers.
+          </div>
+          <div class="project-meta">
+            <span class="project-meta-chip">Role: Founder &amp; AI Systems Architect</span>
+            <span class="project-meta-chip live">Status: Live Demo</span>
+          </div>
+          <div class="project-tech">
+            <span class="tech-badge">Node.js / REST API</span>
+            <span class="tech-badge">Netlify Edge</span>
+            <span class="tech-badge">Marine Domain</span>
+            <span class="tech-badge">IUU Prevention</span>
+          </div>
+          <div class="project-expand">
+            <strong>The Four Pillars:</strong>
+            <div class="project-pillar">
+              <div class="pillar-item">
+                <div class="pillar-name">⚓ SeaSide</div>
+                <div class="pillar-desc">Vessel tracking &amp; catch origin verification at sea</div>
+              </div>
+              <div class="pillar-item">
+                <div class="pillar-name">🪝 DeckSide</div>
+                <div class="pillar-desc">On-deck catch verification &amp; HACCP compliance logging</div>
+              </div>
+              <div class="pillar-item">
+                <div class="pillar-name">🏗️ DockSide</div>
+                <div class="pillar-desc">Port processing, supply chain handoff &amp; cold chain data</div>
+              </div>
+              <div class="pillar-item">
+                <div class="pillar-name">🛒 MarketSide</div>
+                <div class="pillar-desc">Consumer QR verification &amp; retail traceability portal</div>
+              </div>
+            </div>
+            <a href="https://seatrace.worldseafoodproducers.com" target="_blank" rel="noopener" class="project-live-link">
+              🔗 seatrace.worldseafoodproducers.com →
+            </a>
+            <a href="https://worldseafoodproducers.com" target="_blank" rel="noopener" class="project-live-link">
+              🔗 worldseafoodproducers.com →
+            </a>
+          </div>
+          <span class="expand-cta">↓ Click to see Four Pillars breakdown</span>
+        </div>
+      </div>
+
+      <div class="project-card reveal slot-6" data-cat="cloud" data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.15">
+        <div class="project-thumb">
+          <div class="project-thumb-bg" style="background:linear-gradient(135deg,#1a1005,#100a00)"></div>
+          <div class="thumb-glass-layer"></div>
+          <!-- WSP001 Orchestration Emblem: crown above interlocked gears = enterprise leadership -->
+          <div class="emblem-stage">
+            <svg viewBox="0 0 62 62" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="WSP001 Agent Orchestration">
+              <!-- Crown top -->
+              <path d="M16,24 L16,18 L22,23 L31,12 L40,23 L46,18 L46,24 L16,24 Z" fill="rgba(201,168,76,0.85)" stroke="rgba(201,168,76,0.4)" stroke-width="0.5"/>
+              <!-- Crown base band -->
+              <rect x="16" y="24" width="30" height="5" rx="1" fill="rgba(201,168,76,0.6)"/>
+              <!-- Three gem dots in crown -->
+              <circle cx="24" cy="20" r="2" fill="rgba(255,255,255,0.9)"/>
+              <circle cx="31" cy="17" r="2.5" fill="rgba(78,205,196,0.9)"/>
+              <circle cx="38" cy="20" r="2" fill="rgba(124,106,247,0.9)"/>
+              <!-- Gear teeth for the three agent lanes below crown -->
+              <!-- Codex gear (left) -->
+              <circle cx="20" cy="42" r="6" stroke="rgba(124,106,247,0.6)" stroke-width="1.5" fill="none"/>
+              <circle cx="20" cy="42" r="2" fill="rgba(124,106,247,0.5)"/>
+              <!-- Claude Code gear (center) -->
+              <circle cx="31" cy="44" r="7" stroke="rgba(78,205,196,0.6)" stroke-width="1.5" fill="none"/>
+              <circle cx="31" cy="44" r="2.5" fill="rgba(78,205,196,0.5)"/>
+              <!-- Antigravity gear (right) -->
+              <circle cx="42" cy="42" r="6" stroke="rgba(201,168,76,0.6)" stroke-width="1.5" fill="none"/>
+              <circle cx="42" cy="42" r="2" fill="rgba(201,168,76,0.5)"/>
+              <!-- Mesh connectors -->
+              <line x1="26" y1="42" x2="24" y2="42" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+              <line x1="36" y1="44" x2="38" y2="43" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+            </svg>
+          </div>
+          <div class="project-tag" style="color:var(--gold)">Cloud / AI</div>
+        </div>
+        <div class="project-body">
+          <div class="project-title" contenteditable="true">LearnQuest</div>
+          <div class="project-desc" contenteditable="true">
+            Planned learning platform for guided lessons, progress loops, and family-visible knowledge scaffolding.
+            Structured as an education-focused build adjacent to the CV identity and agent workflow stack.
+          </div>
+          <div class="project-meta">
+            <span class="project-meta-chip">Role: Builder / Systems Designer</span>
+            <span class="project-meta-chip progress">Status: Planned</span>
+          </div>
+          <div class="project-tech">
+            <span class="tech-badge">Learning Systems</span>
+            <span class="tech-badge">Progress Tracking</span>
+            <span class="tech-badge">Agent Workflow</span>
+            <span class="tech-badge">Planned Build</span>
+          </div>
+          <div class="project-expand">
+            LearnQuest is held as a forward-looking education lane: structured lessons, guided progression,
+            and clearer knowledge handoffs for family and team learning contexts. Public positioning remains
+            conservative until the implementation repo is promoted.
+            <a href="https://github.com/WSP001" target="_blank" rel="noopener" class="project-live-link">
+              🔗 Track via GitHub profile →
+            </a>
+          </div>
+          <span class="expand-cta">↓ Click for planned scope</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Services ──────────────────────────────────────── -->
+<section id="services">
+  <div class="section-number">05</div>
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-label">Services</div>
+      <h2 class="section-title">What I Deliver</h2>
+    </div>
+    <div class="services-grid">
+      <div class="service-card reveal">
+        <div class="service-icon">🤖</div>
+        <div class="service-title" contenteditable="true">Agentic AI Systems</div>
+        <div class="service-desc" contenteditable="true">
+          Multi-agent orchestration, A2A protocol design, Claude & Gemini API integration.
+          Production-grade agentic pipelines with automated testing and crash prevention.
+        </div>
+      </div>
+      <div class="service-card reveal">
+        <div class="service-icon">🌊</div>
+        <div class="service-title" contenteditable="true">Marine Intelligence Platforms</div>
+        <div class="service-desc" contenteditable="true">
+          Domain-specific AI applications for fisheries supply chain, traceability,
+          and maritime operations optimization.
+        </div>
+      </div>
+      <div class="service-card reveal">
+        <div class="service-icon">☁️</div>
+        <div class="service-title" contenteditable="true">Cloud &amp; DevOps Architecture</div>
+        <div class="service-desc" contenteditable="true">
+          Netlify composable stack, GitHub CI/CD pipelines, environment &amp; vault management,
+          API-driven infrastructure for scale.
+        </div>
+      </div>
+      <div class="service-card reveal">
+        <div class="service-icon">📊</div>
+        <div class="service-title" contenteditable="true">Data Visualization &amp; Analytics</div>
+        <div class="service-desc" contenteditable="true">
+          Power BI dashboards, fisheries analytics, supply chain KPIs.
+          Turning complex domain data into actionable intelligence.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Testimonials ──────────────────────────────────── -->
+<section id="testimonials">
+  <div class="section-number">06</div>
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-label">Testimonials</div>
+      <h2 class="section-title">What People Say</h2>
+    </div>
+    <div class="testimonials-track reveal">
+      <div class="testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <div class="testimonial-text" contenteditable="true">"[Click to add a testimonial. Scott's ability to bridge marine domain expertise with cutting-edge AI architecture is rare and invaluable.]"</div>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">A</div>
+          <div>
+            <div class="testimonial-name" contenteditable="true">Client Name</div>
+            <div class="testimonial-role" contenteditable="true">Title, Company</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <div class="testimonial-text" contenteditable="true">"[Scott delivered a multi-agent AI system that transformed our fisheries data operations. His documentation-first approach made handoffs seamless.]"</div>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">B</div>
+          <div>
+            <div class="testimonial-name" contenteditable="true">Client Name</div>
+            <div class="testimonial-role" contenteditable="true">Title, Company</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <div class="testimonial-text" contenteditable="true">"[An exceptional technical lead. Scott's agentic AI architecture work accelerated our platform development by months.]"</div>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">C</div>
+          <div>
+            <div class="testimonial-name" contenteditable="true">Client Name</div>
+            <div class="testimonial-role" contenteditable="true">Title, Company</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <div class="testimonial-text" contenteditable="true">"[Add your fourth testimonial here. Genuine feedback from colleagues, clients, or partners.]"</div>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">D</div>
+          <div>
+            <div class="testimonial-name" contenteditable="true">Client Name</div>
+            <div class="testimonial-role" contenteditable="true">Title, Company</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Contact ──────────────────────────────────────── -->
+<section id="contact">
+  <div class="section-number">07</div>
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-label">Contact</div>
+      <h2 class="section-title">Let's Build Together</h2>
+      <p class="section-desc">Interested in agentic AI, marine intelligence, or enterprise cloud solutions? Let's talk.</p>
+    </div>
+    <div class="contact-grid">
+      <div class="contact-info reveal">
+        <div class="contact-item">
+          <div class="contact-icon">📧</div>
+          <div>
+            <div class="contact-label">Email</div>
+            <div class="contact-val" contenteditable="true">worldseafood@gmail.com</div>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">🔗</div>
+          <div>
+            <div class="contact-label">GitHub</div>
+            <div class="contact-val" contenteditable="true">github.com/WSP001</div>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">💼</div>
+          <div>
+            <div class="contact-label">LinkedIn</div>
+            <div class="contact-val" contenteditable="true">linkedin.com/in/rscottechols — click to edit</div>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">📍</div>
+          <div>
+            <div class="contact-label">Location</div>
+            <div class="contact-val" contenteditable="true">United States</div>
+          </div>
+        </div>
+        <a href="#" onclick="downloadCV(event)" class="btn btn-secondary" style="margin-top:1rem">
+          ⬇ Download CV
+        </a>
+      </div>
+
+      <div class="reveal" style="transition-delay:0.15s">
+        <!-- Netlify form with honeypot spam protection -->
+        <form class="contact-form" name="contact" method="POST" data-netlify="true" data-netlify-honeypot="bot-field">
+          <input type="hidden" name="form-name" value="contact" />
+          <div class="hp-field"><label>Don't fill this out: <input name="bot-field" /></label></div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="fname">First Name</label>
+              <input class="form-input" type="text" id="fname" name="first-name" required placeholder="Roberto" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="lname">Last Name</label>
+              <input class="form-input" type="text" id="lname" name="last-name" required placeholder="Echols" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="email">Email</label>
+            <input class="form-input" type="email" id="email" name="email" required placeholder="you@company.com" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="subject">Subject</label>
+            <select class="form-select form-input" id="subject" name="subject">
+              <option value="">Select a topic...</option>
+              <option>Agentic AI Systems Consulting</option>
+              <option>Marine Intelligence Platform</option>
+              <option>Cloud / DevOps Architecture</option>
+              <option>Technical Leadership Role</option>
+              <option>Partnership / Collaboration</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="message">Message</label>
+            <textarea class="form-textarea" id="message" name="message" required placeholder="Tell me about your project or inquiry..."></textarea>
+          </div>
+          <button type="submit" class="form-submit">Send Message →</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Footer ──────────────────────────────────────── -->
+<footer>
+  <p class="footer-copy">© 2026 R. Scott Echols — All rights reserved</p>
+  <p class="footer-pplx"><a href="https://www.perplexity.ai/computer" target="_blank" rel="noopener noreferrer">Built with Perplexity Computer</a></p>
+</footer>
+
+<!-- ── AI Chatbot ──────────────────────────────────── -->
+<button id="chat-bubble" onclick="toggleChat()" aria-label="Open AI assistant">
+  <div class="bubble-ring"></div>
+  <div class="bubble-ring-2"></div>
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+  </svg>
+</button>
+
+<div id="chat-window" role="dialog" aria-label="RSE Assistant">
+  <div class="chat-header">
+    <div class="chat-header-info">
+      <div class="chat-avatar">
+        RSE
+        <div class="chat-status-dot"></div>
+      </div>
+      <div>
+        <div class="chat-name">RSE-Assistant</div>
+        <div class="chat-subtitle" id="chat-subtitle">Powered by Gemini · Ask me anything</div>
+      </div>
+    </div>
+    <div class="chat-header-controls">
+      <span class="chat-tier-badge" id="tier-badge" data-testid="tier-badge">Public Access</span>
+      <span id="question-counter" class="question-counter" data-testid="question-count">0/3</span>
+      <button class="chat-close" onclick="toggleChat()" aria-label="Close">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="chat-trust-shell" id="chat-trust-shell" aria-live="polite">
+    <div class="chat-trust-row">
+      <span class="chat-trust-pill public" id="trust-mode-badge">Public Profile</span>
+      <span class="chat-trust-pill pending" id="trust-source-pill">Metadata Pending</span>
+      <span class="chat-trust-pill ghost" id="trust-note-pill">Trust Layer Ready</span>
+    </div>
+    <div class="chat-trust-copy" id="trust-copy">Public profile mode is active. Verified profile answers and fallback notices appear here so the site stays honest when retrieval is unavailable.</div>
+  </div>
+
+  <div class="chat-messages" id="chat-messages">
+    <!-- Welcome message injected by JS -->
+  </div>
+
+  <div class="chat-preload-shell" id="chat-preload-shell">
+    <div class="chat-preload-title">Start With These Three</div>
+    <div class="chat-preload-note">Public tier is being prepared for resume-first, interview-friendly questions.</div>
+  </div>
+
+  <div class="chat-quick-actions" id="quick-actions">
+    <button class="quick-btn" onclick="sendQuick('What are the Four Pillars of SeaTrace under World Seafood Producers?')">
+      <span class="quick-btn-index">1</span>
+      <span class="quick-btn-copy">
+        <span class="quick-btn-label">What are the Four Pillars of SeaTrace under World Seafood Producers?</span>
+        <span class="quick-btn-meta">Business flagship, traceability stack, and current priorities</span>
+      </span>
+    </button>
+    <button class="quick-btn" onclick="sendQuick('What does SirTrav-A2A-Studio objectively do, separate from SeaTrace?')">
+      <span class="quick-btn-index">2</span>
+      <span class="quick-btn-copy">
+        <span class="quick-btn-label">What does SirTrav-A2A-Studio objectively do, separate from SeaTrace?</span>
+        <span class="quick-btn-meta">Personal studio lane, grounded producer briefs, and social content workflows</span>
+      </span>
+    </button>
+    <button class="quick-btn" onclick="sendQuick('What verified systems, patents, and long-track builds are tied to Scott Echols?')">
+      <span class="quick-btn-index">3</span>
+      <span class="quick-btn-copy">
+        <span class="quick-btn-label">What verified systems, patents, and long-track builds are tied to Scott Echols?</span>
+        <span class="quick-btn-meta">CV corpus first, with business and patent context kept grounded</span>
+      </span>
+    </button>
+  </div>
+
+  <div class="chat-input-area">
+    <textarea id="chat-input" placeholder="Ask about Scott's work, skills, or projects..." rows="1"
+      onkeydown="handleChatKey(event)" oninput="autoResize(this)" data-testid="chat-input"></textarea>
+    <button id="chat-send" onclick="sendMessage()" aria-label="Send" data-testid="chat-submit">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Business Access Gate -->
+  <div class="chat-gate" data-testid="access-gate" data-state="locked">
+    <div class="chat-gate-header">
+      <div class="gate-title">🔒 Business Access</div>
+      <span class="gate-state-pill locked" id="gate-state-pill">Locked</span>
+    </div>
+    <div class="gate-state-copy" id="gate-state-copy">Public profile mode is active. Unlock business knowledge when you're ready.</div>
+    <div class="gate-input-row">
+      <input class="gate-input" type="password" id="access-key-input"
+        placeholder="Enter business access key..." />
+      <button class="gate-btn" onclick="verifyAccess()">Unlock</button>
+    </div>
+    <div class="gate-msg" id="gate-msg">Premium tier unlocks full knowledge base & technical deep-dives</div>
+  </div>
+</div>
+
+<!-- ── CDN Libraries ──────────────────────────────────── -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.7.2/vanilla-tilt.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+<script>
+// ── State ──────────────────────────────────────────────
+const state = {
+  chatOpen: false,
+  tier: 'public',
+  accessKey: '',
+  history: [],
+  loading: false,
+  questionCount: 0,
+  maxFreeQuestions: 3,
+  trustMode: 'public',
+  unlockState: 'locked'
+};
+
+const TRUST_MODE_CONTENT = {
+  public: {
+    label: 'Public Profile',
+    className: 'public',
+    copy: 'Public profile mode is active. Verified profile answers and fallback notices appear here so the site stays honest when retrieval is unavailable.',
+    note: 'Verified profile pack is active for public answers.'
+  },
+  business: {
+    label: 'Business Knowledge',
+    className: 'business',
+    copy: 'Business access is active. Deeper SeaTrace and consulting answers can display source labels and review notes here.',
+    note: 'Business trust layer is active and still follows the verified-source rule.'
+  },
+  fallback: {
+    label: 'Fallback Mode',
+    className: 'fallback',
+    copy: 'Safe local guidance is active because grounded retrieval is unavailable. Fallback answers stay inside the verified public profile pack.',
+    note: 'Vector retrieval unavailable. Conservative local fallback was used.'
+  }
+};
+
+const GATE_STATE_CONTENT = {
+  locked: {
+    label: 'Locked',
+    className: 'locked',
+    copy: 'Public profile mode is active. Unlock business knowledge when you are ready.'
+  },
+  validating: {
+    label: 'Checking',
+    className: 'validating',
+    copy: 'Verifying the invitation key before any business knowledge is exposed.'
+  },
+  unlocked: {
+    label: 'Unlocked',
+    className: 'unlocked',
+    copy: 'Business knowledge is unlocked. The chat is ready for deeper source-aware answers.'
+  }
+};
+
+// ── Loading Screen ─────────────────────────────────────
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('loader').classList.add('hidden');
+    initHeroAnimations();
+    initChatBubble();
+  }, 1500);
+});
+
+function initChatBubble() {
+  const bubble = document.getElementById('chat-bubble');
+  gsap.to(bubble, {
+    opacity: 1, scale: 1, duration: 0.5,
+    ease: 'back.out(1.7)', delay: 0.3,
+    onComplete: () => bubble.classList.add('bouncing')
+  });
+}
+
+function setLatestResponseTarget(node) {
+  document.querySelectorAll('[data-testid="chat-response"]').forEach(el => {
+    el.removeAttribute('data-testid');
+  });
+  if (node) {
+    node.setAttribute('data-testid', 'chat-response');
+  }
+}
+
+function createMessageMeta(overrides = {}) {
+  const mode = overrides.mode || state.trustMode || (state.tier === 'business' ? 'business' : 'public');
+  const config = TRUST_MODE_CONTENT[mode] || TRUST_MODE_CONTENT.public;
+  return {
+    mode,
+    label: overrides.label || config.label,
+    sourceLabel: overrides.sourceLabel || 'Metadata Pending',
+    note: overrides.note || config.note
+  };
+}
+
+function setTrustMode(mode, overrides = {}) {
+  const config = TRUST_MODE_CONTENT[mode] || TRUST_MODE_CONTENT.public;
+  const modeBadge = document.getElementById('trust-mode-badge');
+  const sourcePill = document.getElementById('trust-source-pill');
+  const notePill = document.getElementById('trust-note-pill');
+  const copy = document.getElementById('trust-copy');
+  const shell = document.getElementById('chat-trust-shell');
+  if (!modeBadge || !sourcePill || !notePill || !copy || !shell) return;
+
+  state.trustMode = mode;
+  modeBadge.textContent = overrides.label || config.label;
+  modeBadge.className = `chat-trust-pill ${config.className}`;
+  sourcePill.textContent = overrides.sourceLabel || 'Metadata Pending';
+  sourcePill.className = `chat-trust-pill ${overrides.sourceClassName || 'pending'}`;
+  notePill.textContent = overrides.noteLabel || 'Trust Layer Ready';
+  notePill.className = `chat-trust-pill ${overrides.noteClassName || 'ghost'}`;
+  copy.textContent = overrides.copy || config.copy;
+  shell.dataset.mode = mode;
+}
+
+function setGateState(nextState, overrideCopy) {
+  const config = GATE_STATE_CONTENT[nextState] || GATE_STATE_CONTENT.locked;
+  const gate = document.querySelector('.chat-gate');
+  const pill = document.getElementById('gate-state-pill');
+  const copy = document.getElementById('gate-state-copy');
+  const input = document.getElementById('access-key-input');
+  const button = document.querySelector('.gate-btn');
+  if (!gate || !pill || !copy || !input || !button) return;
+
+  state.unlockState = nextState;
+  gate.dataset.state = nextState;
+  pill.textContent = config.label;
+  pill.className = `gate-state-pill ${config.className}`;
+  copy.textContent = overrideCopy || config.copy;
+
+  const isLocked = nextState === 'locked';
+  const isValidating = nextState === 'validating';
+  const isUnlocked = nextState === 'unlocked';
+
+  input.disabled = !isLocked;
+  if (isUnlocked) {
+    input.value = '';
+    input.placeholder = 'Business access verified';
+  } else if (isValidating) {
+    input.placeholder = 'Checking access key...';
+  } else {
+    input.placeholder = 'Enter business access key...';
+  }
+
+  button.disabled = isValidating || isUnlocked;
+  button.textContent = isValidating ? 'Checking...' : isUnlocked ? 'Unlocked' : 'Unlock';
+  button.setAttribute('aria-busy', isValidating ? 'true' : 'false');
+}
+
+// ── Custom Cursor ──────────────────────────────────────
+(function() {
+  if (window.matchMedia('(max-width: 768px)').matches) return;
+
+  const dot = document.getElementById('cursor-dot');
+  const ring = document.getElementById('cursor-ring');
+  let mouseX = 0, mouseY = 0;
+  let ringX = 0, ringY = 0;
+
+  document.addEventListener('mousemove', e => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    dot.style.left = mouseX + 'px';
+    dot.style.top = mouseY + 'px';
+  });
+
+  function animateRing() {
+    ringX += (mouseX - ringX) * 0.15;
+    ringY += (mouseY - ringY) * 0.15;
+    ring.style.left = ringX + 'px';
+    ring.style.top = ringY + 'px';
+    requestAnimationFrame(animateRing);
+  }
+  animateRing();
+
+  // Hover effect on interactive elements
+  const hoverTargets = 'a, button, [contenteditable], .project-card, .service-card, .filter-btn, .stat-card, input, textarea, select';
+  document.addEventListener('mouseover', e => {
+    if (e.target.closest(hoverTargets)) {
+      document.body.classList.add('cursor-hover');
+    }
+  });
+  document.addEventListener('mouseout', e => {
+    if (e.target.closest(hoverTargets)) {
+      document.body.classList.remove('cursor-hover');
+    }
+  });
+})();
+
+// ── Lenis Smooth Scrolling ──────────────────────────────
+const lenis = new Lenis({
+  duration: 1.2,
+  easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+  direction: 'vertical',
+  smooth: true,
+});
+
+function raf(time) {
+  lenis.raf(time);
+  requestAnimationFrame(raf);
+}
+requestAnimationFrame(raf);
+
+// Integrate Lenis with GSAP ScrollTrigger
+lenis.on('scroll', ScrollTrigger.update);
+gsap.ticker.add((time) => {
+  lenis.raf(time * 1000);
+});
+gsap.ticker.lagSmoothing(0);
+
+// Handle anchor clicks with Lenis
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  anchor.addEventListener('click', (e) => {
+    e.preventDefault();
+    const target = document.querySelector(anchor.getAttribute('href'));
+    if (target) lenis.scrollTo(target);
+  });
+});
+
+// ── Three.js Globe ──────────────────────────────────────
+(function() {
+  const container = document.getElementById('hero-three');
+  if (!container) return;
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(50, container.offsetWidth / container.offsetHeight, 0.1, 1000);
+  camera.position.z = 5;
+
+  const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+  renderer.setSize(container.offsetWidth, container.offsetHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  container.appendChild(renderer.domElement);
+
+  // Outer icosahedron (gold wireframe)
+  const geometry = new THREE.IcosahedronGeometry(2, 2);
+  const material = new THREE.MeshBasicMaterial({
+    color: 0xc9a84c, wireframe: true, transparent: true, opacity: 0.18
+  });
+  const icosahedron = new THREE.Mesh(geometry, material);
+  scene.add(icosahedron);
+
+  // Mid icosahedron (cyan)
+  const midGeo = new THREE.IcosahedronGeometry(1.6, 1);
+  const midMat = new THREE.MeshBasicMaterial({
+    color: 0x4ecdc4, wireframe: true, transparent: true, opacity: 0.10
+  });
+  const midIco = new THREE.Mesh(midGeo, midMat);
+  scene.add(midIco);
+
+  // Inner icosahedron (gold, slow counter-rotation)
+  const innerGeo = new THREE.IcosahedronGeometry(1.1, 0);
+  const innerMat = new THREE.MeshBasicMaterial({
+    color: 0xc9a84c, wireframe: true, transparent: true, opacity: 0.08
+  });
+  const innerIco = new THREE.Mesh(innerGeo, innerMat);
+  scene.add(innerIco);
+
+  // Orbit ring 1 (horizontal)
+  const ringGeo1 = new THREE.TorusGeometry(2.5, 0.008, 8, 80);
+  const ringMat1 = new THREE.MeshBasicMaterial({ color: 0xc9a84c, transparent: true, opacity: 0.25 });
+  const ring1 = new THREE.Mesh(ringGeo1, ringMat1);
+  ring1.rotation.x = Math.PI / 2;
+  scene.add(ring1);
+
+  // Orbit ring 2 (tilted)
+  const ringGeo2 = new THREE.TorusGeometry(2.8, 0.006, 8, 80);
+  const ringMat2 = new THREE.MeshBasicMaterial({ color: 0x4ecdc4, transparent: true, opacity: 0.18 });
+  const ring2 = new THREE.Mesh(ringGeo2, ringMat2);
+  ring2.rotation.x = Math.PI / 3;
+  ring2.rotation.z = Math.PI / 6;
+  scene.add(ring2);
+
+  // Orbit ring 3 (vertical)
+  const ringGeo3 = new THREE.TorusGeometry(3.1, 0.004, 6, 80);
+  const ringMat3 = new THREE.MeshBasicMaterial({ color: 0x7c6af7, transparent: true, opacity: 0.12 });
+  const ring3 = new THREE.Mesh(ringGeo3, ringMat3);
+  ring3.rotation.y = Math.PI / 4;
+  scene.add(ring3);
+
+  // Vertex dots on outer icosahedron
+  const dotGeo = new THREE.SphereGeometry(0.025, 6, 6);
+  const dotMat = new THREE.MeshBasicMaterial({ color: 0xc9a84c, transparent: true, opacity: 0.7 });
+  const positions = geometry.attributes.position;
+  const seen = new Set();
+  for (let i = 0; i < positions.count; i++) {
+    const key = `${positions.getX(i).toFixed(2)},${positions.getY(i).toFixed(2)},${positions.getZ(i).toFixed(2)}`;
+    if (!seen.has(key)) {
+      seen.add(key);
+      const dot = new THREE.Mesh(dotGeo, dotMat);
+      dot.position.set(positions.getX(i), positions.getY(i), positions.getZ(i));
+      icosahedron.add(dot);
+    }
+  }
+
+  let targetRotX = 0, targetRotY = 0;
+  document.addEventListener('mousemove', e => {
+    targetRotX = (e.clientY / window.innerHeight - 0.5) * 0.4;
+    targetRotY = (e.clientX / window.innerWidth - 0.5) * 0.4;
+  });
+
+  function animate() {
+    requestAnimationFrame(animate);
+    const t = Date.now() * 0.001;
+
+    icosahedron.rotation.x += 0.0015;
+    icosahedron.rotation.y += 0.002;
+    midIco.rotation.x -= 0.001;
+    midIco.rotation.y += 0.0015;
+    innerIco.rotation.x -= 0.0008;
+    innerIco.rotation.y -= 0.001;
+
+    // Rings orbit independently
+    ring1.rotation.z += 0.003;
+    ring2.rotation.z -= 0.002;
+    ring3.rotation.y += 0.0015;
+
+    // Parallax tilt from mouse
+    icosahedron.rotation.x += (targetRotX - icosahedron.rotation.x * 0.1) * 0.015;
+    icosahedron.rotation.y += (targetRotY - icosahedron.rotation.y * 0.1) * 0.015;
+
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  window.addEventListener('resize', () => {
+    const w = container.offsetWidth, h = container.offsetHeight;
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    renderer.setSize(w, h);
+  });
+})();
+
+// ── Hero canvas particle animation ─────────────────────
+(function() {
+  const canvas = document.getElementById('hero-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, particles, animId;
+
+  function resize() {
+    W = canvas.width = canvas.offsetWidth;
+    H = canvas.height = canvas.offsetHeight;
+  }
+
+  function mkParticle() {
+    return {
+      x: Math.random() * W,
+      y: Math.random() * H,
+      vx: (Math.random() - 0.5) * 0.4,
+      vy: (Math.random() - 0.5) * 0.4,
+      r: Math.random() * 1.5 + 0.5,
+      alpha: Math.random() * 0.5 + 0.1
+    };
+  }
+
+  function init() {
+    resize();
+    particles = Array.from({ length: 100 }, mkParticle);
+  }
+
+  let mx = W / 2, my = H / 2;
+  document.addEventListener('mousemove', e => {
+    const rect = canvas.getBoundingClientRect();
+    mx = e.clientX - rect.left;
+    my = e.clientY - rect.top;
+  });
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    particles.forEach(p => {
+      const dx = mx - p.x, dy = my - p.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < 200) {
+        p.vx += dx / dist * 0.015;
+        p.vy += dy / dist * 0.015;
+      }
+      p.vx *= 0.99; p.vy *= 0.99;
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
+      if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
+
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(201,168,76,${p.alpha})`;
+      ctx.fill();
+    });
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const d = Math.sqrt(dx * dx + dy * dy);
+        if (d < 80) {
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.strokeStyle = `rgba(78,205,196,${0.15 * (1 - d / 80)})`;
+          ctx.lineWidth = 0.5;
+          ctx.stroke();
+        }
+      }
+    }
+    animId = requestAnimationFrame(draw);
+  }
+
+  init(); draw();
+  window.addEventListener('resize', () => { cancelAnimationFrame(animId); init(); draw(); });
+})();
+
+// ── Hero Animations with GSAP ───────────────────────────
+function initHeroAnimations() {
+  const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+  tl.to('.hero-badge', { opacity: 1, y: 0, duration: 0.8 }, 0.2)
+    .to('.logo-prism-wrap', { opacity: 1, y: 0, duration: 0.8 }, 0.35)
+    .to('.hero-name', { opacity: 1, y: 0, duration: 1 }, 0.5)
+    .to('.hero-title', { opacity: 1, y: 0, duration: 0.8 }, 0.7)
+    .to('.hero-desc', { opacity: 1, y: 0, duration: 0.8 }, 0.9)
+    .to('.hero-actions', { opacity: 1, y: 0, duration: 0.8 }, 1.1)
+    .to('.hero-scroll', { opacity: 1, duration: 1 }, 1.5);
+
+  // Hero parallax on scroll
+  gsap.to('.hero-content', {
+    yPercent: -30,
+    ease: 'none',
+    scrollTrigger: {
+      trigger: '#hero',
+      start: 'top top',
+      end: 'bottom top',
+      scrub: true
+    }
+  });
+}
+
+// ── GSAP Scroll Animations ──────────────────────────────
+gsap.registerPlugin(ScrollTrigger);
+
+// Reveal animations for all .reveal elements with staggered children
+document.querySelectorAll('section').forEach(section => {
+  const reveals = section.querySelectorAll('.reveal');
+  reveals.forEach((el, i) => {
+    gsap.to(el, {
+      opacity: 1,
+      y: 0,
+      duration: 0.8,
+      ease: 'power2.out',
+      delay: i * 0.1,
+      scrollTrigger: {
+        trigger: el,
+        start: 'top 85%',
+        toggleActions: 'play none none none'
+      }
+    });
+
+    // Stagger children within each reveal
+    const children = el.querySelectorAll('.stat-card, .skill-item, .project-card, .service-card, .timeline-card, .contact-item');
+    if (children.length > 0) {
+      gsap.from(children, {
+        opacity: 0,
+        y: 20,
+        stagger: 0.08,
+        duration: 0.5,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: el,
+          start: 'top 80%',
+          toggleActions: 'play none none none'
+        }
+      });
+    }
+  });
+});
+
+// ── Navigation Active Section Highlighting ──────────────
+const navSections = ['hero', 'about', 'experience', 'skills', 'projects', 'services', 'contact'];
+navSections.forEach(id => {
+  ScrollTrigger.create({
+    trigger: '#' + id,
+    start: 'top 40%',
+    end: 'bottom 40%',
+    onToggle: self => {
+      if (self.isActive) {
+        document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+        const activeLink = document.querySelector(`.nav-links a[href="#${id}"]`);
+        if (activeLink) activeLink.classList.add('active');
+      }
+    }
+  });
+});
+
+// ── Animated Number Counters ────────────────────────────
+document.querySelectorAll('.stat-num[data-count]').forEach(el => {
+  const target = parseInt(el.dataset.count);
+  ScrollTrigger.create({
+    trigger: el,
+    start: 'top 80%',
+    once: true,
+    onEnter: () => {
+      gsap.to({ val: 0 }, {
+        val: target,
+        duration: 2,
+        ease: 'power2.out',
+        onUpdate: function() {
+          el.textContent = Math.round(this.targets()[0].val) + '+';
+        }
+      });
+    }
+  });
+});
+
+// ── Skill bars animate on scroll with spring easing ─────
+document.querySelectorAll('.skill-group').forEach(g => {
+  ScrollTrigger.create({
+    trigger: g,
+    start: 'top 75%',
+    once: true,
+    onEnter: () => {
+      g.querySelectorAll('.skill-fill').forEach((bar, i) => {
+        gsap.to(bar, {
+          width: bar.dataset.width + '%',
+          duration: 1.5,
+          ease: 'elastic.out(1, 0.5)',
+          delay: i * 0.1
+        });
+      });
+    }
+  });
+});
+
+// ── VanillaTilt for Project Cards ───────────────────────
+if (window.VanillaTilt && !window.matchMedia('(max-width: 768px)').matches) {
+  VanillaTilt.init(document.querySelectorAll('[data-tilt]'), {
+    max: 8,
+    speed: 400,
+    glare: true,
+    'max-glare': 0.15,
+    perspective: 1000,
+    gyroscope: false
+  });
+}
+
+// ── Typing title ───────────────────────────────────────
+(function() {
+  const titles = [
+    'Solutions Architect',
+    'Marine Intelligence Expert',
+    'Agentic AI Builder',
+    'SeaTrace Founder',
+    'Cloud Systems Lead',
+    'Technical Advisor',
+    'A2A Protocol Designer',
+    'WSP001 Systems Architect',
+    'Fisheries Domain Expert',
+    'RAG Pipeline Engineer',
+    'Netlify Edge Specialist',
+    'Multi-Agent Orchestrator',
+    'Supply Chain Innovator',
+    'Vector Embedding Architect',
+    'Enterprise DevOps Lead',
+    'Marine Tech Visionary',
+    'Composable AI Architect'
+  ];
+  let ti = 0, ci = 0, del = false;
+  const el = document.getElementById('typing-text');
+  function tick() {
+    const t = titles[ti];
+    if (!del) {
+      ci++;
+      el.textContent = t.slice(0, ci);
+      if (ci === t.length) { del = true; setTimeout(tick, 2000); return; }
+      setTimeout(tick, 70);
+    } else {
+      ci--;
+      el.textContent = t.slice(0, ci);
+      if (ci === 0) { del = false; ti = (ti + 1) % titles.length; setTimeout(tick, 400); return; }
+      setTimeout(tick, 40);
+    }
+  }
+  tick();
+})();
+
+// ── Project filter ─────────────────────────────────────
+function filterProjects(cat, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.project-card').forEach(card => {
+    const show = cat === 'all' || card.dataset.cat === cat;
+    if (show) {
+      card.style.display = '';
+      gsap.from(card, { opacity: 0, y: 20, duration: 0.4, ease: 'power2.out' });
+    } else {
+      card.style.display = 'none';
+    }
+  });
+}
+
+// ── Photo upload ───────────────────────────────────────
+function handlePhotoUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const photo = document.querySelector('.about-photo');
+    let img = photo.querySelector('img');
+    if (!img) { img = document.createElement('img'); photo.appendChild(img); }
+    img.src = ev.target.result;
+    photo.querySelector('svg').style.display = 'none';
+    photo.querySelector('.about-photo-label').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── Download CV ────────────────────────────────────────
+function downloadCV(e) {
+  e.preventDefault();
+  alert('To enable CV download: add your CV PDF to the repo root as "RSE-CV.pdf" and update this link.');
+}
+
+// ── Nav menu ───────────────────────────────────────────
+function toggleMenu() {
+  const links = document.querySelector('.nav-links');
+  links.style.display = links.style.display === 'flex' ? 'none' : 'flex';
+  links.style.flexDirection = 'column';
+  links.style.position = 'absolute';
+  links.style.top = '64px';
+  links.style.right = '1rem';
+  links.style.background = 'var(--bg-2)';
+  links.style.border = '1px solid var(--border-2)';
+  links.style.borderRadius = '12px';
+  links.style.padding = '1rem';
+  links.style.gap = '1rem';
+}
+
+// ── Chatbot ────────────────────────────────────────────
+function toggleChat() {
+  state.chatOpen = !state.chatOpen;
+  document.getElementById('chat-window').classList.toggle('open', state.chatOpen);
+  if (state.chatOpen && state.history.length === 0) {
+    setTrustMode('public');
+    setGateState('locked');
+    addBotMessage(
+      "Hi! I'm RSE-Assistant, Scott's AI guide. I can help with his verified public profile, project boundaries, and current work across SeaTrace, World Seafood Producers, and SirTrav-A2A-Studio.\n\nWhat would you like to know?",
+      createMessageMeta({
+        mode: 'public',
+        note: 'Public profile mode is active. Verified-source answers come first.'
+      })
+    );
+  }
+}
+
+function addMessage(role, text, meta = null) {
+  const container = document.getElementById('chat-messages');
+  const wrap = document.createElement('div');
+  wrap.className = `msg ${role}`;
+  const avatar = document.createElement('div');
+  avatar.className = 'msg-avatar';
+  avatar.textContent = role === 'bot' ? 'RSE' : 'You';
+  const bubble = document.createElement('div');
+  bubble.className = 'msg-bubble';
+  bubble.textContent = text;
+
+  if (role === 'bot') {
+    const stack = document.createElement('div');
+    stack.className = 'msg-stack';
+    const metaInfo = createMessageMeta(meta || {});
+    const metaRow = document.createElement('div');
+    metaRow.className = 'msg-meta';
+
+    const modePill = document.createElement('span');
+    modePill.className = `msg-meta-pill ${metaInfo.mode}`;
+    modePill.textContent = metaInfo.label;
+    metaRow.appendChild(modePill);
+
+    const sourcePill = document.createElement('span');
+    sourcePill.className = `msg-meta-pill source ${metaInfo.mode}`;
+    sourcePill.setAttribute('data-testid', 'source-pill');
+    sourcePill.textContent = metaInfo.sourceLabel;
+    metaRow.appendChild(sourcePill);
+
+    if (metaInfo.note) {
+      const note = document.createElement('div');
+      note.className = 'msg-meta-note';
+      note.textContent = metaInfo.note;
+      metaRow.appendChild(note);
+    }
+
+    setLatestResponseTarget(bubble);
+    stack.appendChild(bubble);
+    stack.appendChild(metaRow);
+    wrap.appendChild(avatar);
+    wrap.appendChild(stack);
+  } else {
+    wrap.appendChild(bubble);
+    wrap.appendChild(avatar);
+  }
+
+  container.appendChild(wrap);
+  container.scrollTop = container.scrollHeight;
+  return wrap;
+}
+
+function addBotMessage(text, meta) {
+  const msg = addMessage('bot', text, meta);
+  state.history.push({ role: 'assistant', content: text });
+  return msg;
+}
+
+function showTyping() {
+  const container = document.getElementById('chat-messages');
+  const wrap = document.createElement('div');
+  wrap.className = 'msg bot'; wrap.id = 'typing-indicator';
+  const avatar = document.createElement('div');
+  avatar.className = 'msg-avatar'; avatar.textContent = 'RSE';
+  const bubble = document.createElement('div');
+  bubble.className = 'msg-bubble';
+  const dots = document.createElement('div');
+  dots.className = 'typing-indicator';
+  [0,1,2].forEach(() => { const d = document.createElement('div'); d.className = 'typing-dot'; dots.appendChild(d); });
+  bubble.appendChild(dots);
+  wrap.appendChild(avatar); wrap.appendChild(bubble);
+  container.appendChild(wrap);
+  container.scrollTop = container.scrollHeight;
+}
+
+function removeTyping() {
+  const t = document.getElementById('typing-indicator');
+  if (t) t.remove();
+}
+
+async function sendMessage() {
+  if (state.loading) return;
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = ''; input.style.height = 'auto';
+  // Free tier limit check
+  if (state.tier === 'public' && state.questionCount >= state.maxFreeQuestions) {
+    addMessage('user', text);
+    state.history.push({ role: 'user', content: text });
+    setTrustMode('public', {
+      noteLabel: 'Unlock Ready',
+      copy: 'The public interview flow is complete. Business unlock is ready when deeper knowledge is authorized.'
+    });
+    addBotMessage(
+      "You've used your 3 free questions. To continue exploring Scott's full background and business solutions, enter an invitation key below — or reach out at worldseafood@gmail.com to request access.",
+      createMessageMeta({
+        mode: 'public',
+        sourceLabel: 'Public Limit Reached',
+        note: 'The business unlock shell is active. Claude can attach business-tier metadata after verification.'
+      })
+    );
+    showInvitationPrompt();
+    return;
+  }
+  addMessage('user', text);
+  state.history.push({ role: 'user', content: text });
+  await callAPI(text);
+}
+
+function sendQuick(text) {
+  document.getElementById('chat-input').value = text;
+  sendMessage();
+  document.getElementById('quick-actions').style.display = 'none';
+  const preloadShell = document.getElementById('chat-preload-shell');
+  if (preloadShell) preloadShell.style.display = 'none';
+}
+
+async function callAPI(message) {
+  state.loading = true;
+  document.getElementById('chat-send').disabled = true;
+  showTyping();
+  setTrustMode(state.tier === 'business' ? 'business' : 'public');
+
+  try {
+    const headers = { 'Content-Type': 'application/json' };
+    if (state.tier === 'business' && state.accessKey) {
+      headers['X-Access-Key'] = state.accessKey;
+    }
+    const resp = await fetch('/api/chat', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        message,
+        history: state.history.slice(-10),
+        tier: state.tier,
+        questionCount: state.questionCount
+      })
+    });
+
+    removeTyping();
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({ error: 'Request failed' }));
+      addBotMessage(
+        err.error || 'Something went wrong. Please try again.',
+        createMessageMeta({
+          mode: state.tier === 'business' ? 'business' : 'public',
+          sourceLabel: 'Service Notice',
+          note: 'The answer container is ready, but the backend returned an error instead of source metadata.'
+        })
+      );
+    } else {
+      const data = await resp.json();
+      const trustMode = data.tier === 'business' || state.tier === 'business' ? 'business' : 'public';
+      setTrustMode(trustMode, {
+        sourceLabel: data.answer_source || 'Metadata Pending',
+        noteLabel: data.limit_reached ? 'Unlock Ready' : 'Trust Layer Ready',
+        copy: trustMode === 'business'
+          ? 'Business access is active. Claude can attach deeper source labels and review notes here next.'
+          : 'Public profile mode is active. Claude can attach verified source labels and review notes here next.'
+      });
+      addBotMessage(
+        data.reply || 'I couldn\'t generate a response. Please try again.',
+        createMessageMeta({
+          mode: trustMode,
+          sourceLabel: data.answer_source || 'Metadata Pending',
+          note: data.limit_reached
+            ? 'Public tier limit reached. The unlock shell is ready for business verification.'
+            : 'Source-aware answer container is following the verified profile pack.'
+        })
+      );
+      if (state.tier === 'public') {
+        state.questionCount++;
+        updateQuestionCounter();
+      }
+      if (data.limit_reached) {
+        showInvitationPrompt();
+      }
+    }
+  } catch (err) {
+    removeTyping();
+    const fallbacks = {
+      'background': "R. Scott Echols leads with World Seafood Producers and SeaTrace as the business-side work. This public profile is being rebuilt around verified CV source files so business, research, and personal studio lanes stay separate and grounded.",
+      'resume': "The verified public profile currently supports a conservative summary: Scott works across software delivery, knowledge tooling, fisheries-domain operations, and AI-assisted systems through World Seafood Producers, SeaTrace, and selected studio builds. Early-career timeline details are being revalidated before they are presented as settled fact.",
+      'sirtrav': "SirTrav-A2A-Studio is Scott's personal studio for agent orchestration, media pipelines, and AI-assisted production. It is personal studio work and should not be conflated with SeaTrace business systems.",
+      'seatrace': "SeaTrace is the business-side marine traceability and operating-system work under World Seafood Producers. The truth-first rule is to keep SeaTrace answers business-specific and separate from SirTrav personal identity.",
+      'worldseafood': "World Seafood Producers is the umbrella business context on this public profile. The site is being re-grounded so company answers stay tied to verified source files instead of speculative copy.",
+      'warp': "Historical robotics material connected to WARP Industries exists in the archive, but this public profile is keeping those details high-level until the supporting source files are revalidated.",
+      'network-history': "Some early communications-history material is under review. The current truth-first policy is to avoid presenting those details as settled fact until the cleaned source package is connected to retrieval.",
+      'patent': "This site references patent-related material in Scott's historical archive. The public profile is being rebuilt so those details appear only from verified source files rather than fallback storytelling.",
+      'naval-history': "Some protocol-history material from Scott's early technical career is under review. Until the cleaned source package is re-ingested, the site keeps those details conservative instead of asserting them as verified fact.",
+      'alaska': "Scott's public materials clearly connect him to fisheries, marine operations, and Alaska-linked work. Detailed historical claims from that period are being reviewed against source files before they are expanded here.",
+      'simp': "The public materials connect Scott to seafood traceability and regulatory systems work. Exact program-specific claims are being revalidated before they are presented as definitive in fallback mode.",
+      'salmon': "Scott's public profile ties him to salmon, fisheries operations, and seafood-domain systems. The truth-first rebuild is separating broad domain experience from detailed historical claims until those source files are cleanly grounded.",
+      'robot': "Scott's archive connects him to robotics and systems-building work, but this public profile is intentionally conservative until the supporting historical sources are fully verified.",
+      'contact': "You can reach Scott at worldseafood@gmail.com and review public work at github.com/WSP001.",
+      'education': "The verified public profile currently confirms Dodge County High School, Lees McRae College, and University of Georgia. Additional education details are under source review and will be expanded only after they are grounded in the cleaned source pack.",
+      'default': "I can help with Scott's verified public profile, project boundaries, and current work. If you need deeper historical detail, the cleaned source pack and vector corpus still need review before that material should be treated as fully grounded."
+    };
+    const m = message.toLowerCase();
+    const key = ['resume','cv','background','career'].some(k=>m.includes(k)) ? (m.includes('resume')||m.includes('cv') ? 'resume' : 'background')
+               : m.includes('sirtrav') ? 'sirtrav'
+               : m.includes('seatrace') ? 'seatrace'
+               : (m.includes('warp') || m.includes('rocc') || m.includes('robot') || m.includes('hexapod')) ? 'robot'
+               : (m.includes('x.25') || m.includes('packet radio') || m.includes('internet')) ? 'network-history'
+               : (m.includes('patent') || m.includes('uspto') || m.includes('perkin')) ? 'patent'
+               : (m.includes('navy') || m.includes('naval')) ? 'naval-history'
+               : (m.includes('alaska') || m.includes('salmon restoration') || m.includes('dipac') || m.includes('stevens')) ? 'alaska'
+               : (m.includes('simp') || m.includes('ittp') || m.includes('noaa') || m.includes('nmfs')) ? 'simp'
+               : (m.includes('salmon') || m.includes('pacific seafood') || m.includes('psg') || m.includes('asmi')) ? 'salmon'
+               : (m.includes('worldseafood') || m.includes('world seafood') || m.includes('wsp')) ? 'worldseafood'
+               : (m.includes('contact') || m.includes('email') || m.includes('hire')) ? 'contact'
+               : (m.includes('education') || m.includes('degree') || m.includes('school') || m.includes('college')) ? 'education'
+               : Object.keys(fallbacks).find(k => m.includes(k)) || 'default';
+
+    setTrustMode('fallback', {
+      sourceLabel: 'Safe Local Guidance',
+      sourceClassName: 'fallback',
+      noteLabel: 'Vector Offline',
+      noteClassName: 'fallback',
+      copy: 'Fallback mode is active because grounded retrieval is unavailable. The UI is using the verified public profile pack instead of speculative local copy.'
+    });
+    addBotMessage(
+      fallbacks[key],
+      createMessageMeta({
+        mode: 'fallback',
+        sourceLabel: 'Safe Local Guidance',
+        note: 'Vector retrieval unavailable. Conservative local fallback was used instead of unsupported narrative.'
+      })
+    );
+    if (state.tier === 'public') {
+      state.questionCount++;
+      updateQuestionCounter();
+    }
+  } finally {
+    state.loading = false;
+    document.getElementById('chat-send').disabled = false;
+  }
+}
+
+async function verifyAccess() {
+  const key = document.getElementById('access-key-input').value.trim();
+  if (!key) {
+    setGateState('locked', 'Enter a business access key to verify deeper knowledge access.');
+    return;
+  }
+  const gateMsg = document.getElementById('gate-msg');
+  setGateState('validating');
+  gateMsg.textContent = 'Verifying...';
+  gateMsg.style.color = 'var(--text-3)';
+  try {
+    const resp = await fetch('/api/verify-access', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key })
+    });
+    const data = await resp.json();
+    if (data.valid) {
+      state.tier = 'business';
+      state.accessKey = key;
+      const badge = document.getElementById('tier-badge');
+      badge.textContent = 'Business Access';
+      badge.classList.add('business');
+      document.getElementById('chat-subtitle').textContent = 'Powered by Gemini · Full KB Unlocked';
+      gateMsg.textContent = '✓ ' + data.message;
+      gateMsg.style.color = 'var(--cyan)';
+      document.getElementById('access-key-input').value = '';
+      setGateState('unlocked');
+      setTrustMode('business');
+      addBotMessage(
+        "Business access granted. I now have full access to Scott's knowledge base including detailed technical architectures, project blueprints, and enterprise consulting frameworks. How can I help?",
+        createMessageMeta({
+          mode: 'business',
+          sourceLabel: 'Unlock Confirmed',
+          note: 'Business trust layer is live. Claude can attach deeper source metadata to future answers.'
+        })
+      );
+      updateTierUI();
+    } else {
+      setGateState('locked', 'Key not verified. Public profile mode remains active.');
+      setTrustMode('public');
+      gateMsg.textContent = data.message;
+      gateMsg.style.color = 'var(--red)';
+    }
+  } catch {
+    setGateState('locked', 'Verification service unavailable. Public profile mode remains active.');
+    gateMsg.textContent = 'Verification unavailable — deploy to Netlify to activate.';
+  }
+}
+
+function handleChatKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+// ── Show Invitation Prompt ────────────────────────────
+function showInvitationPrompt() {
+  const gate = document.querySelector('.chat-gate');
+  gate.classList.add('pulsing');
+  setGateState('locked', 'Public profile questions are used up. Unlock business knowledge or request an invitation key.');
+  const gateMsg = document.getElementById('gate-msg');
+  gateMsg.innerHTML = '🔑 Request your invitation key at <strong>worldseafood@gmail.com</strong>';
+}
+
+// ── Update Question Counter Display ───────────────────
+function updateQuestionCounter() {
+  const counter = document.getElementById('question-counter');
+  if (counter) {
+    counter.textContent = state.questionCount + '/' + state.maxFreeQuestions;
+    if (state.questionCount >= state.maxFreeQuestions) {
+      counter.style.borderColor = 'var(--gold)';
+      counter.style.color = 'var(--gold)';
+    }
+  }
+}
+
+// ── Hide Question Counter for Business Tier ───────────
+function updateTierUI() {
+  const counter = document.getElementById('question-counter');
+  if (counter) {
+    counter.style.display = state.tier === 'public' ? 'inline-block' : 'none';
+  }
+  if (state.tier === 'business') {
+    setTrustMode('business');
+    setGateState('unlocked');
+  } else {
+    setTrustMode('public');
+    setGateState('locked');
+  }
+}
+
+// ── Logo Prism 3D Tilt ────────────────────────────────
+(function() {
+  const prism = document.querySelector('.logo-prism');
+  if (!prism || window.matchMedia('(max-width: 768px)').matches) return;
+  prism.addEventListener('mousemove', e => {
+    const rect = prism.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    const rotateX = ((y - centerY) / centerY) * -8;
+    const rotateY = ((x - centerX) / centerX) * 8;
+    prism.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+  });
+  prism.addEventListener('mouseleave', () => {
+    prism.style.transform = 'rotateX(0) rotateY(0)';
+  });
+})();
+
+// ── Scroll Progress Bar ───────────────────────────────
+(function() {
+  const progressBar = document.getElementById('scroll-progress');
+  if (!progressBar) return;
+  function updateProgress() {
+    const scrollTop = window.scrollY || document.documentElement.scrollTop;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+    progressBar.style.width = progress + '%';
+  }
+  window.addEventListener('scroll', updateProgress, { passive: true });
+  updateProgress();
+})();
+
+// ── Magnetic Buttons ──────────────────────────────────
+(function() {
+  if (window.matchMedia('(max-width: 768px)').matches) return;
+  const magneticBtns = document.querySelectorAll('.hero-actions .btn');
+  magneticBtns.forEach(btn => {
+    btn.addEventListener('mousemove', e => {
+      const rect = btn.getBoundingClientRect();
+      const x = e.clientX - rect.left - rect.width / 2;
+      const y = e.clientY - rect.top - rect.height / 2;
+      const dist = Math.sqrt(x * x + y * y);
+      if (dist < 60) {
+        const pull = 1 - (dist / 60);
+        btn.style.transform = `translate(${x * pull * 0.3}px, ${y * pull * 0.3}px)`;
+      }
+    });
+    btn.addEventListener('mouseleave', () => {
+      btn.style.transform = '';
+    });
+  });
+})();
+
+// ── Timeline Card Expand/Collapse ─────────────────────
+(function() {
+  document.querySelectorAll('.timeline-card').forEach(card => {
+    card.addEventListener('click', e => {
+      if (e.target.getAttribute('contenteditable') === 'true' && document.activeElement === e.target) return;
+      card.classList.toggle('expanded');
+    });
+  });
+})();
+
+// ── Project Card Expand/Collapse ──────────────────────
+(function() {
+  document.querySelectorAll('.project-card').forEach(card => {
+    card.addEventListener('click', e => {
+      // Don't toggle if clicking a link or editing
+      if (e.target.tagName === 'A' || e.target.closest('a')) return;
+      if (e.target.getAttribute('contenteditable') === 'true' && document.activeElement === e.target) return;
+      card.classList.toggle('expanded');
+      // Brief glow on expand
+      if (card.classList.contains('expanded')) {
+        card.style.borderColor = 'rgba(78,205,196,0.4)';
+        setTimeout(() => { card.style.borderColor = ''; }, 800);
+      }
+    });
+  });
+})();
+
+// ── Chatbot: seed welcome with keywords ───────────────
+// RSE CV / Resume keyword injection (used by AI context)
+window.RSE_CV_KEYWORDS = {
+  name: 'Roberto Scott Echols',
+  aliases: ['R. Scott Echols', 'RSE', 'R.SCOTT CV'],
+  role: 'Founder, Technical Lead & AI Systems Architect',
+  company: 'World Seafood Producers / WSP001',
+  stack_valuation: '$4.2M USD',
+  projects: ['SeaTrace Four Pillars', 'Sir James Adventures', 'WSP2Agent Control Tower Hub', 'SirTrav-A2A-Studio', 'Multimodal RAG Pipeline', 'LearnQuest'],
+  seatrace_pillars: ['SeaSide (vessel tracking)', 'DeckSide (catch verification)', 'DockSide (supply chain)', 'MarketSide (consumer traceability)'],
+  business_site: 'worldseafoodproducers.com',
+  seatrace_portal: 'seatrace.worldseafoodproducers.com',
+  contact: 'worldseafood@gmail.com'
+};
+
+</script>
+
+<!-- ── Ambient Music Engine (Web Audio API — no external files or API keys needed) ─── -->
+<script>
+(function() {
+  'use strict';
+
+  // ── Ambient scene definitions ──────────────────────────────────────────────
+  // 4 scenes cycling automatically. Each is a chord + bass drone + texture layer.
+  const SCENES = [
+    {
+      name: 'Ocean Horizon',
+      notes: [130.81, 164.81, 196.00, 246.94],  // C3 E3 G3 B3  (Cmaj7)
+      bass: 65.41,   // C2
+      tempo: 0.28,
+      filterFreq: 600,
+      reverbDecay: 6
+    },
+    {
+      name: 'Deep Pacific',
+      notes: [138.59, 174.61, 207.65, 261.63],  // C#3 F3 Ab3 C4 (Abmaj7)
+      bass: 69.30,   // C#2
+      tempo: 0.22,
+      filterFreq: 450,
+      reverbDecay: 8
+    },
+    {
+      name: 'Northern Light',
+      notes: [146.83, 184.99, 220.00, 277.18],  // D3 F#3 A3 C#4 (Dmaj7)
+      bass: 73.42,   // D2
+      tempo: 0.32,
+      filterFreq: 800,
+      reverbDecay: 5
+    },
+    {
+      name: 'WSP Signal',
+      notes: [123.47, 155.56, 185.00, 246.94],  // B2 Eb3 F#3 B3 (Bm7)
+      bass: 61.74,   // B1
+      tempo: 0.25,
+      filterFreq: 520,
+      reverbDecay: 7
+    }
+  ];
+
+  let ctx = null, masterGain = null, currentScene = 0;
+  let playing = false, sceneTimer = null, nodeRefs = [];
+
+  function createReverb(ctx, decay) {
+    const conv = ctx.createConvolver();
+    const rate = ctx.sampleRate;
+    const len = rate * decay;
+    const buf = ctx.createBuffer(2, len, rate);
+    for (let c = 0; c < 2; c++) {
+      const d = buf.getChannelData(c);
+      for (let i = 0; i < len; i++) {
+        d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.5);
+      }
+    }
+    conv.buffer = buf;
+    return conv;
+  }
+
+  function playScene(scene) {
+    if (!ctx || !playing) return;
+    // Stop all previous nodes
+    nodeRefs.forEach(n => { try { n.stop(); } catch(e) {} });
+    nodeRefs = [];
+
+    const now = ctx.currentTime;
+    const reverb = createReverb(ctx, scene.reverbDecay);
+    const reverbGain = ctx.createGain();
+    reverbGain.gain.setValueAtTime(0.28, now);
+    reverb.connect(reverbGain);
+    reverbGain.connect(masterGain);
+
+    // ── Bass drone ──
+    const bass = ctx.createOscillator();
+    const bassFilter = ctx.createBiquadFilter();
+    const bassGain = ctx.createGain();
+    bass.type = 'sine';
+    bass.frequency.setValueAtTime(scene.bass, now);
+    bassFilter.type = 'lowpass';
+    bassFilter.frequency.setValueAtTime(180, now);
+    bassGain.gain.setValueAtTime(0, now);
+    bassGain.gain.linearRampToValueAtTime(0.18, now + 3.5);
+    bass.connect(bassFilter);
+    bassFilter.connect(bassGain);
+    bassGain.connect(masterGain);
+    bass.start(now);
+    nodeRefs.push(bass);
+
+    // ── Pad layers (one per chord note, staggered entry) ──
+    scene.notes.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const filt = ctx.createBiquadFilter();
+      const gain = ctx.createGain();
+      const lfo = ctx.createOscillator();
+      const lfoGain = ctx.createGain();
+
+      osc.type = i % 2 === 0 ? 'sawtooth' : 'triangle';
+      osc.frequency.setValueAtTime(freq, now);
+
+      // Gentle LFO tremolo
+      lfo.type = 'sine';
+      lfo.frequency.setValueAtTime(scene.tempo * (0.5 + i * 0.07), now);
+      lfoGain.gain.setValueAtTime(2.5, now);
+      lfo.connect(lfoGain);
+      lfoGain.connect(osc.frequency);
+
+      filt.type = 'lowpass';
+      filt.frequency.setValueAtTime(scene.filterFreq * (0.6 + i * 0.15), now);
+      filt.Q.setValueAtTime(0.8, now);
+
+      const startDelay = i * 1.2;
+      const vol = 0.045 - i * 0.005;
+      gain.gain.setValueAtTime(0, now);
+      gain.gain.linearRampToValueAtTime(vol, now + startDelay + 2.5);
+
+      osc.connect(filt);
+      filt.connect(gain);
+      gain.connect(reverb);
+      gain.connect(masterGain);
+
+      osc.start(now + startDelay);
+      lfo.start(now + startDelay);
+      nodeRefs.push(osc, lfo);
+    });
+
+    // ── High shimmer texture ──
+    const shimmer = ctx.createOscillator();
+    const shimGain = ctx.createGain();
+    shimmer.type = 'sine';
+    shimmer.frequency.setValueAtTime(scene.notes[2] * 4.02, now); // slightly detuned upper harmonic
+    shimGain.gain.setValueAtTime(0, now);
+    shimGain.gain.linearRampToValueAtTime(0.012, now + 5);
+    shimmer.connect(shimGain);
+    shimGain.connect(reverb);
+    shimmer.start(now);
+    nodeRefs.push(shimmer);
+
+    // Auto-advance to next scene after 90s
+    clearTimeout(sceneTimer);
+    sceneTimer = setTimeout(() => {
+      currentScene = (currentScene + 1) % SCENES.length;
+      const btn = document.getElementById('music-scene-name');
+      if (btn) btn.textContent = SCENES[currentScene].name;
+      crossfadeTo(SCENES[currentScene]);
+    }, 90000);
+  }
+
+  function crossfadeTo(scene) {
+    if (!ctx || !playing) return;
+    // Fade master out, swap scene, fade back in
+    const now = ctx.currentTime;
+    masterGain.gain.linearRampToValueAtTime(0, now + 3);
+    setTimeout(() => {
+      if (!playing) return;
+      masterGain.gain.linearRampToValueAtTime(0.55, ctx.currentTime + 4);
+      playScene(scene);
+    }, 3200);
+  }
+
+  function startMusic() {
+    if (playing) return;
+    if (!ctx) {
+      ctx = new (window.AudioContext || window.webkitAudioContext)();
+      masterGain = ctx.createGain();
+      masterGain.gain.setValueAtTime(0, ctx.currentTime);
+      masterGain.connect(ctx.destination);
+    }
+    if (ctx.state === 'suspended') ctx.resume();
+    playing = true;
+    masterGain.gain.linearRampToValueAtTime(0.55, ctx.currentTime + 4);
+    playScene(SCENES[currentScene]);
+  }
+
+  function stopMusic() {
+    if (!playing || !ctx) return;
+    playing = false;
+    const now = ctx.currentTime;
+    masterGain.gain.linearRampToValueAtTime(0, now + 2.5);
+    clearTimeout(sceneTimer);
+    setTimeout(() => {
+      nodeRefs.forEach(n => { try { n.stop(); } catch(e) {} });
+      nodeRefs = [];
+    }, 2700);
+  }
+
+  function nextScene() {
+    if (!playing) return;
+    currentScene = (currentScene + 1) % SCENES.length;
+    const btn = document.getElementById('music-scene-name');
+    if (btn) btn.textContent = SCENES[currentScene].name;
+    crossfadeTo(SCENES[currentScene]);
+  }
+
+  // ── UI ────────────────────────────────────────────────────────────────────
+  const style = document.createElement('style');
+  style.textContent = `
+    #music-player {
+      position: fixed; bottom: 88px; right: 24px; z-index: 9000;
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(10,10,20,0.85); border: 1px solid rgba(212,175,55,0.3);
+      border-radius: 50px; padding: 6px 14px 6px 8px;
+      backdrop-filter: blur(12px); box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+      font-family: 'Inter', sans-serif; font-size: 11px; color: rgba(255,255,255,0.7);
+      transition: opacity 0.3s; cursor: default;
+    }
+    #music-player:hover { opacity: 1 !important; }
+    #music-toggle {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: rgba(212,175,55,0.15); border: 1px solid rgba(212,175,55,0.5);
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      font-size: 13px; transition: background 0.2s; flex-shrink: 0;
+      color: var(--gold, #d4af37);
+    }
+    #music-toggle:hover { background: rgba(212,175,55,0.3); }
+    #music-toggle.playing { background: rgba(212,175,55,0.25); border-color: var(--gold, #d4af37); }
+    #music-next {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: transparent; border: 1px solid rgba(255,255,255,0.15);
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      font-size: 10px; color: rgba(255,255,255,0.5); transition: all 0.2s;
+    }
+    #music-next:hover { border-color: rgba(212,175,55,0.5); color: var(--gold, #d4af37); }
+    #music-scene-name { font-size: 10px; color: rgba(212,175,55,0.8); min-width: 80px; }
+    #music-label { font-size: 10px; color: rgba(255,255,255,0.35); }
+    @media (max-width: 480px) { #music-player { bottom: 80px; right: 12px; } }
+  `;
+  document.head.appendChild(style);
+
+  const player = document.createElement('div');
+  player.id = 'music-player';
+  player.setAttribute('title', 'Ambient background music — generated in-browser');
+  player.innerHTML = `
+    <button id="music-toggle" title="Play ambient music">♪</button>
+    <span id="music-label">Ambient</span>
+    <span id="music-scene-name">${SCENES[0].name}</span>
+    <button id="music-next" title="Next scene">▶▶</button>
+  `;
+  document.body.appendChild(player);
+
+  document.getElementById('music-toggle').addEventListener('click', () => {
+    if (playing) {
+      stopMusic();
+      document.getElementById('music-toggle').classList.remove('playing');
+      document.getElementById('music-toggle').textContent = '♪';
+      document.getElementById('music-label').textContent = 'Ambient';
+    } else {
+      startMusic();
+      document.getElementById('music-toggle').classList.add('playing');
+      document.getElementById('music-toggle').textContent = '◼';
+      document.getElementById('music-label').textContent = 'Playing';
+    }
+  });
+
+  document.getElementById('music-next').addEventListener('click', () => {
+    if (playing) nextScene();
+  });
+
+  // Fade player slightly when not hovered to keep UI clean
+  setTimeout(() => { player.style.opacity = '0.55'; }, 4000);
+  player.addEventListener('mouseenter', () => player.style.opacity = '1');
+  player.addEventListener('mouseleave', () => { if (!playing) player.style.opacity = '0.55'; });
+})();
+
+// ── Sir James Adventures Music Player ───────────────────────────────────────
+// Songs served from /audio/sir-james/ — copy files from:
+// C:\Users\Roberto002\OneDrive\Sir James\Sir James MP3\
+(function() {
+  const BASE = '/audio/sir-james/';
+  const SONGS = [
+    { file: 'Sir James Adventures.mp3',          title: 'Sir James Theme' },
+    { file: 'Sir James AdventuressSONG001.mp3',  title: 'Adventure Song I' },
+    { file: 'Sir James AdventuresSONG002.mp3',   title: 'Adventure Song II' },
+    { file: 'Sir James AdventuresSONG003.mp3',   title: 'Adventure Song III' },
+    { file: "_Sir James' Adventure Song_.mp3",   title: 'The Quest Begins' },
+    { file: "_Sir James' Adventure Song004.mp3", title: 'Adventure Song IV' },
+    { file: "_Sir James' Adventure Song006.mp3", title: 'Adventure Song VI' },
+    { file: "_Sir James' Adventure Song007.mp3", title: 'Adventure Song VII' },
+  ];
+
+  const audio    = document.getElementById('sjAudio');
+  const playBtn  = document.getElementById('sjPlay');
+  const prevBtn  = document.getElementById('sjPrev');
+  const nextBtn  = document.getElementById('sjNext');
+  const starBtn  = document.getElementById('sjStar');
+  const trackEl  = document.getElementById('sjTrackName');
+  const favCtEl  = document.getElementById('sjFavCt');
+  const listEl   = document.getElementById('sjTrackList');
+  const statusEl = document.getElementById('sjStatus');
+
+  if (!audio || !playBtn) return;  // guard if card not present
+
+  let cur = 0;
+  let isPlaying = false;
+  const favs = JSON.parse(localStorage.getItem('sj_favs') || '{}');
+
+  function saveFavs() { localStorage.setItem('sj_favs', JSON.stringify(favs)); }
+
+  function updateStar() {
+    const isFav = !!favs[SONGS[cur].file];
+    starBtn.textContent = isFav ? '★' : '☆';
+    starBtn.classList.toggle('fav', isFav);
+    const total = Object.values(favs).filter(Boolean).length;
+    favCtEl.textContent = total > 0 ? total + ' ★' : '';
+  }
+
+  function renderList() {
+    listEl.innerHTML = SONGS.map((s, i) => {
+      const star = favs[s.file] ? '★ ' : '';
+      const cls = i === cur ? ' playing' : '';
+      return `<div class="sj-track-item${cls}" data-idx="${i}">${star}${s.title}</div>`;
+    }).join('');
+    listEl.querySelectorAll('.sj-track-item').forEach(el => {
+      el.addEventListener('click', () => loadSong(parseInt(el.dataset.idx)));
+    });
+  }
+
+  function loadSong(idx) {
+    cur = ((idx % SONGS.length) + SONGS.length) % SONGS.length;
+    const song = SONGS[cur];
+    audio.src = BASE + encodeURIComponent(song.file);
+    trackEl.textContent = song.title + ' ▾';
+    statusEl.textContent = '';
+    updateStar();
+    renderList();
+    if (isPlaying) audio.play().catch(handleLoadErr);
+  }
+
+  function handleLoadErr() {
+    isPlaying = false;
+    playBtn.textContent = '▶ Play';
+    statusEl.textContent = '⚠ Audio files not yet hosted — visit sirjamesadventure2024.netlify.app';
+  }
+
+  playBtn.addEventListener('click', () => {
+    if (isPlaying) {
+      audio.pause();
+      isPlaying = false;
+      playBtn.textContent = '▶ Play';
+    } else {
+      if (!audio.src || audio.src === location.href) loadSong(cur);
+      audio.play().then(() => {
+        isPlaying = true;
+        playBtn.textContent = '⏸ Pause';
+        statusEl.textContent = '♫ Now Playing';
+      }).catch(handleLoadErr);
+    }
+  });
+
+  prevBtn.addEventListener('click', () => loadSong(cur - 1));
+  nextBtn.addEventListener('click', () => loadSong(cur + 1));
+
+  starBtn.addEventListener('click', () => {
+    const key = SONGS[cur].file;
+    favs[key] = !favs[key];
+    saveFavs();
+    updateStar();
+    renderList();
+  });
+
+  audio.addEventListener('ended', () => loadSong(cur + 1));
+
+  trackEl.addEventListener('click', () => {
+    listEl.classList.toggle('open');
+    renderList();
+  });
+
+  // Init
+  loadSong(0);
+})();
+</script>
+</body>
+</html>
