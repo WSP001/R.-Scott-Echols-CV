@@ -109,12 +109,19 @@ codex-preview:
 
 # [CODEX] Validate index.html structure
 codex-validate:
-    @echo 'Checking index.html line count'
-    @wc -l public/index.html
-    @echo 'Checking for broken [bracket] placeholders'
-    @grep -n '\[' public/index.html | grep -v '<!--' | head -20 || echo "OK: No bracket placeholders found"
-    @echo 'Checking Three.js references...'
-    @grep -c 'IcosahedronGeometry\|TorusGeometry\|THREE\.' public/index.html || echo "0"
+    @node -e " \
+      const fs = require('fs'); \
+      const html = fs.readFileSync('public/index.html', 'utf8'); \
+      const lines = html.split('\n').length; \
+      console.log('Line count: ' + lines + ' public/index.html'); \
+      const brackets = html.split('\n') \
+        .map((l, i) => ({ n: i+1, l })) \
+        .filter(({ l }) => /\[/.test(l) && !/<!--/.test(l) && !/https?:\/\//.test(l)) \
+        .slice(0, 20); \
+      console.log('Bracket check: ' + (brackets.length ? brackets.map(r => r.n + ': ' + r.l.trim()).join('\n') : 'OK — no broken placeholders')); \
+      const threeRefs = (html.match(/IcosahedronGeometry|TorusGeometry|THREE\./g) || []).length; \
+      console.log('Three.js refs: ' + threeRefs); \
+    "
 
 # ============================================================================
 # ── LANE 2: CLAUDE CODE — Backend / Edge Functions / RAG ─────────────────────
