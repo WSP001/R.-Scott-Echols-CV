@@ -320,6 +320,47 @@ persona-check:
     @echo 'VOICE PROFILE: public/data/voice.json'
     @echo '=================================================================='
 
+# ── PACKET SWITCHING HANDLER — License Gate ──────────────────────────────────
+# The Paradox: "Unlimited" = one-way public pipe (pays per job, COLD rail only)
+#              "Limited"   = bidirectional inner circle (read/write, HOT rail)
+# This recipe reads credential presence and routes the agent to the correct lane.
+# Attribution: Scott Echols / WSP001 — FOR THE COMMONS GOOD — 2026-04-10
+
+# [COLD] Detect which license lane the current environment is on
+license-gate:
+    @echo '=================================================================='
+    @echo '  PACKET SWITCHING HANDLER — LICENSE GATE  (COLD — $0)'
+    @echo '=================================================================='
+    @echo ''
+    @echo 'Checking credential presence to route agent to correct lane...'
+    @echo ''
+    @if [ -n "$$BUSINESS_ACCESS_KEY" ] && [ -n "$$ANTHROPIC_API_KEY" ] && [ -n "$$INGEST_SECRET" ]; then \
+        echo 'LANE: LIMITED (inner circle)'; \
+        echo '  - BUSINESS_ACCESS_KEY: present'; \
+        echo '  - ANTHROPIC_API_KEY:   present'; \
+        echo '  - INGEST_SECRET:       present'; \
+        echo ''; \
+        echo 'ACCESS: Bidirectional — read/write, HOT rail permitted'; \
+        echo '  Wire 1 (Forward): just deploy / just ingest-remote / just push'; \
+        echo '  Wire 2 (Reverse): just archive-asset / just brain-claim'; \
+        echo '  Partitions: cv_personal + cv_projects + business_seatrace (all)'; \
+    elif [ -n "$$ANTHROPIC_API_KEY" ]; then \
+        echo 'LANE: UNLIMITED (public pipe)'; \
+        echo '  - ANTHROPIC_API_KEY:   present'; \
+        echo '  - BUSINESS_ACCESS_KEY: NOT SET — HOT rail blocked'; \
+        echo '  - INGEST_SECRET:       NOT SET — ingest blocked'; \
+        echo ''; \
+        echo 'ACCESS: One-way — COLD rail only, read/query permitted'; \
+        echo '  Available: just validate-manifest / just health / just query'; \
+        echo '  Blocked:   just ingest-remote / just deploy / just push'; \
+        echo '  Partitions: cv_personal + cv_projects (public only)'; \
+    else \
+        echo 'LANE: UNAUTHENTICATED — no keys present'; \
+        echo 'ACCESS: None — run just claude-env-check to diagnose'; \
+    fi
+    @echo ''
+    @echo '=================================================================='
+
 # Verify truth-first content pack integrity
 truth-check:
     python scripts/truth_audit.py --format text
