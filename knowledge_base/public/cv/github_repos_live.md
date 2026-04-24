@@ -24,9 +24,16 @@
 
 ## WSP001 REPOSITORIES
 
+### SirRodg
+**URL:** https://github.com/WSP001/SirRodg  
+**Updated:** 2026-04-24  
+**Language:** HTML  
+**Description:** SeaTrace RFP Landing Page — Four Pillars seafood traceability for USDA Office of Seafood, NOAA SIMP, E.O. 14276  
+**Private:** No (public)
+
 ### R.-Scott-Echols-CV
 **URL:** https://github.com/WSP001/R.-Scott-Echols-CV  
-**Updated:** 2026-04-22  
+**Updated:** 2026-04-24  
 **Language:** HTML  
 **Description:** R. Scott Echols CV  
 **Private:** No (public)
