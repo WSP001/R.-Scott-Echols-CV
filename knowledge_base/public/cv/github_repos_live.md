@@ -26,14 +26,14 @@
 
 ### SirJames-A2A-Studio
 **URL:** https://github.com/WSP001/SirJames-A2A-Studio  
-**Updated:** 2026-05-16  
+**Updated:** 2026-05-17  
 **Language:** HTML  
 **Description:** SirJames-A2A-Studio/        ← Root folder name ├── .github/  ├── netlify/ ├── src/ ├── .env.local ├── requirements.txt        ←) ├── DEPLOYMENT_READY.md ├── WORKSPACE_FIX.md        ← Read this! └── Verify-BuildEnv.ps1  
 **Private:** No (public)
 
 ### R.-Scott-Echols-CV
 **URL:** https://github.com/WSP001/R.-Scott-Echols-CV  
-**Updated:** 2026-05-16  
+**Updated:** 2026-05-17  
 **Language:** HTML  
 **Description:** R. Scott Echols CV  
 **Private:** No (public)
