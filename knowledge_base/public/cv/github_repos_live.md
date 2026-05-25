@@ -24,18 +24,25 @@
 
 ## WSP001 REPOSITORIES
 
-### R.-Scott-Echols-CV
-**URL:** https://github.com/WSP001/R.-Scott-Echols-CV  
-**Updated:** 2026-05-23  
+### SirRodg
+**URL:** https://github.com/WSP001/SirRodg  
+**Updated:** 2026-05-25  
 **Language:** HTML  
-**Description:** R. Scott Echols CV  
+**Description:** SeaTrace RFP Landing Page — Four Pillars seafood traceability for USDA Office of Seafood, NOAA SIMP, E.O. 14276  
 **Private:** No (public)
 
 ### SirJames-A2A-Studio
 **URL:** https://github.com/WSP001/SirJames-A2A-Studio  
-**Updated:** 2026-05-17  
+**Updated:** 2026-05-24  
 **Language:** HTML  
 **Description:** SirJames-A2A-Studio/        ← Root folder name ├── .github/  ├── netlify/ ├── src/ ├── .env.local ├── requirements.txt        ←) ├── DEPLOYMENT_READY.md ├── WORKSPACE_FIX.md        ← Read this! └── Verify-BuildEnv.ps1  
+**Private:** No (public)
+
+### R.-Scott-Echols-CV
+**URL:** https://github.com/WSP001/R.-Scott-Echols-CV  
+**Updated:** 2026-05-24  
+**Language:** HTML  
+**Description:** R. Scott Echols CV  
 **Private:** No (public)
 
 ### SirTrav-A2A-Studio
@@ -43,13 +50,6 @@
 **Updated:** 2026-05-02  
 **Language:** TypeScript  
 **Description:** Memory Keepers of Best Memory context Experience Enhancements point to Moment over proceeding Time Public "Commons-Good" repo for the SirTrav A2A Studio. Implements a D2A (Doc-to-Agent) manifest to automate cinematic video production from raw media. This is the reusable "engine." Rewards corresponding Grade Recall tight D2A interactive Spaces  
-**Private:** No (public)
-
-### SirRodg
-**URL:** https://github.com/WSP001/SirRodg  
-**Updated:** 2026-04-24  
-**Language:** HTML  
-**Description:** SeaTrace RFP Landing Page — Four Pillars seafood traceability for USDA Office of Seafood, NOAA SIMP, E.O. 14276  
 **Private:** No (public)
 
 ### SeaTrace-ODOO
