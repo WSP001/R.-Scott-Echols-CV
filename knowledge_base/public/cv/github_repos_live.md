@@ -24,9 +24,16 @@
 
 ## WSP001 REPOSITORIES
 
+### MARKETING-SeaTrace-MSC-v007
+**URL:** https://github.com/WSP001/MARKETING-SeaTrace-MSC-v007  
+**Updated:** 2026-06-06  
+**Language:** JavaScript  
+**Description:**   
+**Private:** No (public)
+
 ### R.-Scott-Echols-CV
 **URL:** https://github.com/WSP001/R.-Scott-Echols-CV  
-**Updated:** 2026-06-04  
+**Updated:** 2026-06-05  
 **Language:** HTML  
 **Description:** R. Scott Echols CV  
 **Private:** No (public)
