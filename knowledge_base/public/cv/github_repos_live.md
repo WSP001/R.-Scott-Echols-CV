@@ -24,18 +24,18 @@
 
 ## WSP001 REPOSITORIES
 
+### R.-Scott-Echols-CV
+**URL:** https://github.com/WSP001/R.-Scott-Echols-CV  
+**Updated:** 2026-06-17  
+**Language:** HTML  
+**Description:** R. Scott Echols CV  
+**Private:** No (public)
+
 ### SeaTrace-ODOO
 **URL:** https://github.com/WSP001/SeaTrace-ODOO  
 **Updated:** 2026-03-07  
 **Language:** Python  
 **Description:** SeaTrace-ODOO Enterprise Integration Suite - Public Marketing and Integration Documentation  
-**Private:** No (public)
-
-### R.-Scott-Echols-CV
-**URL:** https://github.com/WSP001/R.-Scott-Echols-CV  
-**Updated:** 2026-06-16  
-**Language:** HTML  
-**Description:** R. Scott Echols CV  
 **Private:** No (public)
 
 ### SirTrav-A2A-Studio
