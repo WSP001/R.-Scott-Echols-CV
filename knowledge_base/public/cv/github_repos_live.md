@@ -24,9 +24,16 @@
 
 ## WSP001 REPOSITORIES
 
+### SirTrav-A2A-Studio
+**URL:** https://github.com/WSP001/SirTrav-A2A-Studio  
+**Updated:** 2026-05-02  
+**Language:** TypeScript  
+**Description:** Memory Keepers of Best Memory context Experience Enhancements point to Moment over proceeding Time Public "Commons-Good" repo for the SirTrav A2A Studio. Implements a D2A (Doc-to-Agent) manifest to automate cinematic video production from raw media. This is the reusable "engine." Rewards corresponding Grade Recall tight D2A interactive Spaces  
+**Private:** No (public)
+
 ### R.-Scott-Echols-CV
 **URL:** https://github.com/WSP001/R.-Scott-Echols-CV  
-**Updated:** 2026-06-21  
+**Updated:** 2026-06-22  
 **Language:** HTML  
 **Description:** R. Scott Echols CV  
 **Private:** No (public)
@@ -36,13 +43,6 @@
 **Updated:** 2026-03-07  
 **Language:** Python  
 **Description:** SeaTrace-ODOO Enterprise Integration Suite - Public Marketing and Integration Documentation  
-**Private:** No (public)
-
-### SirTrav-A2A-Studio
-**URL:** https://github.com/WSP001/SirTrav-A2A-Studio  
-**Updated:** 2026-05-02  
-**Language:** TypeScript  
-**Description:** Memory Keepers of Best Memory context Experience Enhancements point to Moment over proceeding Time Public "Commons-Good" repo for the SirTrav A2A Studio. Implements a D2A (Doc-to-Agent) manifest to automate cinematic video production from raw media. This is the reusable "engine." Rewards corresponding Grade Recall tight D2A interactive Spaces  
 **Private:** No (public)
 
 ### MARKETING-SeaTrace-MSC-v007
