@@ -24,18 +24,18 @@
 
 ## WSP001 REPOSITORIES
 
+### R.-Scott-Echols-CV
+**URL:** https://github.com/WSP001/R.-Scott-Echols-CV  
+**Updated:** 2026-07-09  
+**Language:** HTML  
+**Description:** R. Scott Echols CV  
+**Private:** No (public)
+
 ### MARKETING-SeaTrace-MSC-v007
 **URL:** https://github.com/WSP001/MARKETING-SeaTrace-MSC-v007  
 **Updated:** 2026-06-06  
 **Language:** JavaScript  
 **Description:**   
-**Private:** No (public)
-
-### R.-Scott-Echols-CV
-**URL:** https://github.com/WSP001/R.-Scott-Echols-CV  
-**Updated:** 2026-07-08  
-**Language:** HTML  
-**Description:** R. Scott Echols CV  
 **Private:** No (public)
 
 ### SirTrav-A2A-Studio
