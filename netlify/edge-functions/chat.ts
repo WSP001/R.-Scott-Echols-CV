@@ -107,6 +107,32 @@ GITHUB: github.com/WSP001
 
 // ─── RAG retrieval from Cloud Run ─────────────────────────────────────────────
 
+// FOR THE COMMONS GOOD — reusable pattern, candidate for shared WSP001 library
+// Retry policy for the retrieval tier. Mirrors the httpx/tenacity exponential
+// backoff idiom used in the Python side (scripts/vector_store.py), so the Deno
+// edge tier and the FastAPI tier degrade identically and observably.
+//
+// Design rule: RAG failure must be VISIBLE, never silent. The previous
+// implementation swallowed every error into "" and the chatbot answered
+// ungrounded with no signal to the frontend, QA, or logs. A Cloud Run
+// /retrieve returning 502 while /health returned 200 was therefore
+// indistinguishable from "no relevant context found".
+const RAG_MAX_ATTEMPTS = 3;
+const RAG_BASE_DELAY_MS = 200;   // 200ms -> 400ms, plus jitter
+const RAG_TIMEOUT_MS = 4000;     // per attempt; total worst case stays under ~13s
+const RAG_SCORE_FLOOR = 0.3;
+
+/** Observable outcome of a retrieval attempt. Emitted to the client as rag_status. */
+export type RagStatus =
+  | "disabled"        // VECTOR_ENGINE_URL not configured
+  | "ok"              // context retrieved and injected
+  | "empty"           // backend healthy, zero results for this query
+  | "below_threshold" // results returned but all scored under RAG_SCORE_FLOOR
+  | "upstream_error"  // backend reachable but returned 5xx/4xx after retries
+  | "timeout"         // backend did not answer within budget
+  | "unreachable"     // network/DNS/TLS failure
+  | "malformed";      // backend answered but payload was not the expected shape
+
 interface RetrieveResult {
   content: string;
   score: number;
@@ -114,35 +140,98 @@ interface RetrieveResult {
   partition: string;
 }
 
+interface RagOutcome {
+  context: string;
+  status: RagStatus;
+  attempts: number;
+  detail?: string;
+}
+
+const isRetryable = (code: number) =>
+  code === 408 || code === 429 || code === 425 || (code >= 500 && code <= 599);
+
+/** Full jitter exponential backoff — avoids retry stampedes against Cloud Run cold starts. */
+const backoffMs = (attempt: number) =>
+  Math.round(Math.random() * RAG_BASE_DELAY_MS * Math.pow(2, attempt));
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
 async function fetchRAGContext(
   query: string,
   tier: "public" | "business",
   vectorEngineUrl: string
-): Promise<string> {
-  try {
-    const response = await fetch(`${vectorEngineUrl}/retrieve`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ query, tier, top_k: 3 }),
-      signal: AbortSignal.timeout(5000),
-    });
+): Promise<RagOutcome> {
+  let lastStatus: RagStatus = "unreachable";
+  let lastDetail = "";
 
-    if (!response.ok) return "";
+  for (let attempt = 0; attempt < RAG_MAX_ATTEMPTS; attempt++) {
+    if (attempt > 0) await sleep(backoffMs(attempt - 1));
 
-    const results: RetrieveResult[] = await response.json();
-    if (!results.length) return "";
+    try {
+      const response = await fetch(`${vectorEngineUrl}/retrieve`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query, tier, top_k: 3 }),
+        signal: AbortSignal.timeout(RAG_TIMEOUT_MS),
+      });
 
-    const chunks = results
-      .filter((r) => r.score > 0.3)
-      .map((r, i) => `[Context ${i + 1} — ${r.source} (relevance: ${(r.score * 100).toFixed(0)}%)]:\n${r.content}`)
-      .join("\n\n");
+      if (!response.ok) {
+        lastStatus = "upstream_error";
+        lastDetail = `HTTP ${response.status}`;
+        if (isRetryable(response.status)) continue;
+        break; // 4xx that will not improve on retry
+      }
 
-    return chunks
-      ? `\n\nRELEVANT KNOWLEDGE BASE CONTEXT (retrieved via semantic search):\n${chunks}\n`
-      : "";
-  } catch {
-    return "";
+      let results: RetrieveResult[];
+      try {
+        results = await response.json();
+      } catch {
+        return { context: "", status: "malformed", attempts: attempt + 1, detail: "non-JSON body" };
+      }
+
+      if (!Array.isArray(results)) {
+        return { context: "", status: "malformed", attempts: attempt + 1, detail: "expected array" };
+      }
+      if (results.length === 0) {
+        return { context: "", status: "empty", attempts: attempt + 1 };
+      }
+
+      const kept = results.filter((r) => typeof r?.score === "number" && r.score > RAG_SCORE_FLOOR);
+      if (kept.length === 0) {
+        return { context: "", status: "below_threshold", attempts: attempt + 1 };
+      }
+
+      const chunks = kept
+        .map(
+          (r, i) =>
+            `[Context ${i + 1} — ${r.source} (relevance: ${(r.score * 100).toFixed(0)}%)]:\n${r.content}`
+        )
+        .join("\n\n");
+
+      return {
+        context: `\n\nRELEVANT KNOWLEDGE BASE CONTEXT (retrieved via semantic search):\n${chunks}\n`,
+        status: "ok",
+        attempts: attempt + 1,
+      };
+    } catch (err: unknown) {
+      const name = err instanceof Error ? err.name : "";
+      lastStatus = name === "TimeoutError" || name === "AbortError" ? "timeout" : "unreachable";
+      lastDetail = err instanceof Error ? err.name : "unknown";
+    }
   }
+
+  // Structured, greppable log line for Netlify function logs + QA assertions.
+  console.warn(
+    JSON.stringify({
+      event: "rag_degraded",
+      status: lastStatus,
+      detail: lastDetail,
+      attempts: RAG_MAX_ATTEMPTS,
+      tier,
+    })
+  );
+
+  return { context: "", status: lastStatus, attempts: RAG_MAX_ATTEMPTS, detail: lastDetail };
 }
 
 // ─── System prompts ────────────────────────────────────────────────────────────
@@ -206,6 +295,9 @@ If a historical claim is not present in retrieved context, say it is under revie
 // This is non-negotiable. Any agent editing this file must preserve this constant.
 const CLAUDE_MODEL = "claude-opus-4-6";
 const ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages";
+const ANTHROPIC_MAX_ATTEMPTS = 3;
+const ANTHROPIC_TIMEOUT_MS = 20_000;   // per attempt
+const ANTHROPIC_DEADLINE_MS = 45_000;  // total wall-clock budget across retries
 const ANTHROPIC_VERSION = "2023-06-01";
 
 async function callClaude(
@@ -214,7 +306,7 @@ async function callClaude(
   history: Array<{ role: string; content: string }>,
   userMessage: string,
   maxTokens: number
-): Promise<string> {
+): Promise<{ text: string; outputTokens: number }> {
   // Build messages array — Claude uses "user" / "assistant" roles
   const messages = [
     ...history.slice(-10).map((m) => ({
@@ -231,27 +323,66 @@ async function callClaude(
     messages,
   };
 
-  const resp = await fetch(ANTHROPIC_API_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": apiKey,
-      "anthropic-version": ANTHROPIC_VERSION,
-    },
-    body: JSON.stringify(body),
-    signal: AbortSignal.timeout(25_000),
-  });
+  // FOR THE COMMONS GOOD — reusable pattern, candidate for shared WSP001 library
+  // Bounded exponential backoff against a wall-clock deadline. Anthropic returns
+  // 429 (rate limit) and 529 (overloaded) transiently; a single-shot fetch turns
+  // those into a user-visible failure. The deadline keeps total latency inside the
+  // edge function response budget instead of letting retries stack timeouts.
+  const deadline = Date.now() + ANTHROPIC_DEADLINE_MS;
+  let lastErr = "";
 
-  if (!resp.ok) {
-    const errText = await resp.text();
-    console.error("Anthropic API error:", resp.status, errText);
-    throw new Error(`Anthropic API error: ${resp.status}`);
+  for (let attempt = 0; attempt < ANTHROPIC_MAX_ATTEMPTS; attempt++) {
+    const remaining = deadline - Date.now();
+    if (remaining < 3_000) break; // not enough budget for a meaningful attempt
+
+    try {
+      const resp = await fetch(ANTHROPIC_API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": apiKey,
+          "anthropic-version": ANTHROPIC_VERSION,
+        },
+        body: JSON.stringify(body),
+        signal: AbortSignal.timeout(Math.min(ANTHROPIC_TIMEOUT_MS, remaining)),
+      });
+
+      if (resp.ok) {
+        const data = await resp.json();
+        // Claude returns content as an array of content blocks
+        return {
+          text: data?.content?.[0]?.text ?? "",
+          outputTokens: data?.usage?.output_tokens ?? 0,
+        };
+      }
+
+      const errText = await resp.text();
+      lastErr = `Anthropic API error: ${resp.status}`;
+      console.error("Anthropic API error:", resp.status, errText);
+
+      // 401/403/400 will never succeed on retry — fail fast so the operator sees it.
+      if (!isRetryable(resp.status) && resp.status !== 529) throw new Error(lastErr);
+
+      // Honour server-provided Retry-After when present, else full-jitter backoff.
+      const retryAfter = Number(resp.headers.get("retry-after"));
+      const waitMs = Number.isFinite(retryAfter) && retryAfter > 0
+        ? Math.min(retryAfter * 1000, 5_000)
+        : backoffMs(attempt);
+      if (Date.now() + waitMs >= deadline) break;
+      await sleep(waitMs);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "unknown";
+      if (msg.startsWith("Anthropic API error:") && !msg.endsWith("429") && !msg.endsWith("529")) {
+        throw err; // non-retryable, already logged
+      }
+      lastErr = msg;
+      const waitMs = backoffMs(attempt);
+      if (Date.now() + waitMs >= deadline) break;
+      await sleep(waitMs);
+    }
   }
 
-  const data = await resp.json();
-  // Claude returns content as an array of content blocks
-  const text = data?.content?.[0]?.text ?? "";
-  return text;
+  throw new Error(lastErr || "Anthropic API unreachable");
 }
 
 // ─── CORS headers ──────────────────────────────────────────────────────────────
@@ -352,13 +483,13 @@ export default async (request: Request) => {
     );
   }
 
-  // ── RAG retrieval (optional, non-blocking) ──
-  let ragContext = "";
+  // ── RAG retrieval (optional, non-blocking, but ALWAYS observable) ──
   const vectorEngineUrl = Netlify.env.get("VECTOR_ENGINE_URL") || "";
-  if (vectorEngineUrl) {
-    ragContext = await fetchRAGContext(message.trim(), effectiveTier, vectorEngineUrl);
-  }
-  const ragActive = ragContext.length > 0;
+  const rag: RagOutcome = vectorEngineUrl
+    ? await fetchRAGContext(message.trim(), effectiveTier, vectorEngineUrl)
+    : { context: "", status: "disabled", attempts: 0 };
+  const ragContext = rag.context;
+  const ragActive = rag.status === "ok";
 
   const systemPrompt = isBusiness
     ? buildBusinessSystem(ragContext)
@@ -366,7 +497,7 @@ export default async (request: Request) => {
 
   try {
     const maxTokens = isBusiness ? 2048 : 512;
-    const text = await callClaude(
+    const { text, outputTokens } = await callClaude(
       anthropicKey,
       systemPrompt,
       history,
@@ -378,7 +509,10 @@ export default async (request: Request) => {
         JSON.stringify({
           reply: text,
           tier: effectiveTier,
+          tokens_used: outputTokens,
           rag_context_used: ragActive,
+          rag_status: rag.status,
+          rag_attempts: rag.attempts,
           answer_source: ragActive
             ? (isBusiness ? "RAG — Business Corpus" : "RAG — CV Corpus")
             : (isBusiness ? "Verified Profile Pack — Business" : "Verified Profile Pack — Public"),
@@ -388,6 +522,7 @@ export default async (request: Request) => {
         headers: {
           ...CORS,
           "X-RateLimit-Remaining": String(rateCheck.remaining),
+          "X-RAG-Status": rag.status,
         },
       }
     );
