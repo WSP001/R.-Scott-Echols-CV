@@ -24,9 +24,16 @@
 
 ## WSP001 REPOSITORIES
 
+### ROBORTO-DBA-WSP
+**URL:** https://github.com/WSP001/ROBORTO-DBA-WSP  
+**Updated:** 2026-08-29  
+**Language:** TypeScript  
+**Description:** FOR THE COMMONS GOOD PROGRAMMERS AND ENGINEER TEAM(S)  
+**Private:** No (public)
+
 ### R.-Scott-Echols-CV
 **URL:** https://github.com/WSP001/R.-Scott-Echols-CV  
-**Updated:** 2026-08-28  
+**Updated:** 2026-08-29  
 **Language:** HTML  
 **Description:** R. Scott Echols CV  
 **Private:** No (public)
@@ -64,13 +71,6 @@
 **Updated:** 2026-05-24  
 **Language:** HTML  
 **Description:** SirJames-A2A-Studio/        ← Root folder name ├── .github/  ├── netlify/ ├── src/ ├── .env.local ├── requirements.txt        ←) ├── DEPLOYMENT_READY.md ├── WORKSPACE_FIX.md        ← Read this! └── Verify-BuildEnv.ps1  
-**Private:** No (public)
-
-### ROBORTO-DBA-WSP
-**URL:** https://github.com/WSP001/ROBORTO-DBA-WSP  
-**Updated:** 2026-02-24  
-**Language:** —  
-**Description:** FOR THE COMMONS GOOD PROGRAMMERS AND ENGINEER TEAM(S)  
 **Private:** No (public)
 
 ### WAFC-Business
