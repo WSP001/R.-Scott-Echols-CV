@@ -24,18 +24,18 @@
 
 ## WSP001 REPOSITORIES
 
+### R.-Scott-Echols-CV
+**URL:** https://github.com/WSP001/R.-Scott-Echols-CV  
+**Updated:** 2026-08-30  
+**Language:** HTML  
+**Description:** R. Scott Echols CV  
+**Private:** No (public)
+
 ### ROBORTO-DBA-WSP
 **URL:** https://github.com/WSP001/ROBORTO-DBA-WSP  
 **Updated:** 2026-08-29  
 **Language:** TypeScript  
 **Description:** FOR THE COMMONS GOOD PROGRAMMERS AND ENGINEER TEAM(S)  
-**Private:** No (public)
-
-### R.-Scott-Echols-CV
-**URL:** https://github.com/WSP001/R.-Scott-Echols-CV  
-**Updated:** 2026-08-29  
-**Language:** HTML  
-**Description:** R. Scott Echols CV  
 **Private:** No (public)
 
 ### MARKETING-SeaTrace-MSC-v007
