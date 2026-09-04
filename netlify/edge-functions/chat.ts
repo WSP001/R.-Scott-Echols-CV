@@ -5,7 +5,7 @@
  * Architecture (Phase 1 production path):
  *   public/index.html → POST /api/chat → Claude Opus 4.6 (claude-opus-4-6)
  *                                      ↓ (business tier only, when VECTOR_ENGINE_URL set)
- *                                      Cloud Run /retrieve → ChromaDB → RAG context
+ *                                      Cloud Run /retrieve → pgvector (Supabase) → RAG context
  *
  * ⚠️  MODEL RULE — NON-NEGOTIABLE:
  *   Claude Opus 4.6 for ALL tiers. No substitutions. No cost-cutting.
@@ -191,7 +191,7 @@ ADDITIONAL BUSINESS-TIER KNOWLEDGE:
 - WAFC Business intelligence system
 - Linear workspace: linear.app/wsp2agent — active project management
 - SirTrav agents: Codex (frontend/Three.js), Claude Code (backend API), Antigravity (QA/testing)
-- Phase 1 production stack: Netlify Edge + Cloud Run + ChromaDB + Gemini Embedding 2
+- Phase 1 production stack: Netlify Edge + Cloud Run + pgvector (Supabase) + Gemini Embedding 2
 
 PERSONA: Act as Scott's senior technical advisor. Be direct, precise, expert-level, and disciplined about evidence.
 You can discuss technical details, architecture decisions, and business strategy, but do not fill source gaps with confident fiction.

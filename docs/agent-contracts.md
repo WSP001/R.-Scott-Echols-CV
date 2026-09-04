@@ -32,11 +32,10 @@ X-Access-Key: <BUSINESS_ACCESS_KEY value>
 {
   reply: string;             // Claude Opus 4.6 response text
   tier: 'public' | 'business';
-  tokens_used: number;       // output tokens consumed
   rag_context_used: boolean; // true when Cloud Run RAG retrieval was used
   answer_source: string;     // Codex uses this as source attribution pill text
                              // "RAG — CV Corpus" | "RAG — Business Corpus"
-                             // "Embedded CV — Public Profile" | "Embedded Knowledge — Business"
+                             // "Verified Profile Pack — Public" | "Verified Profile Pack — Business"
 }
 ```
 
@@ -96,10 +95,10 @@ X-Access-Key: <BUSINESS_ACCESS_KEY value>
 ### Antigravity Test Assertions (WRITER→EDITOR Vector Handoff)
 - Response `dimensions` MUST equal 3072
 - Response `model` MUST equal `'gemini-embedding-2-preview'`
-- Mock ChromaDB MUST be used — do NOT call real Gemini API in tests
+- Mock pgvector (Supabase) MUST be used — do NOT call real Gemini API in tests
 - WRITER→EDITOR handoff test flow:
   1. Mock: POST /api/embed → returns mock 3072-dim vector
-  2. Assert: Vector is stored in mock ChromaDB collection
+  2. Assert: Vector is stored in mock pgvector collection
   3. Assert: EDITOR can retrieve vector by similarity query
   4. This proves the handoff works without real API calls
 
@@ -236,7 +235,6 @@ This applies to `/api/chat` responses, UI card edits, and pipeline outputs acros
 {
   reply: string;
   tier: 'public' | 'business';
-  tokens_used: number;
   rag_context_used: boolean;
   answer_source: string;           // existing — maps to retrieval_mode for UI pill
   provenance: {                    // NEW — full audit trail
