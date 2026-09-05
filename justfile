@@ -629,6 +629,11 @@ cv-smoke-cloud:
     @echo ''
     @echo '=================================================================='
 
+# [MASTER] Live stack proof: Netlify env presence → Cloud Run /health,/partitions,/retrieve → /api/chat → identity.json
+# Exit 0 = chat HTTP 200. Add grounded=1 to also require rag_status=ok (gate G2). Never prints secrets.
+keys-verify grounded="0":
+    @pwsh -NoProfile -File ./scripts/keys-verify.ps1 {{ if grounded == "1" { "-RequireGrounded" } else { "" } }}
+
 # [MASTER] Full verification gate — combines all Layer 4 proof paths
 verify-all:
     @echo '=================================================================='
@@ -639,6 +644,8 @@ verify-all:
     just cv-smoke-cloud
     @echo ''
     just vector-health
+    @echo ''
+    just keys-verify
     @echo ''
     just qa-ready
     @echo ''

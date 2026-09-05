@@ -32,13 +32,35 @@ X-Access-Key: <BUSINESS_ACCESS_KEY value>
 {
   reply: string;             // Claude Opus 4.6 response text
   tier: 'public' | 'business';
-  tokens_used: number;       // output tokens consumed
-  rag_context_used: boolean; // true when Cloud Run RAG retrieval was used
+  tokens_used: number;       // output tokens consumed (from Anthropic usage.output_tokens)
+  rag_context_used: boolean; // true ONLY when rag_status === 'ok'
+  rag_status: RagStatus;     // NEW — why retrieval did or did not ground this answer
+  rag_attempts: number;      // NEW — retrieval attempts made (0 when disabled)
   answer_source: string;     // Codex uses this as source attribution pill text
                              // "RAG — CV Corpus" | "RAG — Business Corpus"
-                             // "Embedded CV — Public Profile" | "Embedded Knowledge — Business"
+                             // "Verified Profile Pack — Public" | "Verified Profile Pack — Business"
 }
+
+type RagStatus =
+  | 'disabled'         // VECTOR_ENGINE_URL not configured
+  | 'ok'               // context retrieved and injected into the system prompt
+  | 'empty'            // retrieval healthy, zero results for this query
+  | 'below_threshold'  // results returned, all scored <= 0.3
+  | 'upstream_error'   // retrieval reachable but returned 4xx/5xx after retries
+  | 'timeout'          // retrieval exceeded the per-attempt budget
+  | 'unreachable'      // network / DNS / TLS failure
+  | 'malformed';       // retrieval answered with an unexpected payload shape
 ```
+
+**Also returned as a response header:** `X-RAG-Status: <RagStatus>` — so uptime checks and
+Antigravity smoke tests can assert grounding health without parsing the body.
+
+> **Why this exists.** Retrieval failure used to be swallowed silently: any error became `""`
+> and the chatbot answered ungrounded with no signal to the frontend, to QA, or to the logs.
+> On 2026-08-21 the Cloud Run backend was verified returning `/health` 200 while `/retrieve`
+> returned 502 — a state that was indistinguishable from "no relevant context found".
+> `rag_status` makes that distinction observable. A degraded call also emits a structured log
+> line: `{"event":"rag_degraded","status":...,"detail":...,"attempts":...,"tier":...}`.
 
 ### Response Shape — Limit Reached (200, public tier at Q3+)
 ```typescript
@@ -64,6 +86,18 @@ X-Access-Key: <BUSINESS_ACCESS_KEY value>
 - Model: ALWAYS `claude-opus-4-6` — Antigravity MUST assert this in mock
 - `answer_source` MUST be a non-empty string on all 200 success responses
 - `answer_source` MUST be one of the 4 defined values above — no other strings allowed
+- `rag_context_used === true` MUST imply `rag_status === 'ok'` (and the converse)
+- `rag_status` MUST be one of the 8 union members — an unknown string is a contract break
+- `X-RAG-Status` header MUST equal the body's `rag_status`
+- A grounding-health smoke test SHOULD fail the build when `rag_status` is
+  `upstream_error` / `timeout` / `unreachable` / `malformed` against production
+
+> **Contract drift corrected 2026-08-21.** This block previously documented
+> `"Embedded CV — Public Profile"` / `"Embedded Knowledge — Business"`, but the deployed
+> edge function emits `"Verified Profile Pack — Public"` / `"Verified Profile Pack — Business"`.
+> Any Antigravity assertion written against the old strings was asserting a value the backend
+> never sent. The doc now matches `netlify/edge-functions/chat.ts`. Likewise `tokens_used` was
+> documented but never populated; it is now returned from Anthropic `usage.output_tokens`.
 
 ---
 

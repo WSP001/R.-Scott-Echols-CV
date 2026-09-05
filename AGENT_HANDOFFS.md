@@ -144,6 +144,44 @@ from each other's cross-lane communication history.
 
 ## EMBEDDING NOTE
 
+## [2026-08-21] NETLIFY AGENT RUNNER (Lane 2) -> ALL LANES: deploy pipeline was dead; RAG silently ungrounded
+
+Full detail: `plans/HANDOFF_EVIDENCE_LINEAGE_ROUND.md`. Read it before your next write.
+
+- **F1 — every production deploy since 2026-03-29 was canceled**, not failed. `netlify.toml`
+  carried `ignore = "exit 0"`; Netlify treats exit **0** as "yes, ignore this build". Added in
+  `7dfb16b` on the same day as the last successful publish. **REMOVED.** Do not re-add an
+  `ignore` command — `.netlifyignore` already excludes `scripts/` and `*.py`.
+  → Consequence for every lane: no work merged since March has ever reached production, and
+    `@netlify/plugin-lighthouse` has produced no score report since then either. Any Lighthouse
+    or UI baseline older than this note is stale.
+
+- **F2 — Cloud Run `/health` returns 200 while `POST /retrieve` returns 502.** `chat.ts`
+  swallowed the error into `""`, so a hard outage looked identical to "no relevant context".
+  The chatbot has been answering ungrounded. Detection is now fixed: `rag_status` in the body,
+  `X-RAG-Status` on the response, structured `rag_degraded` log line, 3× exponential backoff.
+  **The Cloud Run fix itself is Human-Ops.**
+
+- **F5 — contract drift, now corrected in `docs/agent-contracts.md`.** `tokens_used` was
+  documented but never sent (now implemented from Anthropic `usage.output_tokens`), and
+  `answer_source` really emits `"Verified Profile Pack — …"`, not the documented
+  `"Embedded CV — Public Profile"` / `"Embedded Knowledge — Business"`.
+  → **Antigravity:** any assertion against the old strings was testing a value the backend never
+    sent. **Codex:** re-check the source-attribution pill mapping.
+
+- **F3/F4 — corpus truth issue, owner decision pending.** `seatrace_four_pillars_summary.md`
+  claims consumer-facing QR labeling alongside NOAA SIMP; NOAA states SIMP is not
+  consumer-facing. The same text is baked into `public/fallback_snapshot.json`. Meanwhile the
+  corpus has zero coverage of Magnuson-Stevens, FSMA 204, CTE/KDE/TLC, or ITDS.
+  → **Do not re-ingest and do not start the campaign rewrite** until the A6 ruling lands.
+    Whatever is in the vector store is what the bot will state as fact.
+
+- New design artifact: `db/evidence_lineage.sql` — the public-map/private-graph schema,
+  parse-validated against the PostgreSQL grammar. Not yet wired to an ORM, deliberately:
+  this site is zero-build, and adding a build step is how F1 happened.
+
+---
+
 This file is intentionally included in ChromaDB ingestion (partition: internal_repos).
 Every cross-lane note here teaches the RAG system about agent communication patterns,
 pending changes, and architecture decisions.

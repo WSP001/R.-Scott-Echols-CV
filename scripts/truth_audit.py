@@ -301,6 +301,50 @@ def audit_live_claim_map(results: list[CheckResult]) -> None:
         )
 
 
+def _allowed_partitions() -> set[str]:
+    text = read_text(ROOT / "scripts/api_server.py")
+    match = re.search(r"ALLOWED_PARTITIONS\s*=\s*\{(.*?)\}", text, re.DOTALL)
+    if not match:
+        return set()
+    return set(re.findall(r"\"([a-z_]+)\"", match.group(1)))
+
+
+def audit_partition_contract(results: list[CheckResult]) -> None:
+    allowed = _allowed_partitions()
+    if not allowed:
+        add_result(results, "partition-contract", "FAIL", "blocker",
+                   "Could not parse ALLOWED_PARTITIONS from scripts/api_server.py.")
+        return
+
+    consumers = sorted((ROOT / "scripts").glob("ingest-*.mjs"))
+    sirtrav_seed = ROOT.parent / "SirTrav-A2A-Studio" / "netlify" / "functions" / "lib" / "content-seed.ts"
+    if sirtrav_seed.exists():
+        consumers.append(sirtrav_seed)
+
+    partition_ref = re.compile(
+        r"(?:PARTITION\s*=\s*|partition\s*[:=]\s*|fetchPartition\([^,]+,[^,]+,\s*)['\"]([a-z_]+)['\"]"
+    )
+    unknown: list[str] = []
+    scanned: list[str] = []
+    for path in consumers:
+        text = read_text(path)
+        label = rel(path) if path.is_relative_to(ROOT) else str(path)
+        scanned.append(label)
+        for idx, line in enumerate(text.splitlines(), start=1):
+            for name in partition_ref.findall(line):
+                if name not in allowed:
+                    unknown.append(f"{label}:{idx} -> '{name}' not in ALLOWED_PARTITIONS")
+
+    if unknown:
+        add_result(results, "partition-contract", "FAIL", "blocker",
+                   "Consumers reference partitions the retrieval service rejects (silent-empty on /query, HTTP 400 on /ingest).",
+                   unknown)
+    else:
+        add_result(results, "partition-contract", "PASS", "info",
+                   "Every partition referenced by ingest/retrieval consumers is in ALLOWED_PARTITIONS.",
+                   scanned)
+
+
 def summarize(results: list[CheckResult]) -> str:
     statuses = {r.status for r in results}
     if "FAIL" in statuses:
@@ -340,6 +384,7 @@ def main() -> int:
     audit_env_contract(results)
     audit_public_api_identity(results)
     audit_live_claim_map(results)
+    audit_partition_contract(results)
 
     final_status = summarize(results)
     payload = emit_json(results, final_status)
