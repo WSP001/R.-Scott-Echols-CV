@@ -140,6 +140,25 @@ interface RetrieveResult {
   partition: string;
 }
 
+/**
+ * SOURCERY #1 (bug_risk) — validate EVERY required field before a result is
+ * allowed to ground an answer. A payload item missing `content`/`source`/
+ * `partition`, or carrying a non-string value, previously reached the prompt
+ * as the literal "undefined". Contract source: scripts/api_server.py
+ * `class RetrieveResult(BaseModel)` — content:str, score:float, source:str,
+ * partition:str. All four are required there, so all four are required here.
+ */
+const isValidResult = (r: unknown): r is RetrieveResult => {
+  if (typeof r !== "object" || r === null) return false;
+  const c = r as Record<string, unknown>;
+  return (
+    typeof c.content === "string" && c.content.length > 0 &&
+    typeof c.source === "string" && c.source.length > 0 &&
+    typeof c.partition === "string" && c.partition.length > 0 &&
+    typeof c.score === "number" && Number.isFinite(c.score)
+  );
+};
+
 interface RagOutcome {
   context: string;
   status: RagStatus;
@@ -163,9 +182,14 @@ async function fetchRAGContext(
 ): Promise<RagOutcome> {
   let lastStatus: RagStatus = "unreachable";
   let lastDetail = "";
+  // SOURCERY #2 (bug_risk) — count attempts ACTUALLY made. The terminal path
+  // previously always reported RAG_MAX_ATTEMPTS, so a single non-retryable 400
+  // was logged and returned as "3 attempts".
+  let attemptsMade = 0;
 
   for (let attempt = 0; attempt < RAG_MAX_ATTEMPTS; attempt++) {
     if (attempt > 0) await sleep(backoffMs(attempt - 1));
+    attemptsMade = attempt + 1;
 
     try {
       const response = await fetch(`${vectorEngineUrl}/retrieve`, {
@@ -186,19 +210,31 @@ async function fetchRAGContext(
       try {
         results = await response.json();
       } catch {
-        return { context: "", status: "malformed", attempts: attempt + 1, detail: "non-JSON body" };
+        return { context: "", status: "malformed", attempts: attemptsMade, detail: "non-JSON body" };
       }
 
       if (!Array.isArray(results)) {
-        return { context: "", status: "malformed", attempts: attempt + 1, detail: "expected array" };
+        return { context: "", status: "malformed", attempts: attemptsMade, detail: "expected array" };
       }
       if (results.length === 0) {
-        return { context: "", status: "empty", attempts: attempt + 1 };
+        return { context: "", status: "empty", attempts: attemptsMade };
       }
 
-      const kept = results.filter((r) => typeof r?.score === "number" && r.score > RAG_SCORE_FLOOR);
+      // SOURCERY #1 — shape validation happens BEFORE thresholding, so an
+      // invalid payload can never be silently reduced to "below_threshold".
+      const invalid = results.filter((r) => !isValidResult(r)).length;
+      if (invalid > 0) {
+        return {
+          context: "",
+          status: "malformed",
+          attempts: attemptsMade,
+          detail: `${invalid}/${results.length} result(s) missing or mistyped content/source/partition/score`,
+        };
+      }
+
+      const kept = results.filter((r) => r.score > RAG_SCORE_FLOOR);
       if (kept.length === 0) {
-        return { context: "", status: "below_threshold", attempts: attempt + 1 };
+        return { context: "", status: "below_threshold", attempts: attemptsMade };
       }
 
       const chunks = kept
@@ -211,7 +247,7 @@ async function fetchRAGContext(
       return {
         context: `\n\nRELEVANT KNOWLEDGE BASE CONTEXT (retrieved via semantic search):\n${chunks}\n`,
         status: "ok",
-        attempts: attempt + 1,
+        attempts: attemptsMade,
       };
     } catch (err: unknown) {
       const name = err instanceof Error ? err.name : "";
@@ -226,12 +262,12 @@ async function fetchRAGContext(
       event: "rag_degraded",
       status: lastStatus,
       detail: lastDetail,
-      attempts: RAG_MAX_ATTEMPTS,
+      attempts: attemptsMade,
       tier,
     })
   );
 
-  return { context: "", status: lastStatus, attempts: RAG_MAX_ATTEMPTS, detail: lastDetail };
+  return { context: "", status: lastStatus, attempts: attemptsMade, detail: lastDetail };
 }
 
 // ─── System prompts ────────────────────────────────────────────────────────────

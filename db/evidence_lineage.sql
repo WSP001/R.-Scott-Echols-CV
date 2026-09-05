@@ -132,12 +132,21 @@ CREATE TABLE legacy_artifact (
   name           text NOT NULL,
   description    text NOT NULL,
   origin_year    integer,                     -- earliest defensible evidence of it
+  origin_date    date,                        -- precise first-evidence date, if provable
   evidence_of_date text,                      -- HOW origin_year is established
   disclosure     disclosure_class NOT NULL,
   repo_or_doc    text,                        -- where it is attested
   CONSTRAINT ck_origin_year_sane
-    CHECK (origin_year IS NULL OR (origin_year BETWEEN 1970 AND 2100))
+    CHECK (origin_year IS NULL OR (origin_year BETWEEN 1970 AND 2100)),
+  CONSTRAINT ck_origin_date_matches_year CHECK (
+    origin_date IS NULL OR origin_year IS NULL
+    OR EXTRACT(YEAR FROM origin_date)::int = origin_year
+  )
 );
+
+COMMENT ON COLUMN legacy_artifact.origin_date IS
+  'Precise, provable first-evidence date. REQUIRED for a DIRECT_REGULATORY_MATCH '
+  'whose artifact_year equals the authority year. NULL = year-level evidence only.';
 
 COMMENT ON COLUMN legacy_artifact.evidence_of_date IS
   'A dated artifact claim is only as good as its proof. Undated artifacts '
@@ -160,16 +169,29 @@ CREATE TABLE crosswalk_claim (
   -- row level. Kept in sync by trg_sync_claim_dates below.
   artifact_year   integer,
   authority_year  integer,
+  artifact_date   date,
+  authority_date  date,
 
   UNIQUE (artifact_id, requirement_id),
 
   -- RULE 1 — ANACHRONISM. A direct compliance claim requires that the artifact
-  -- actually post-dates the authority, and that both dates are known.
+  -- actually post-dates the authority, and that both dates are known. When the
+  -- years are equal, day-precise dates are REQUIRED on both sides — year-only
+  -- evidence cannot prove a same-year direct match. Own-row columns only:
+  -- PostgreSQL forbids subqueries / parent columns in CHECK constraints.
   CONSTRAINT ck_no_anachronistic_compliance CHECK (
     classification <> 'DIRECT_REGULATORY_MATCH'
-    OR (artifact_year IS NOT NULL
-        AND authority_year IS NOT NULL
-        AND artifact_year >= authority_year)
+    OR (
+      artifact_year IS NOT NULL
+      AND authority_year IS NOT NULL
+      AND (
+        artifact_year > authority_year
+        OR (artifact_year = authority_year
+            AND artifact_date  IS NOT NULL
+            AND authority_date IS NOT NULL
+            AND artifact_date >= authority_date)
+      )
+    )
   ),
 
   -- "COMPLIED_WITH" is likewise only available to a genuine direct match.
@@ -178,18 +200,21 @@ CREATE TABLE crosswalk_claim (
   )
 );
 
--- Keep the denormalised years honest.
+-- Keep the denormalised years AND precise dates honest.
 CREATE OR REPLACE FUNCTION sync_claim_dates() RETURNS trigger AS $$
 BEGIN
-  SELECT la.origin_year INTO NEW.artifact_year
-    FROM legacy_artifact la WHERE la.id = NEW.artifact_id;
+  SELECT la.origin_year, la.origin_date
+    INTO NEW.artifact_year, NEW.artifact_date
+    FROM legacy_artifact la
+   WHERE la.id = NEW.artifact_id;
 
-  SELECT EXTRACT(YEAR FROM COALESCE(a.effective_on, a.enacted_on))::int
-    INTO NEW.authority_year
+  SELECT COALESCE(a.effective_on, a.enacted_on)
+    INTO NEW.authority_date
     FROM authority_requirement ar
     JOIN authority a ON a.id = ar.authority_id
    WHERE ar.id = NEW.requirement_id;
 
+  NEW.authority_year := EXTRACT(YEAR FROM NEW.authority_date)::int;
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -197,6 +222,48 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER trg_sync_claim_dates
   BEFORE INSERT OR UPDATE ON crosswalk_claim
   FOR EACH ROW EXECUTE FUNCTION sync_claim_dates();
+
+-- Parent-side revalidation. A no-op UPDATE on the dependent claims re-fires
+-- trg_sync_claim_dates (refreshing the denormalised values from the CURRENT
+-- parent rows) and re-runs every CHECK. A correction that would leave an
+-- indefensible DIRECT_REGULATORY_MATCH therefore aborts the whole transaction
+-- instead of silently leaving the claim marked valid.
+
+CREATE OR REPLACE FUNCTION revalidate_claims_for_artifact() RETURNS trigger AS $$
+BEGIN
+  UPDATE crosswalk_claim SET artifact_year = artifact_year WHERE artifact_id = NEW.id;
+  RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_revalidate_claims_artifact
+  AFTER UPDATE OF origin_year, origin_date ON legacy_artifact
+  FOR EACH ROW EXECUTE FUNCTION revalidate_claims_for_artifact();
+
+CREATE OR REPLACE FUNCTION revalidate_claims_for_authority() RETURNS trigger AS $$
+BEGIN
+  UPDATE crosswalk_claim c SET authority_year = c.authority_year
+   WHERE c.requirement_id IN (
+     SELECT ar.id FROM authority_requirement ar WHERE ar.authority_id = NEW.id
+   );
+  RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_revalidate_claims_authority
+  AFTER UPDATE OF effective_on, enacted_on ON authority
+  FOR EACH ROW EXECUTE FUNCTION revalidate_claims_for_authority();
+
+CREATE OR REPLACE FUNCTION revalidate_claims_for_requirement() RETURNS trigger AS $$
+BEGIN
+  UPDATE crosswalk_claim SET requirement_id = requirement_id WHERE requirement_id = NEW.id;
+  RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_revalidate_claims_requirement
+  AFTER UPDATE OF authority_id ON authority_requirement
+  FOR EACH ROW EXECUTE FUNCTION revalidate_claims_for_requirement();
 
 -- Every claim needs at least one supporting citation.
 CREATE TABLE claim_support (
@@ -294,3 +361,18 @@ JOIN legacy_artifact       la ON la.id = c.artifact_id
 JOIN authority_requirement ar ON ar.id = c.requirement_id
 JOIN authority             a  ON a.id  = ar.authority_id
 WHERE c.id NOT IN (SELECT claim_id FROM v_public_map);
+
+-- Operator view: which claims carry denormalised dates that no longer match
+-- their parents. Should always be empty; alert on row_count > 0.
+CREATE VIEW v_stale_claims AS
+SELECT c.id AS claim_id, c.artifact_year, la.origin_year AS artifact_year_truth,
+       c.artifact_date, la.origin_date AS artifact_date_truth,
+       c.authority_year,
+       EXTRACT(YEAR FROM COALESCE(a.effective_on, a.enacted_on))::int AS authority_year_truth
+FROM crosswalk_claim c
+JOIN legacy_artifact la ON la.id = c.artifact_id
+JOIN authority_requirement ar ON ar.id = c.requirement_id
+JOIN authority a ON a.id = ar.authority_id
+WHERE c.artifact_year  IS DISTINCT FROM la.origin_year
+   OR c.artifact_date  IS DISTINCT FROM la.origin_date
+   OR c.authority_year IS DISTINCT FROM EXTRACT(YEAR FROM COALESCE(a.effective_on, a.enacted_on))::int;
