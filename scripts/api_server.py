@@ -60,8 +60,14 @@ PORT          = int(os.environ.get("PORT", 8080))
 
 ALLOWED_PARTITIONS = {
     "cv_personal", "cv_projects", "business_seatrace",
-    "business_proposals", "internal_repos", "recreational"
+    "business_proposals", "internal_repos", "recreational",
+    "linkedin_history",
 }
+
+# Single source of truth for the public tier. /retrieve gating, /ingest tier
+# tagging and /partitions all read from here. linkedin_history holds already-
+# public LinkedIn posts; move it out of this set to restrict it to business tier.
+PUBLIC_PARTITIONS = {"cv_personal", "cv_projects", "linkedin_history"}
 
 # ── FastAPI app ────────────────────────────────────────────────────────────────
 app = FastAPI(
@@ -143,6 +149,7 @@ def list_partitions():
     partitions = {
         "cv_personal":         {"tier": "public",   "desc": "Resume, skills, career timeline"},
         "cv_projects":         {"tier": "public",   "desc": "SirTrav, SeaTrace, WAFC details"},
+        "linkedin_history":    {"tier": "public",   "desc": "Scott's real LinkedIn posts — voice/style reference"},
         "business_seatrace":   {"tier": "business", "desc": "SeaTrace API docs, Four Pillars"},
         "business_proposals":  {"tier": "business", "desc": "Client proposals, pricing"},
         "internal_repos":      {"tier": "business", "desc": "GitHub repo summaries, architecture"},
@@ -166,7 +173,7 @@ def retrieve(req: RetrieveRequest):
 
     # Tier-based partition gating
     if req.tier == "public":
-        allowed = {"cv_personal", "cv_projects"}
+        allowed = PUBLIC_PARTITIONS
         if req.partition and req.partition not in allowed:
             raise HTTPException(403, f"Partition '{req.partition}' requires business tier access")
         search_partitions = [req.partition] if req.partition else list(allowed)
@@ -330,7 +337,7 @@ def ingest(req: IngestRequest, x_ingest_secret: Optional[str] = Header(None)):
         "partition": req.partition,
         "source": req.source,
         "modality": req.modality,
-        "tier": "public" if req.partition in {"cv_personal", "cv_projects"} else "business",
+        "tier": "public" if req.partition in PUBLIC_PARTITIONS else "business",
     }
     store.add_document(
         doc_id=chunk_id,
