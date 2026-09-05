@@ -12,7 +12,9 @@ Architecture:
       ↓  POST /retrieve { query, partition, top_k }
   Cloud Run api_server.py (FastAPI + vector store)
       ↓  cosine similarity search
-  pgvector or ChromaDB (3072-dim Gemini Embedding 2 vectors)
+  pgvector (Supabase Postgres, DATABASE_URL) — PRODUCTION
+  ChromaDB (local disk)                     — dev fallback only
+  3072-dim Gemini Embedding 2 vectors either way
       ↓  top-K chunks
   back to chat.ts → injected into Claude system prompt as RAG context
 
@@ -26,9 +28,12 @@ Environment variables:
   GEMINI_API_KEY       → required for embedding queries
   INGEST_SECRET        → required for POST /ingest (set in Cloud Run secrets)
   PORT                 → Cloud Run sets this automatically (default 8080)
-  CHROMADB_PATH        → local path to ChromaDB data (default ./chromadb_data)
-  DATABASE_URL         → optional durable PostgreSQL/pgvector backend
-  VECTOR_STORE_BACKEND → auto | chroma | pgvector
+  DATABASE_URL         → PostgreSQL/pgvector DSN. REQUIRED in production (Cloud Run).
+                         If unset, `auto` silently falls back to ChromaDB on ephemeral
+                         disk, which is empty on every cold start → /retrieve returns [].
+  VECTOR_STORE_BACKEND → auto | chroma | pgvector  (set `pgvector` on Cloud Run so a
+                         missing DATABASE_URL fails loudly instead of degrading)
+  CHROMADB_PATH        → local dev only (default ./chromadb_data)
 
 Run locally:
   pip install fastapi uvicorn chromadb google-genai
@@ -200,7 +205,7 @@ def retrieve(req: RetrieveRequest):
     except Exception as e:
         raise HTTPException(502, f"Embedding failed: {str(e)}")
 
-    # Search ChromaDB
+    # Search the active vector store (pgvector in production)
     try:
         rows = store.similarity_search(
             query_embedding=query_embedding,
@@ -304,7 +309,7 @@ def query(req: QueryRequest):
 @app.post("/ingest")
 def ingest(req: IngestRequest, x_ingest_secret: Optional[str] = Header(None)):
     """
-    Ingest a text chunk into ChromaDB.
+    Ingest a text chunk into the active vector store (pgvector in production).
     Requires X-Ingest-Secret header matching INGEST_SECRET env var.
     
     Used by the GitHub Actions workflow and local embed_engine.py.
