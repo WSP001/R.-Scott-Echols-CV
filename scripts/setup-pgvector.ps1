@@ -48,8 +48,9 @@ if ($DatabaseUrl -notmatch '^postgresql://') {
 }
 
 if (-not $IngestSecret) {
-    $IngestSecret = "1ef718866b5440ad842a0d87c19a12e1"
-    Write-Info "Using known INGEST_SECRET from this session"
+    Write-Fail "INGEST_SECRET is required (env INGEST_SECRET or -IngestSecret). It must match the Secret Manager value the service boots with."
+    Write-Info "Never hardcode it here - a previous version did, and that value is now in git history and rotated."
+    exit 1
 }
 
 # ── Step 1: Store DATABASE_URL in GCP Secret Manager ─────────────────────────

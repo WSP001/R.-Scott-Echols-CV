@@ -634,6 +634,12 @@ cv-smoke-cloud:
 keys-verify grounded="0":
     @pwsh -NoProfile -File ./scripts/keys-verify.ps1 {{ if grounded == "1" { "-RequireGrounded" } else { "" } }}
 
+# [MASTER] One-shot operator bootstrap: Secret Manager → Cloud Run (pgvector) → ingest → Netlify env+deploy → keys-verify grounded=1
+# Reads WSP001_DATABASE_URL / WSP001_GEMINI_API_KEY / WSP001_ANTHROPIC_API_KEY (+ optional WSP001_INGEST_SECRET, WSP001_LINKEDIN_CSV) from env. Never echoes secrets.
+# Examples: just ops-bootstrap | just ops-bootstrap "-Only ingest,verify" | just ops-bootstrap "-DryRun"
+ops-bootstrap args="":
+    @pwsh -NoProfile -File ./scripts/ops-bootstrap.ps1 {{args}}
+
 # [MASTER] Full verification gate — combines all Layer 4 proof paths
 verify-all:
     @echo '=================================================================='

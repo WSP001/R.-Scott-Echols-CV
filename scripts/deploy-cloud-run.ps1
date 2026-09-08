@@ -117,6 +117,11 @@ $DeployArgs = @(
     "--timeout", "30",
     "--concurrency", "80",
     "--port", "8080",
+    # --set-env-vars REPLACES the whole plaintext env set. This is deliberate: it
+    # purges any secret that was ever pasted in as a plain value (F7) and forces
+    # the durable backend so a bad DATABASE_URL fails at boot instead of silently
+    # degrading to an empty ChromaDB on ephemeral disk.
+    "--set-env-vars", "VECTOR_STORE_BACKEND=pgvector,CHROMADB_PATH=/data/chromadb",
     "--quiet"
 )
 
@@ -135,10 +140,13 @@ if (gcloud secrets describe DATABASE_URL --project=$ProjectId 2>$null) {
     $Secrets += "DATABASE_URL=DATABASE_URL:latest"
     Write-OK "Using Secret Manager: DATABASE_URL"
 }
-if ($Secrets.Count -gt 0) {
-    $DeployArgs += "--set-secrets"
-    $DeployArgs += ($Secrets -join ",")
+$Required = @("GEMINI_API_KEY", "INGEST_SECRET", "DATABASE_URL")
+$Missing = $Required | Where-Object { ($Secrets -join ",") -notmatch "^$_=|,$_=" }
+if ($Missing) {
+    Write-Fail "Secret Manager is missing: $($Missing -join ', '). Create them first (scripts/ops-bootstrap.ps1 does this) - secrets are never passed as plaintext env."
 }
+$DeployArgs += "--set-secrets"
+$DeployArgs += ($Secrets -join ",")
 
 gcloud @DeployArgs
 if ($LASTEXITCODE -ne 0) { Write-Fail "Cloud Run deploy failed" }
