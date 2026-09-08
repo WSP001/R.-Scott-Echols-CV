@@ -263,35 +263,61 @@ This applies to `/api/chat` responses, UI card edits, and pipeline outputs acros
 | **Project source** | `project_source` | `sirscott` · `sirtrav` · `seatrace` · `sirjames` · `learnquest` | API response + changelog |
 | **Retrieval mode** | `retrieval_mode` | `vector-active` · `fallback-local` · `embedded-seed` | API response + UI pill |
 
-### /api/chat Provenance Fields (Claude Code adds to response)
+### /api/chat 200 response — SHIPPED contract (`netlify/edge-functions/chat.ts`, main @ 2026-09-05)
+
+This is what the runtime emits. QA writes tests against **this** block, nothing else.
 
 ```typescript
-// Add to existing 200 response shape:
 {
   reply: string;
   tier: 'public' | 'business';
-  tokens_used: number;
-  rag_context_used: boolean;
-  answer_source: string;           // existing — maps to retrieval_mode for UI pill
-  provenance: {                    // NEW — full audit trail
-    identity_source: 'identity.json' | 'identity_verified.md' | 'legacy_narrative';
-    style_source: 'voice.json' | 'hashtags.json' | 'creative_credits' | 'none';
-    project_source: 'sirscott' | 'sirtrav' | 'seatrace' | 'sirjames' | 'learnquest';
-    retrieval_mode: 'vector-active' | 'fallback-local' | 'embedded-seed';
-    chunks_used: number;           // 0 if fallback, N if vector-active
-  };
+  tokens_used: number;               // Anthropic usage.output_tokens
+  rag_context_used: boolean;         // === (rag_status === 'ok')
+  rag_status: 'ok' | 'disabled' | 'empty' | 'below_threshold' | 'malformed'
+            | 'upstream_error' | 'timeout' | 'unreachable';
+  rag_attempts: number;              // real count of /retrieve calls made (0..3)
+  answer_source:
+    | 'RAG — CV Corpus'                         // public  + rag_status ok
+    | 'RAG — Business Corpus'                   // business + rag_status ok
+    | 'Verified Profile Pack — Public'          // public  + any other rag_status
+    | 'Verified Profile Pack — Business';       // business + any other rag_status
 }
+// Response header: X-RAG-Status: <rag_status>   (mirrors the body field)
+```
+
+`retrieval_mode` is **derived**, not sent: `ok` → `vector-active`; `disabled` → `embedded-seed`;
+every other `rag_status` → `fallback-local`.
+
+### `provenance` object — PLANNED, NOT SHIPPED
+
+The four-dimension `provenance` object below was specified 2026-08 and has never been emitted
+(`grep -rn provenance netlify/` is empty). It stays here as the target design, with the reason it is
+not yet implemented: `project_source` requires classifying the user's question into one of the five
+identity boundaries. Doing that by keyword heuristic would put an **ungrounded claim** into the one
+field whose purpose is to prove grounding. It ships when retrieval results carry a `boundary` tag in
+their metadata so the value can be read, not guessed.
+
+```typescript
+// TARGET — do not assert on this until chat.ts emits it
+provenance?: {
+  identity_source: 'identity.json' | 'identity_verified.md' | 'legacy_narrative';
+  style_source: 'voice.json' | 'hashtags.json' | 'creative_credits' | 'none';
+  project_source: 'sirscott' | 'sirtrav' | 'seatrace' | 'sirjames' | 'learnquest';
+  retrieval_mode: 'vector-active' | 'fallback-local' | 'embedded-seed';
+  chunks_used: number;
+};
 ```
 
 ### UI Provenance Display (Codex renders from response)
 
-The source attribution pill (`data-testid="source-pill"`) MUST reflect `retrieval_mode`:
+The source attribution pill (`data-testid="source-pill"`) MUST render `answer_source` verbatim and
+class itself from `rag_status`:
 
-| retrieval_mode | Pill Text | Pill Class |
-|----------------|-----------|------------|
-| `vector-active` | `RAG — {project_source} Corpus` | `msg-meta-pill source business` or `public` |
-| `fallback-local` | `Safe Local Guidance` | `msg-meta-pill source fallback` |
-| `embedded-seed` | `Embedded CV — Public Profile` | `msg-meta-pill source public` |
+| rag_status | Pill Text (= `answer_source`) | Pill Class |
+|------------|-------------------------------|------------|
+| `ok` | `RAG — CV Corpus` / `RAG — Business Corpus` | `msg-meta-pill source public` / `business` |
+| `disabled` | `Verified Profile Pack — Public` / `— Business` | `msg-meta-pill source public` |
+| any other | `Verified Profile Pack — Public` / `— Business` | `msg-meta-pill source fallback` |
 
 ### Card Edit Provenance (CV-CARD-CHANGELOG.md)
 
@@ -306,12 +332,16 @@ Every card edit in `public/index.html` logs to `docs/CV-CARD-CHANGELOG.md` with:
 | Identity Source | Which file the claim came from |
 | Project Source | Which identity boundary applies |
 
-### Antigravity Provenance Assertions
+### Antigravity Assertions (against the SHIPPED contract)
 
-- `provenance.identity_source` MUST be present on all 200 responses
-- `provenance.retrieval_mode` MUST match `rag_context_used` (vector-active ↔ true, fallback-local ↔ false)
-- `provenance.project_source` MUST be one of the 5 identity boundaries in identity.json
+- `rag_status` MUST be present on all 200 responses and MUST equal the `X-RAG-Status` header
+- `rag_context_used` MUST be `true` iff `rag_status === 'ok'`
+- `rag_attempts` MUST be an integer in `0..3`; MUST be `0` when `rag_status === 'disabled'`
+- `answer_source` MUST start with `RAG —` iff `rag_status === 'ok'`
+- `tokens_used` MUST be a positive integer
+- Public-tier responses MUST NOT contain content from `business_*`, `internal_repos` or `recreational` partitions
 - Card changelog entries MUST have non-empty Identity Source column
+- Do NOT assert on `provenance.*` — see "PLANNED, NOT SHIPPED" above
 
 ---
 
