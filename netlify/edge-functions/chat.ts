@@ -1,3 +1,4 @@
+/// <reference path="../types/netlify-globals.d.ts" />
 /**
  * R. Scott Echols CV — AI Chat Edge Function
  * Deployed via Netlify Edge Functions (Deno runtime, CDN-edge, zero cold-start)
@@ -114,11 +115,39 @@ interface RetrieveResult {
   partition: string;
 }
 
+// Retrieval is non-blocking: a failure degrades the answer to the verified
+// profile pack rather than failing the request. But it is NOT silent.
+// `rag_context_used: false` alone cannot distinguish "retrieval is switched
+// off" from "retrieval timed out" from "nothing relevant was found" — which is
+// how a dead corpus stays unnoticed. rag_status names the actual outcome.
+type RagStatus =
+  | "ok"
+  | "empty"
+  | "below_threshold"
+  | "not_configured"
+  | "timeout"
+  | "upstream_error";
+
+interface RagOutcome {
+  context: string;
+  status: RagStatus;
+  sources: string[];
+}
+
 async function fetchRAGContext(
   query: string,
   tier: "public" | "business",
   vectorEngineUrl: string
-): Promise<string> {
+): Promise<RagOutcome> {
+  const empty = (status: RagStatus): RagOutcome => ({
+    context: "",
+    status,
+    sources: [],
+  });
+
+  if (!vectorEngineUrl) return empty("not_configured");
+
+  let results: RetrieveResult[];
   try {
     const response = await fetch(`${vectorEngineUrl}/retrieve`, {
       method: "POST",
@@ -127,22 +156,32 @@ async function fetchRAGContext(
       signal: AbortSignal.timeout(5000),
     });
 
-    if (!response.ok) return "";
-
-    const results: RetrieveResult[] = await response.json();
-    if (!results.length) return "";
-
-    const chunks = results
-      .filter((r) => r.score > 0.3)
-      .map((r, i) => `[Context ${i + 1} — ${r.source} (relevance: ${(r.score * 100).toFixed(0)}%)]:\n${r.content}`)
-      .join("\n\n");
-
-    return chunks
-      ? `\n\nRELEVANT KNOWLEDGE BASE CONTEXT (retrieved via semantic search):\n${chunks}\n`
-      : "";
-  } catch {
-    return "";
+    if (!response.ok) {
+      // Status only — the upstream body can echo the user's question back.
+      console.error("chat RAG upstream status:", response.status);
+      return empty("upstream_error");
+    }
+    results = await response.json();
+  } catch (err: unknown) {
+    const isTimeout = err instanceof Error && err.name === "TimeoutError";
+    console.error("chat RAG error:", isTimeout ? "timeout" : "unreachable");
+    return empty(isTimeout ? "timeout" : "upstream_error");
   }
+
+  if (!Array.isArray(results) || results.length === 0) return empty("empty");
+
+  const relevant = results.filter((r) => r.score > 0.3);
+  if (relevant.length === 0) return empty("below_threshold");
+
+  const chunks = relevant
+    .map((r, i) => `[Context ${i + 1} — ${r.source} (relevance: ${(r.score * 100).toFixed(0)}%)]:\n${r.content}`)
+    .join("\n\n");
+
+  return {
+    context: `\n\nRELEVANT KNOWLEDGE BASE CONTEXT (retrieved via semantic search):\n${chunks}\n`,
+    status: "ok",
+    sources: [...new Set(relevant.map((r) => `${r.partition}:${r.source}`))],
+  };
 }
 
 // ─── System prompts ────────────────────────────────────────────────────────────
@@ -353,12 +392,10 @@ export default async (request: Request) => {
   }
 
   // ── RAG retrieval (optional, non-blocking) ──
-  let ragContext = "";
   const vectorEngineUrl = Netlify.env.get("VECTOR_ENGINE_URL") || "";
-  if (vectorEngineUrl) {
-    ragContext = await fetchRAGContext(message.trim(), effectiveTier, vectorEngineUrl);
-  }
-  const ragActive = ragContext.length > 0;
+  const rag = await fetchRAGContext(message.trim(), effectiveTier, vectorEngineUrl);
+  const ragContext = rag.context;
+  const ragActive = rag.status === "ok";
 
   const systemPrompt = isBusiness
     ? buildBusinessSystem(ragContext)
@@ -378,7 +415,11 @@ export default async (request: Request) => {
         JSON.stringify({
           reply: text,
           tier: effectiveTier,
+          // rag_context_used is kept for the existing UI and QA assertions.
+          // rag_status is additive and reports the real retrieval outcome.
           rag_context_used: ragActive,
+          rag_status: rag.status,
+          sources_used: rag.sources,
           answer_source: ragActive
             ? (isBusiness ? "RAG — Business Corpus" : "RAG — CV Corpus")
             : (isBusiness ? "Verified Profile Pack — Business" : "Verified Profile Pack — Public"),

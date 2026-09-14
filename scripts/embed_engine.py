@@ -34,7 +34,9 @@ from datetime import datetime, timezone
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
-# ── Allowed partitions (from design.md) ──────────────────────────────
+# ── Allowed partitions ───────────────────────────────────────────────
+# MUST stay in sync with scripts/api_server.py PARTITION_TIERS and
+# scripts/schema/wsp001_knowledge.sql. scripts/truth_audit.py gates this.
 PARTITIONS = {
     "cv_personal": {
         "tier": "public",
@@ -42,7 +44,15 @@ PARTITIONS = {
     },
     "cv_projects": {
         "tier": "public",
-        "desc": "SirTrav, SeaTrace, WAFC, project details"
+        "desc": "SirScottA2A, SeaTrace, WAFC, project details"
+    },
+    "linkedin_history": {
+        "tier": "public",
+        "desc": "Scott's own published LinkedIn posts — voice corpus"
+    },
+    "social_published": {
+        "tier": "public",
+        "desc": "Posts published by SirScottA2A + engagement metrics"
     },
     "business_seatrace": {
         "tier": "business",
@@ -119,6 +129,123 @@ def get_chroma_collection():
         name=COLLECTION_NAME,
         metadata={"hnsw:space": "cosine"}
     )
+
+
+class RemoteCollection:
+    """
+    Ingest adapter that POSTs to the deployed Cloud Run /ingest endpoint
+    (PostgreSQL + pgvector) instead of writing a local ChromaDB directory.
+
+    FOR THE COMMONS GOOD — reusable pattern, candidate for shared WSP001 library
+
+    WHY THIS EXISTS: production moved to pgvector, but this script still wrote
+    vectors into a local .chromadb/ that nothing reads. Ingests appeared to
+    succeed while the live corpus stayed empty — the worst kind of failure,
+    because the operator gets a row of green checkmarks. `--remote` writes to
+    the same store the chatbot actually queries.
+
+    Duck-types the two ChromaDB methods ingest_file() uses (get + add), so the
+    chunking and extraction code above is shared by both backends.
+
+    Dedupe is server-side: the unique index on (partition, content_hash) means
+    get() does not need to pre-check. The server reports "skipped" for a
+    duplicate, which is counted here and reported as the authoritative total.
+    """
+
+    def __init__(self, base_url: str, secret: str):
+        self.base_url = base_url.rstrip("/")
+        self.secret = secret
+        self.ingested = 0
+        self.skipped = 0
+        self.failed = 0
+
+    def get(self, **kwargs):  # noqa: ARG002
+        # Server-side dedupe is authoritative; never claim local knowledge.
+        return {"ids": []}
+
+    def add(self, ids, embeddings, documents, metadatas):  # noqa: ARG002
+        # The remote endpoint re-embeds the content itself so that ingest and
+        # retrieval always use the same model version. The locally computed
+        # embedding is intentionally discarded rather than sent.
+        import urllib.error
+        import urllib.request
+
+        meta = dict(metadatas[0]) if metadatas else {}
+        payload = json.dumps({
+            "content": documents[0],
+            "partition": meta.get("partition", "cv_personal"),
+            "source": meta.get("source", "api"),
+            "modality": meta.get("modality", "text"),
+            "metadata": meta,
+        }).encode("utf-8")
+
+        req = urllib.request.Request(
+            f"{self.base_url}/ingest",
+            data=payload,
+            headers={
+                "Content-Type": "application/json",
+                "X-Ingest-Secret": self.secret,
+            },
+            method="POST",
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=60) as resp:
+                body = json.loads(resp.read().decode("utf-8"))
+        except urllib.error.HTTPError as exc:
+            self.failed += 1
+            # Status only. The response body may echo request content.
+            raise EmbedEngineError(
+                f"Remote ingest rejected with HTTP {exc.code}. "
+                "401 = bad INGEST_SECRET, 503 = ingest disabled, "
+                "502 = embedding or database failure."
+            ) from None
+        except urllib.error.URLError as exc:
+            self.failed += 1
+            raise EmbedEngineError(
+                f"Remote ingest unreachable: {exc.reason}. "
+                "Check VECTOR_ENGINE_URL and that Cloud Run is deployed."
+            ) from None
+
+        if body.get("status") == "skipped":
+            self.skipped += 1
+        else:
+            self.ingested += 1
+
+    def report(self) -> str:
+        return (
+            f"  Remote store: {self.ingested} new, {self.skipped} duplicate "
+            f"(already present), {self.failed} failed"
+        )
+
+
+def get_collection(remote: bool = False):
+    """
+    Resolve the ingest target.
+
+    remote=True  → deployed pgvector store via Cloud Run /ingest  (production)
+    remote=False → local ChromaDB directory                       (offline dev)
+
+    Local mode is kept for offline work and is NOT what the chatbot reads.
+    Anything ingested locally is invisible to production.
+    """
+    if not remote:
+        return get_chroma_collection()
+
+    base_url = os.environ.get("VECTOR_ENGINE_URL", "").strip()
+    secret = os.environ.get("INGEST_SECRET", "").strip()
+    if not base_url:
+        raise EmbedEngineError(
+            "VECTOR_ENGINE_URL not set — required for --remote. "
+            "It is the Cloud Run retrieval service base URL."
+        )
+    if not secret:
+        raise EmbedEngineError(
+            "INGEST_SECRET not set — required for --remote. "
+            "Read it from the Cloud Run secret, export it for this shell only, "
+            "and unset it afterwards."
+        )
+    print(f"Ingest target: REMOTE pgvector via {base_url}/ingest")
+    return RemoteCollection(base_url, secret)
 
 
 def describe_embedding_error(exc: Exception) -> str:
@@ -355,7 +482,7 @@ def cmd_ingest_manifest(args):  # noqa: ARG001
     print(f"Manifest v{manifest_ver} — {len(sources)} active sources\n")
 
     genai = get_gemini_client()
-    collection = get_chroma_collection()
+    collection = get_collection(getattr(args, "remote", False))
     total = 0
 
     for src in sources:
@@ -390,11 +517,15 @@ def cmd_ingest_manifest(args):  # noqa: ARG001
         total += count
 
     complete_msg = (
-        f"\n✓ Manifest ingest complete — {total} new chunks added to "
+        f"\n✓ Manifest ingest complete — {total} chunks submitted to "
         f"'{COLLECTION_NAME}'"
     )
     print(complete_msg)
-    print(f"  DB path: {DB_PATH}")
+    if isinstance(collection, RemoteCollection):
+        # Remote counts are the truth; `total` only counts what was submitted.
+        print(collection.report())
+    else:
+        print(f"  DB path: {DB_PATH}  (LOCAL — not visible to production)")
 
 
 def cmd_ingest(args):
@@ -412,7 +543,7 @@ def cmd_ingest(args):
     print(f"Ingesting into partition:  {partition} ({tier_info} tier)")
 
     genai = get_gemini_client()
-    collection = get_chroma_collection()
+    collection = get_collection(getattr(args, "remote", False))
 
     source_path = Path(source)
     total = 0
@@ -529,7 +660,12 @@ def cmd_stats(args):  # noqa: ARG001
 
 def main():
     parser = argparse.ArgumentParser(
-        description="WSP001 RAG Embed Engine — ChromaDB + Gemini Embedding 2"
+        description=(
+            "WSP001 RAG Embed Engine — Gemini Embedding 2. "
+            "Use --remote to write to the deployed pgvector store; "
+            "without it, chunks go to a local ChromaDB that production "
+            "does NOT read."
+        )
     )
     
     group = parser.add_mutually_exclusive_group(required=True)
@@ -578,10 +714,25 @@ def main():
         default=3,
         help="Number of results to return"
     )
+    parser.add_argument(
+        "--remote",
+        action="store_true",
+        help=(
+            "Ingest into the deployed pgvector store via Cloud Run /ingest "
+            "instead of a local ChromaDB. Requires VECTOR_ENGINE_URL and "
+            "INGEST_SECRET. This is the only mode production can read."
+        )
+    )
 
     args = parser.parse_args()
     
     try:
+        if args.remote and (args.query or args.stats):
+            raise EmbedEngineError(
+                "--remote supports --ingest and --from-manifest only. "
+                "To read the deployed store use: just vector-health  or  "
+                "just test-cloud-retrieve"
+            )
         if args.from_manifest:
             cmd_ingest_manifest(args)
         elif args.ingest:
