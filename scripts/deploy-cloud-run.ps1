@@ -69,6 +69,9 @@ if (-not $env:GEMINI_API_KEY) {
 if (-not $env:INGEST_SECRET) {
     Write-Warn "INGEST_SECRET not set locally — will use Cloud Run secret"
 }
+if (-not $env:DATABASE_URL) {
+    Write-Warn "DATABASE_URL not set locally — service will fall back to local Chroma unless a Cloud Run secret exists"
+}
 
 # ── Step 2: Build Docker image ─────────────────────────────────────────────────
 if (-not $SkipBuild) {
@@ -114,6 +117,11 @@ $DeployArgs = @(
     "--timeout", "30",
     "--concurrency", "80",
     "--port", "8080",
+    # --set-env-vars REPLACES the whole plaintext env set. This is deliberate: it
+    # purges any secret that was ever pasted in as a plain value (F7) and forces
+    # the durable backend so a bad DATABASE_URL fails at boot instead of silently
+    # degrading to an empty ChromaDB on ephemeral disk.
+    "--set-env-vars", "VECTOR_STORE_BACKEND=pgvector,CHROMADB_PATH=/data/chromadb",
     "--quiet"
 )
 
@@ -128,10 +136,17 @@ if (gcloud secrets describe INGEST_SECRET --project=$ProjectId 2>$null) {
     $Secrets += "INGEST_SECRET=INGEST_SECRET:latest"
     Write-OK "Using Secret Manager: INGEST_SECRET"
 }
-if ($Secrets.Count -gt 0) {
-    $DeployArgs += "--set-secrets"
-    $DeployArgs += ($Secrets -join ",")
+if (gcloud secrets describe DATABASE_URL --project=$ProjectId 2>$null) {
+    $Secrets += "DATABASE_URL=DATABASE_URL:latest"
+    Write-OK "Using Secret Manager: DATABASE_URL"
 }
+$Required = @("GEMINI_API_KEY", "INGEST_SECRET", "DATABASE_URL")
+$Missing = $Required | Where-Object { ($Secrets -join ",") -notmatch "^$_=|,$_=" }
+if ($Missing) {
+    Write-Fail "Secret Manager is missing: $($Missing -join ', '). Create them first (scripts/ops-bootstrap.ps1 does this) - secrets are never passed as plaintext env."
+}
+$DeployArgs += "--set-secrets"
+$DeployArgs += ($Secrets -join ",")
 
 gcloud @DeployArgs
 if ($LASTEXITCODE -ne 0) { Write-Fail "Cloud Run deploy failed" }
@@ -144,6 +159,10 @@ if (-not $ServiceUrl) {
     Write-Warn "Could not auto-detect service URL — check Cloud Run console"
 } else {
     Write-OK "Service URL: $ServiceUrl"
+    if (Get-Command Set-Clipboard -ErrorAction SilentlyContinue) {
+        $ServiceUrl | Set-Clipboard
+        Write-OK "Service URL copied to clipboard"
+    }
 }
 
 # ── Step 7: Health check ───────────────────────────────────────────────────────
@@ -173,6 +192,8 @@ Write-Host "  Key:   VECTOR_ENGINE_URL"
 Write-Host "  Value: $ServiceUrl"
 Write-Host ""
 Write-Host "  Go to: Netlify → Site Settings → Environment Variables"
+Write-Host "  Apply to: robertoscottecholscv.netlify.app"
+Write-Host "            sirtrav-a2a-studio.netlify.app"
 Write-Host "  Set team-level so all edge functions inherit it."
 Write-Host ""
 Write-Host "  Then redeploy Netlify (or trigger via git push) to activate RAG." -ForegroundColor Yellow

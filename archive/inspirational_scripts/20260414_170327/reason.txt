@@ -1,0 +1,6 @@
+REASON: Codex CX-020: trust-layer alignment after audit
+SOURCE: public/index.html
+DATE: 2026-04-14
+ARCHIVED_BY: Codex
+GIT_BRANCH: main
+GIT_COMMIT: 6ea6717

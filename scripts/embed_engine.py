@@ -20,7 +20,7 @@ Environment:
   GEMINI_API_KEY — required for embedding (get from Google AI Studio)
 
 Dependencies:
-  pip install chromadb google-generativeai
+  pip install chromadb google-genai
 """
 
 import argparse
@@ -90,6 +90,10 @@ REPO_NAME = REPO_ROOT.name
 DB_PATH = os.path.join(os.path.dirname(__file__), "..", ".chromadb")
 COLLECTION_NAME = "wsp001_knowledge"
 
+# Remote ingest mode — set these to push corpus into Cloud Run instead of local ChromaDB
+REMOTE_INGEST_URL = os.environ.get("VECTOR_ENGINE_URL", "").rstrip("/")
+REMOTE_INGEST_SECRET = os.environ.get("INGEST_SECRET", "")
+
 
 class EmbedEngineError(RuntimeError):
     """Raised when the embed/query pipeline should fail without a traceback."""
@@ -100,18 +104,17 @@ def get_gemini_client():
     api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
         print(
-            "✗ GEMINI_API_KEY not set — "
+            "ERROR: GEMINI_API_KEY not set — "
             "run: export GEMINI_API_KEY=your_key_here"
         )
         sys.exit(1)
     try:
-        import google.generativeai as genai
-        genai.configure(api_key=api_key)
-        return genai
+        from google import genai
+        return genai.Client(api_key=api_key)
     except ImportError:
         print(
-            "✗ google-generativeai not installed — "
-            "run: pip install google-generativeai"
+            "ERROR: google-genai not installed — "
+            "run: pip install google-genai"
         )
         sys.exit(1)
 
@@ -121,7 +124,7 @@ def get_chroma_collection():
     try:
         import chromadb
     except ImportError:
-        print("✗ chromadb not installed — run: pip install chromadb")
+        print("ERROR: chromadb not installed — run: pip install chromadb")
         sys.exit(1)
 
     client = chromadb.PersistentClient(path=DB_PATH)
@@ -260,15 +263,32 @@ def describe_embedding_error(exc: Exception) -> str:
     return f"Embedding request failed: {text}"
 
 
+def ensure_ingest_prereqs(file_paths: list[Path]) -> None:
+    """Fail early when local ingest prerequisites are missing."""
+    if any(path.suffix.lower() == ".pdf" for path in file_paths):
+        try:
+            import pypdf  # noqa: F401
+        except ImportError as exc:
+            raise EmbedEngineError(
+                "pypdf not installed — run: python -m pip install pypdf"
+            ) from exc
+
+
+def run_embedding_preflight(genai) -> None:
+    """Validate the active Gemini key before iterating the corpus."""
+    embed_with_fallback(genai, "preflight check", "retrieval_document")
+
+
 def embed_with_fallback(genai, content: str, task_type: str) -> list[float]:
     """Embed using the configured model, with a safe fallback for local tooling."""
+    from google.genai import types as _types
     try:
-        result = genai.embed_content(
+        result = genai.models.embed_content(
             model=EMBED_MODEL,
-            content=content,
-            task_type=task_type
+            contents=content,
+            config=_types.EmbedContentConfig(task_type=task_type.upper())
         )
-        return result["embedding"]
+        return list(result.embeddings[0].values)
     except Exception as exc:
         if EMBED_MODEL == EMBED_FALLBACK_MODEL:
             raise EmbedEngineError(describe_embedding_error(exc)) from exc
@@ -277,12 +297,12 @@ def embed_with_fallback(genai, content: str, task_type: str) -> list[float]:
             f"Falling back to {EMBED_FALLBACK_MODEL}."
         )
         try:
-            result = genai.embed_content(
+            result = genai.models.embed_content(
                 model=EMBED_FALLBACK_MODEL,
-                content=content,
-                task_type=task_type
+                contents=content,
+                config=_types.EmbedContentConfig(task_type=task_type.upper())
             )
-            return result["embedding"]
+            return list(result.embeddings[0].values)
         except Exception as fallback_exc:
             raise EmbedEngineError(
                 describe_embedding_error(fallback_exc)
@@ -347,7 +367,7 @@ def extract_text_from_docx(path: Path) -> str:
                 paragraphs.append("".join(texts))
         return "\n\n".join(paragraphs)
     except Exception as e:
-        print(f"  ✗ DOCX extract failed: {e}")
+        print(f"  ERROR: DOCX extract failed: {e}")
         return ""
 
 
@@ -356,14 +376,14 @@ def extract_text_from_pdf(path: Path) -> str:
     try:
         from pypdf import PdfReader
     except ImportError:
-        print("  ✗ pypdf not installed — run: pip install pypdf")
+        print("  ERROR: pypdf not installed — run: pip install pypdf")
         return ""
     try:
         reader = PdfReader(str(path))
         pages = [page.extract_text() or "" for page in reader.pages]
         return "\n\n".join(p for p in pages if p.strip())
     except Exception as e:
-        print(f"  ✗ PDF extract failed: {e}")
+        print(f"  ERROR: PDF extract failed: {e}")
         return ""
 
 
@@ -391,13 +411,13 @@ def ingest_file(
     """
     path = Path(file_path)
     if not path.exists():
-        print(f"  ✗ File not found: {file_path}")
+        print(f"  ERROR: File not found: {file_path}")
         return 0
 
     suffix = path.suffix.lower()
     supported = [".md", ".txt", ".json", ".docx", ".pdf"]
     if suffix not in supported:
-        print(f"  → Skipping {path.name} (unsupported type: {suffix})")
+        print(f"  INFO: Skipping {path.name} (unsupported type: {suffix})")
         return 0
 
     if suffix == ".docx":
@@ -405,15 +425,18 @@ def ingest_file(
     elif suffix == ".pdf":
         text = extract_text_from_pdf(path)
     else:
-        text = path.read_text(encoding="utf-8")
+        try:
+            text = path.read_text(encoding="utf-8")
+        except UnicodeDecodeError:
+            text = path.read_text(encoding="cp1252")
 
     if not text.strip():
-        print(f"  ✗ No text extracted from {path.name}")
+        print(f"  ERROR: No text extracted from {path.name}")
         return 0
 
     if chunk_strategy == "section":
         chunks = chunk_by_sections(text)
-        print(f"  → Section chunking: {len(chunks)} sections")
+        print(f"  INFO: Section chunking: {len(chunks)} sections")
     else:
         chunks = chunk_text(text)
     
@@ -428,7 +451,7 @@ def ingest_file(
         # Check if already ingested
         existing = collection.get(ids=[doc_id])
         if existing["ids"]:
-            print(f"  → Skipping chunk {i+1}/{len(chunks)} (already ingested)")
+            print(f"  INFO: Skipping chunk {i+1}/{len(chunks)} (already ingested)")
             continue
 
         embedding = embed_text(genai, chunk)
@@ -455,7 +478,7 @@ def ingest_file(
             }]
         )
         ingested += 1
-        print(f"  ✓ Chunk {i+1}/{len(chunks)} ingested (id: {doc_id[:12]}...)")
+        print(f"  OK: Chunk {i+1}/{len(chunks)} ingested (id: {doc_id[:12]}...)")
 
     return ingested
 
@@ -466,11 +489,79 @@ MANIFEST_PATH = os.path.join(
 KB_ROOT = os.path.join(os.path.dirname(__file__), "..", "knowledge_base")
 
 
+def remote_ingest_file(url, secret, file_path, partition, chunk_strategy):
+    """
+    Extract + chunk a file locally, then POST each chunk to Cloud Run /ingest.
+    Cloud Run handles embedding and ChromaDB storage — no local Gemini key needed.
+    Returns count of newly ingested chunks (skipped chunks return 'skipped' status).
+    """
+    import urllib.request
+    import urllib.error
+
+    path = Path(file_path)
+    suffix = path.suffix.lower()
+
+    if suffix == ".docx":
+        text = extract_text_from_docx(path)
+    elif suffix == ".pdf":
+        text = extract_text_from_pdf(path)
+    else:
+        try:
+            text = path.read_text(encoding="utf-8")
+        except UnicodeDecodeError:
+            text = path.read_text(encoding="cp1252")
+
+    if not text.strip():
+        print(f"  ERROR: No text extracted from {path.name}")
+        return 0
+
+    if chunk_strategy == "section":
+        chunks = chunk_by_sections(text)
+        print(f"  INFO: Section chunking: {len(chunks)} sections")
+    else:
+        chunks = chunk_text(text)
+
+    ingested = 0
+    for i, chunk in enumerate(chunks):
+        payload = json.dumps({
+            "content": chunk,
+            "partition": partition,
+            "source": path.name,
+            "modality": infer_modality(path),
+        }).encode("utf-8")
+
+        req = urllib.request.Request(
+            f"{url}/ingest",
+            data=payload,
+            headers={
+                "Content-Type": "application/json",
+                "X-Ingest-Secret": secret,
+            },
+            method="POST",
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=60) as resp:
+                result = json.loads(resp.read())
+            status = result.get("status", "?")
+            if status == "ingested":
+                ingested += 1
+                print(f"  OK: Chunk {i+1}/{len(chunks)} ingested (remote id: {result.get('id','?')})")
+            else:
+                print(f"  INFO: Chunk {i+1}/{len(chunks)} skipped (already ingested)")
+        except urllib.error.HTTPError as exc:
+            body = exc.read().decode("utf-8", errors="replace")
+            print(f"  ERROR: Chunk {i+1}/{len(chunks)} failed — HTTP {exc.code}: {body}")
+        except Exception as exc:
+            print(f"  ERROR: Chunk {i+1}/{len(chunks)} failed — {exc}")
+
+    return ingested
+
+
 def cmd_ingest_manifest(args):  # noqa: ARG001
     """Ingest all active sources listed in data/rse_cv_manifest.json."""
     manifest_path = Path(MANIFEST_PATH)
     if not manifest_path.exists():
-        print(f"✗ Manifest not found: {manifest_path}")
+        print(f"ERROR: Manifest not found: {manifest_path}")
         sys.exit(1)
 
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
@@ -481,16 +572,14 @@ def cmd_ingest_manifest(args):  # noqa: ARG001
     manifest_ver = manifest.get('version', '?')
     print(f"Manifest v{manifest_ver} — {len(sources)} active sources\n")
 
-    genai = get_gemini_client()
-    collection = get_collection(getattr(args, "remote", False))
-    total = 0
+    resolved_sources = []
 
     for src in sources:
         tier = src.get("access_tier", "public")
         chunk_strategy = src.get("chunk_strategy", "section")
         source_file = src.get("source_path", "")
         title = src.get("title", source_file)
-        partition = (
+        partition = src.get("partition") or (
             "cv_personal" if tier == "public" else "business_seatrace"
         )
 
@@ -502,9 +591,49 @@ def cmd_ingest_manifest(args):  # noqa: ARG001
         file_path = next((p for p in candidates if p.exists()), None)
 
         if not file_path:
-            print(f"✗ [{src['id']}] '{source_file}' not found — skipping")
+            print(f"ERROR: [{src['id']}] '{source_file}' not found — skipping")
             continue
 
+        resolved_sources.append(
+            (src, file_path, partition, chunk_strategy, title)
+        )
+
+    # Remote mode: VECTOR_ENGINE_URL + INGEST_SECRET set → push to Cloud Run
+    if REMOTE_INGEST_URL and REMOTE_INGEST_SECRET:
+        print(f"INFO: Remote ingest mode — target: {REMOTE_INGEST_URL}")
+        try:
+            ensure_ingest_prereqs([item[1] for item in resolved_sources])
+        except EmbedEngineError as exc:
+            print(f"ERROR: {exc}")
+            sys.exit(1)
+
+        total = 0
+        for src, file_path, partition, chunk_strategy, title in resolved_sources:
+            print(f"\n[{src['id']}] {title}")
+            print(f"  File: {file_path.name}  |  Partition: {partition}  |  Strategy: {chunk_strategy}")
+            count = remote_ingest_file(
+                REMOTE_INGEST_URL, REMOTE_INGEST_SECRET,
+                str(file_path), partition, chunk_strategy
+            )
+            total += count
+
+        print(f"\nOK: Remote manifest ingest complete — {total} new chunks pushed to Cloud Run")
+        print(f"  Endpoint: {REMOTE_INGEST_URL}/ingest")
+        return
+
+    # Local mode: write directly to local ChromaDB
+    try:
+        ensure_ingest_prereqs([item[1] for item in resolved_sources])
+        genai = get_gemini_client()
+        run_embedding_preflight(genai)
+    except EmbedEngineError as exc:
+        print(f"ERROR: {exc}")
+        sys.exit(1)
+
+    collection = get_collection(getattr(args, "remote", False))
+    total = 0
+
+    for src, file_path, partition, chunk_strategy, title in resolved_sources:
         print(f"\n[{src['id']}] {title}")
         file_info = (
             f"  File: {file_path.name}  |  Partition: {partition}  |  "
@@ -535,15 +664,12 @@ def cmd_ingest(args):
     
     if partition not in PARTITIONS:
         allowed = list(PARTITIONS.keys())
-        print(f"✗ Unknown partition '{partition}'. Allowed: {allowed}")
+        print(f"ERROR: Unknown partition '{partition}'. Allowed: {allowed}")
         sys.exit(1)
     
     partition_info = PARTITIONS[partition]
     tier_info = partition_info['tier']
     print(f"Ingesting into partition:  {partition} ({tier_info} tier)")
-
-    genai = get_gemini_client()
-    collection = get_collection(getattr(args, "remote", False))
 
     source_path = Path(source)
     total = 0
@@ -559,8 +685,18 @@ def cmd_ingest(args):
         files = md_files + txt_files + json_files + docx_files + pdf_files
         print(f"Found {len(files)} files in {source_path}")
     else:
-        print(f"✗ Source not found: {source}")
+        print(f"ERROR: Source not found: {source}")
         sys.exit(1)
+
+    try:
+        ensure_ingest_prereqs(files)
+        genai = get_gemini_client()
+        run_embedding_preflight(genai)
+    except EmbedEngineError as exc:
+        print(f"ERROR: {exc}")
+        sys.exit(1)
+
+    collection = get_collection(getattr(args, "remote", False))
     
     for file_path in files:
         print(f"\nIngesting: {file_path.name}")
@@ -568,7 +704,11 @@ def cmd_ingest(args):
         total += count
     
     print(f"\n✓ Ingested {total} chunks into '{partition}' partition")
-    print(f"  DB path: {DB_PATH}")
+    if isinstance(collection, RemoteCollection):
+        # Remote counts are the truth; `total` only counts what was submitted.
+        print(collection.report())
+    else:
+        print(f"  DB path: {DB_PATH}  (LOCAL — not visible to production)")
 
 
 def cmd_query(args):

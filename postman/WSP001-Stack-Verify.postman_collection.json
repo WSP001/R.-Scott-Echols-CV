@@ -1,0 +1,232 @@
+{
+  "info": {
+    "name": "WSP001 — Stack Verify (CV · Cloud Run · Abacus.AI)",
+    "description": "Live verification of the WSP001 chatbot stack. Mirrors `just keys-verify`.\n\nFolders:\n- CV / Netlify — /api/chat and /api/identity.json (no auth)\n- Cloud Run — retrieval service /health, /partitions, /retrieve, /query (no auth)\n- Abacus.AI — authenticated with the collection-level `apiKey` header\n\nVariables live in the paired environment file. `abacus_api_key` must be type **secret**.\nNothing in this collection prints a secret.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      { "key": "key", "value": "apiKey", "type": "string" },
+      { "key": "value", "value": "{{abacus_api_key}}", "type": "string" },
+      { "key": "in", "value": "header", "type": "string" }
+    ]
+  },
+  "variable": [
+    { "key": "cv_base", "value": "https://robertoscottecholscv.netlify.app" },
+    { "key": "vector_engine_url", "value": "https://rse-retrieval-zrmkhygpwa-uc.a.run.app" },
+    { "key": "abacus_base", "value": "https://api.abacus.ai/api/v0" }
+  ],
+  "item": [
+    {
+      "name": "CV / Netlify",
+      "auth": { "type": "noauth" },
+      "item": [
+        {
+          "name": "POST /api/chat (public tier)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{cv_base}}/api/chat",
+            "body": { "mode": "raw", "raw": "{\n  \"message\": \"What does SeaTrace do?\"\n}" }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('chat is HTTP 200 (bot online)', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) {",
+                  "  const b = pm.response.json();",
+                  "  pm.test('rag_status present', () => pm.expect(b).to.have.property('rag_status'));",
+                  "  pm.test('X-RAG-Status header mirrors body', () => pm.expect(pm.response.headers.get('X-RAG-Status')).to.eql(b.rag_status));",
+                  "  pm.test('rag_attempts is a real count (0..3)', () => pm.expect(b.rag_attempts).to.be.within(0, 3));",
+                  "  pm.test('tokens_used populated', () => pm.expect(b.tokens_used).to.be.a('number'));",
+                  "  pm.test('GATE G2 — grounded (rag_status == ok)', () => pm.expect(b.rag_status).to.eql('ok'));",
+                  "  console.log('rag_status=' + b.rag_status + ' attempts=' + b.rag_attempts + ' source=' + b.answer_source);",
+                  "} else if (pm.response.code === 503) {",
+                  "  console.warn('503: ANTHROPIC_API_KEY not visible to the edge function');",
+                  "} else if (pm.response.code === 502) {",
+                  "  console.warn('502: Anthropic call threw — check key validity / Anthropic status');",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /api/identity.json",
+          "request": { "method": "GET", "header": [], "url": "{{cv_base}}/api/identity.json" },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "['profile_id','title','identity_boundaries','trust_policy','source_status'].forEach(k =>",
+                  "  pm.test('has ' + k, () => pm.expect(b).to.have.property(k)));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Cloud Run — rse-retrieval",
+      "auth": { "type": "noauth" },
+      "item": [
+        {
+          "name": "GET /health",
+          "request": { "method": "GET", "header": [], "url": "{{vector_engine_url}}/health" },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "pm.test('body status is NOT degraded (DATABASE_URL reachable, vector ext enabled)', () => pm.expect(b.status).to.not.eql('degraded'));",
+                  "if (b.error) console.warn('health error: ' + b.error);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /partitions",
+          "request": { "method": "GET", "header": [], "url": "{{vector_engine_url}}/partitions" },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const p = pm.response.json().partitions;",
+                  "pm.test('linkedin_history is an allowed partition (fix §4.1 deployed)', () => pm.expect(p).to.have.property('linkedin_history'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /retrieve (public tier)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{vector_engine_url}}/retrieve",
+            "body": { "mode": "raw", "raw": "{\n  \"query\": \"traceability\",\n  \"tier\": \"public\",\n  \"top_k\": 3\n}" }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "if (pm.response.code === 200) {",
+                  "  const arr = pm.response.json();",
+                  "  pm.test('non-empty results', () => pm.expect(arr.length).to.be.above(0));",
+                  "  arr.forEach((r, i) => pm.test('result ' + i + ' has content/score/source/partition', () => {",
+                  "    pm.expect(r.content).to.be.a('string').and.not.empty;",
+                  "    pm.expect(r.score).to.be.a('number');",
+                  "    pm.expect(r.source).to.be.a('string').and.not.empty;",
+                  "    pm.expect(r.partition).to.be.a('string').and.not.empty;",
+                  "  }));",
+                  "  pm.test('tier boundary: no business partitions leaked', () =>",
+                  "    arr.forEach(r => pm.expect(['business_seatrace','business_proposals','internal_repos','recreational']).to.not.include(r.partition)));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /retrieve — public asks for business partition (expect 403)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{vector_engine_url}}/retrieve",
+            "body": { "mode": "raw", "raw": "{\n  \"query\": \"pricing\",\n  \"tier\": \"public\",\n  \"partition\": \"business_proposals\",\n  \"top_k\": 3\n}" }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": { "type": "text/javascript", "exec": ["pm.test('tier gate holds — 403', () => pm.response.to.have.status(403));"] }
+            }
+          ]
+        },
+        {
+          "name": "POST /query — SirTrav voice pack (linkedin_history)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{vector_engine_url}}/query",
+            "body": { "mode": "raw", "raw": "{\n  \"query\": \"producer voice\",\n  \"partitions\": [\"linkedin_history\"],\n  \"n_results\": 5\n}" }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "pm.test('LinkedIn posts ingested — context_chunks non-empty', () => pm.expect(b.context_chunks.length).to.be.above(0));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Abacus.AI",
+      "description": "Uses the collection-level apiKey header. Abacus REST base: https://api.abacus.ai/api/v0/<method>. Every response is { success, result } or { success:false, error, errorType }.",
+      "item": [
+        {
+          "name": "GET listProjects (auth smoke test)",
+          "request": { "method": "GET", "header": [], "url": "{{abacus_base}}/listProjects" },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "pm.test('abacus_api_key accepted (success:true)', () => pm.expect(b.success).to.eql(true));",
+                  "if (b.success) console.log('projects: ' + (b.result || []).length);",
+                  "else console.warn('abacus error: ' + b.errorType + ' — ' + b.error);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET listDocumentRetrievers",
+          "request": { "method": "GET", "header": [], "url": "{{abacus_base}}/listDocumentRetrievers" },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const b = pm.response.json();",
+                  "pm.test('success', () => pm.expect(b.success).to.eql(true));",
+                  "if (b.success) console.log('retrievers: ' + JSON.stringify((b.result||[]).map(r => r.name)));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

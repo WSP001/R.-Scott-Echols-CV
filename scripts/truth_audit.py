@@ -264,7 +264,7 @@ def _public_partitions(text: str, start_marker: str) -> set[str]:
     )
 
 
-def audit_partition_contract(results: list[CheckResult]) -> None:
+def audit_partition_registry(results: list[CheckResult]) -> None:
     """
     The partition registry is duplicated in three places by necessity — the
     retrieval service, the ingest engine, and the SQL schema. If they drift,
@@ -315,10 +315,10 @@ def audit_partition_contract(results: list[CheckResult]) -> None:
         errors.append(f"TIER LEAK: '{leaked}' is marked public in api_server.py")
 
     if errors:
-        add_result(results, "partition-contract", "FAIL", "error",
+        add_result(results, "partition-registry", "FAIL", "error",
                    "Partition registries disagree across the retrieval stack.", errors)
     else:
-        add_result(results, "partition-contract", "PASS", "info",
+        add_result(results, "partition-registry", "PASS", "info",
                    "Partition registry and tier boundary agree across all three sources.",
                    [f"{len(server_parts)} partitions",
                     f"public tier: {sorted(public_in_server)}",
@@ -463,6 +463,64 @@ def audit_live_claim_map(results: list[CheckResult]) -> None:
         )
 
 
+def _allowed_partitions() -> set[str]:
+    """
+    The partition allowlist as the retrieval service sees it.
+
+    api_server.py derives ALLOWED_PARTITIONS from the PARTITION_TIERS registry
+    (`set(PARTITION_TIERS)`) so the name/tier pairing has one home, so read the
+    registry itself. The literal-set form is still accepted as a fallback for
+    older copies of the service.
+    """
+    text = read_text(ROOT / "scripts/api_server.py")
+    for pattern in (
+        r"PARTITION_TIERS[^=]*=\s*\{(.*?)\n\}",
+        r"ALLOWED_PARTITIONS\s*=\s*\{(.*?)\}",
+    ):
+        match = re.search(pattern, text, re.DOTALL)
+        if match:
+            names = set(re.findall(r"\"([a-z_]+)\"", match.group(1)))
+            if names:
+                return names
+    return set()
+
+
+def audit_partition_contract(results: list[CheckResult]) -> None:
+    allowed = _allowed_partitions()
+    if not allowed:
+        add_result(results, "partition-contract", "FAIL", "blocker",
+                   "Could not parse ALLOWED_PARTITIONS from scripts/api_server.py.")
+        return
+
+    consumers = sorted((ROOT / "scripts").glob("ingest-*.mjs"))
+    sirtrav_seed = ROOT.parent / "SirTrav-A2A-Studio" / "netlify" / "functions" / "lib" / "content-seed.ts"
+    if sirtrav_seed.exists():
+        consumers.append(sirtrav_seed)
+
+    partition_ref = re.compile(
+        r"(?:PARTITION\s*=\s*|partition\s*[:=]\s*|fetchPartition\([^,]+,[^,]+,\s*)['\"]([a-z_]+)['\"]"
+    )
+    unknown: list[str] = []
+    scanned: list[str] = []
+    for path in consumers:
+        text = read_text(path)
+        label = rel(path) if path.is_relative_to(ROOT) else str(path)
+        scanned.append(label)
+        for idx, line in enumerate(text.splitlines(), start=1):
+            for name in partition_ref.findall(line):
+                if name not in allowed:
+                    unknown.append(f"{label}:{idx} -> '{name}' not in ALLOWED_PARTITIONS")
+
+    if unknown:
+        add_result(results, "partition-contract", "FAIL", "blocker",
+                   "Consumers reference partitions the retrieval service rejects (silent-empty on /query, HTTP 400 on /ingest).",
+                   unknown)
+    else:
+        add_result(results, "partition-contract", "PASS", "info",
+                   "Every partition referenced by ingest/retrieval consumers is in ALLOWED_PARTITIONS.",
+                   scanned)
+
+
 def summarize(results: list[CheckResult]) -> str:
     statuses = {r.status for r in results}
     if "FAIL" in statuses:
@@ -500,10 +558,11 @@ def main() -> int:
     audit_active_surfaces(results)
     audit_mixed_trust_note(results)
     audit_env_contract(results)
-    audit_partition_contract(results)
+    audit_partition_registry(results)
     audit_vector_backend_contract(results)
     audit_public_api_identity(results)
     audit_live_claim_map(results)
+    audit_partition_contract(results)
 
     final_status = summarize(results)
     payload = emit_json(results, final_status)

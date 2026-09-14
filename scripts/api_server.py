@@ -115,6 +115,11 @@ def safe_error(exc: BaseException) -> str:
     return f"{type(exc).__name__}: {msg[:300]}"
 
 
+# Single source of truth for the public tier. /retrieve gating, /ingest tier
+# tagging and /partitions all read from here. linkedin_history holds already-
+# public LinkedIn posts; move it out of this set to restrict it to business tier.
+PUBLIC_PARTITIONS = {"cv_personal", "cv_projects", "linkedin_history"}
+
 # ── FastAPI app ────────────────────────────────────────────────────────────────
 app = FastAPI(
     title="WSP001 Vector Retrieval API",
@@ -139,18 +144,19 @@ app.add_middleware(
 
 # ── Lazy-loaded clients ───────────────────────────────────────────────────────
 _genai = None
+_genai_types = None
 _pool = None
 
-
 def get_genai():
-    global _genai
+    global _genai, _genai_types
     if _genai is None:
         api_key = os.environ.get("GEMINI_API_KEY")
         if not api_key:
             raise HTTPException(503, "GEMINI_API_KEY not configured")
-        import google.generativeai as genai
-        genai.configure(api_key=api_key)
-        _genai = genai
+        from google import genai as _genai_module
+        from google.genai import types
+        _genai = _genai_module.Client(api_key=api_key)
+        _genai_types = types
     return _genai
 
 
@@ -192,12 +198,12 @@ def to_vector_literal(embedding: list[float]) -> str:
 def embed_query(text: str) -> list[float]:
     genai = get_genai()
     try:
-        result = genai.embed_content(
+        result = genai.models.embed_content(
             model=EMBED_MODEL,
-            content=text.strip(),
-            task_type="retrieval_query",
+            contents=text.strip(),
+            config=_genai_types.EmbedContentConfig(task_type="RETRIEVAL_QUERY"),
         )
-        embedding = result["embedding"]
+        embedding = list(result.embeddings[0].values)
     except Exception as e:
         raise HTTPException(502, f"Embedding failed: {safe_error(e)}")
 
@@ -439,11 +445,11 @@ def ingest(req: IngestRequest, x_ingest_secret: Optional[str] = Header(None)):
 
     genai = get_genai()
     try:
-        embedding = genai.embed_content(
+        embedding = list(genai.models.embed_content(
             model=EMBED_MODEL,
-            content=content,
-            task_type="retrieval_document",
-        )["embedding"]
+            contents=content,
+            config=_genai_types.EmbedContentConfig(task_type="RETRIEVAL_DOCUMENT"),
+        ).embeddings[0].values)
     except Exception as e:
         raise HTTPException(502, f"Embedding failed: {safe_error(e)}")
 

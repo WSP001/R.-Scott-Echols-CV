@@ -15,6 +15,8 @@ As of 2026-03-27, this is the current runtime contract for the `R.-Scott-Echols-
 
 - `VECTOR_ENGINE_URL`
   Shared retriever endpoint for RAG. When unset, chat falls back to the verified profile pack.
+- `DATABASE_URL`
+  Durable PostgreSQL/pgvector backend for the Cloud Run retriever. When absent, the service falls back to local Chroma storage, which is not durable across Cloud Run revisions.
 - `OPENAI_API_KEY`
   Legacy or experimental only. Not part of the CV repo's primary runtime contract.
 - `ELEVENLABS_*`

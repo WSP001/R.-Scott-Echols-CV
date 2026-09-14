@@ -311,6 +311,79 @@ are owner/Master actions. Nothing here was worked around or faked.
 
 ## EMBEDDING NOTE
 
+## [2026-08-21] NETLIFY AGENT RUNNER (Lane 2) -> ALL LANES: deploy pipeline was dead; RAG silently ungrounded
+
+Full detail: `plans/HANDOFF_EVIDENCE_LINEAGE_ROUND.md`. Read it before your next write.
+
+- **F1 — every production deploy since 2026-03-29 was canceled**, not failed. `netlify.toml`
+  carried `ignore = "exit 0"`; Netlify treats exit **0** as "yes, ignore this build". Added in
+  `7dfb16b` on the same day as the last successful publish. **REMOVED.** Do not re-add an
+  `ignore` command — `.netlifyignore` already excludes `scripts/` and `*.py`.
+  → Consequence for every lane: no work merged since March has ever reached production, and
+    `@netlify/plugin-lighthouse` has produced no score report since then either. Any Lighthouse
+    or UI baseline older than this note is stale.
+
+- **F2 — Cloud Run `/health` returns 200 while `POST /retrieve` returns 502.** `chat.ts`
+  swallowed the error into `""`, so a hard outage looked identical to "no relevant context".
+  The chatbot has been answering ungrounded. Detection is now fixed: `rag_status` in the body,
+  `X-RAG-Status` on the response, structured `rag_degraded` log line, 3× exponential backoff.
+  **The Cloud Run fix itself is Human-Ops.**
+
+- **F5 — contract drift, now corrected in `docs/agent-contracts.md`.** `tokens_used` was
+  documented but never sent (now implemented from Anthropic `usage.output_tokens`), and
+  `answer_source` really emits `"Verified Profile Pack — …"`, not the documented
+  `"Embedded CV — Public Profile"` / `"Embedded Knowledge — Business"`.
+  → **Antigravity:** any assertion against the old strings was testing a value the backend never
+    sent. **Codex:** re-check the source-attribution pill mapping.
+
+- **F3/F4 — corpus truth issue, owner decision pending.** `seatrace_four_pillars_summary.md`
+  claims consumer-facing QR labeling alongside NOAA SIMP; NOAA states SIMP is not
+  consumer-facing. The same text is baked into `public/fallback_snapshot.json`. Meanwhile the
+  corpus has zero coverage of Magnuson-Stevens, FSMA 204, CTE/KDE/TLC, or ITDS.
+  → **Do not re-ingest and do not start the campaign rewrite** until the A6 ruling lands.
+    Whatever is in the vector store is what the bot will state as fact.
+
+- New design artifact: `db/evidence_lineage.sql` — the public-map/private-graph schema,
+  parse-validated against the PostgreSQL grammar. Not yet wired to an ORM, deliberately:
+  this site is zero-build, and adding a build step is how F1 happened.
+
+## [2026-09-05] ACTING MASTER (Windsurf) -> ALL LANES: G1 green; F2 root cause found; secrets exposure
+
+- **G1 GREEN.** PR #3 squash-merged as `0f01b77`; production deploy `6a9c9f81` published
+  2026-09-05T23:03:03Z — the first since 2026-03-29. All four Sourcery threads resolved in
+  `0839d0c` (verified: 8/8 SQL regression suite on PostgreSQL 16.15, patch byte-identical to
+  the audited artifact). SirTrav PR #30 merged as `d8655095`; follow-ups filed as
+  SirTrav-A2A-Studio #31 (23 `@powershell` calls + hardcoded path), #32 (preflight/README), #33
+  (cross-platform posture).
+
+- **F2 ROOT CAUSE — the Supabase project behind `DATABASE_URL` no longer exists.** Cloud Run
+  `rse-retrieval` rev `00019-w2z` points at `db.ghhsuofktprawkwabrfi.supabase.co`; both that host
+  and `ghhsuofktprawkwabrfi.supabase.co` return **NXDOMAIN** (paused projects still resolve —
+  this one is gone). `/health` therefore reports `status: degraded / pgvector backend
+  initialization failed`, and `/retrieve` 502s. **The vector corpus is lost with it; a full
+  re-ingest is required after a new database is provisioned.** Human-Ops decision: which
+  Postgres (Netlify DB / new Supabase / Neon). Set `VECTOR_STORE_BACKEND=pgvector` explicitly so
+  a bad DSN fails loudly instead of degrading to empty ephemeral ChromaDB.
+
+- **F6 — production `/api/chat` returns 502 on every request, on the new code too.** A missing
+  key returns 503; 502 means the Anthropic call itself threw → `ANTHROPIC_API_KEY` is invalid or
+  revoked. Human-Ops: rotate the key, `netlify env:set`, redeploy, `just keys-verify`.
+
+- **F7 — SECURITY: Cloud Run holds `DATABASE_URL`, `INGEST_SECRET`, `GEMINI_API_KEY` as
+  plaintext env values, not Secret Manager references.** `gcloud run services describe` prints
+  them. **Rotate `GEMINI_API_KEY` and `INGEST_SECRET`** (the DB password is moot — the project is
+  gone) and redeploy with `--update-secrets` instead of `--set-env-vars`.
+
+- **F8 — `linkedin_history` was never an allowed partition** (SirTrav `content-seed.ts:184`,
+  CV `ingest-linkedin-posts.mjs:47`). Fixed in `api_server.py` on `main`, tier `public`, single
+  source of truth `PUBLIC_PARTITIONS`; not yet deployed to Cloud Run. New `truth_audit.py` gate
+  `partition-contract` fails if this recurs.
+
+- New tooling on `main`: `just keys-verify [grounded=1]` (live-stack proof, exit 0 ⇔ chat 200),
+  `postman/WSP001-Stack-Verify.postman_collection.json` (same checks + Abacus.AI auth smoke).
+
+---
+
 This file is intentionally included in ChromaDB ingestion (partition: internal_repos).
 Every cross-lane note here teaches the RAG system about agent communication patterns,
 pending changes, and architecture decisions.

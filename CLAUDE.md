@@ -10,15 +10,18 @@
 > One clean production path. Three non-overlapping lanes. Zero collisions.
 
 ```
-public/index.html         ← Codex
+public/index.html              ← Codex
     ↓ user chat
-/api/chat (Netlify Edge)  ← Claude Code
+/api/chat (Netlify Edge)       ← Claude Code
     ↓ business tier RAG
-Cloud Run /retrieve       ← Claude Code
-    ↓ vector search
-ChromaDB                  ← Claude Code
+Cloud Run /retrieve            ← Claude Code
+    ↓ cosine similarity search
+Supabase pgvector              ← durable cloud vector store (121 chunks, SirStudio-to-CV)
     ↓ grounded answer
-Claude Opus 4.6           ← non-negotiable
+Claude Opus 4.6                ← non-negotiable
+
+NOTE: ChromaDB is legacy/local fallback only — NOT the production vector store.
+      Production backend is pgvector (durable: true). See scripts/vector_store.py.
 ```
 
 **ALSO READ:** MASTER_AGENT_IMPLEMENTATION_HANDOFF.md — full lane ownership,
@@ -87,7 +90,7 @@ WSP001/WAFC-Business/               ← Business intelligence
 - `netlify/edge-functions/embed.ts` — Gemini Embedding 2 vector endpoint
 - `netlify/edge-functions/verify-access.ts` — invitation key validation
 - `netlify.toml` — publish dir, edge function routing
-- `scripts/embed_engine.py` — ChromaDB ingest pipeline
+- `scripts/embed_engine.py` — pgvector/Supabase ingest pipeline (ChromaDB fallback also present, dev only)
 - `design.md` — RAG architecture blueprint (update when architecture changes)
 - `.github/workflows/` — CI/CD, auto-ingest pipelines
 - `docs/WSP_SeaTrace_Overview.md` — knowledge base source document for RAG
@@ -115,7 +118,7 @@ WSP001/WAFC-Business/               ← Business intelligence
 **WRITES:**
 - `tests/` — unit tests
 - `e2e/` — end-to-end tests (Playwright, mjs scripts)
-- `__mocks__/` — mock implementations for ChromaDB, Gemini, Anthropic
+- `__mocks__/` — mock implementations for pgvector/Supabase, Gemini, Anthropic (ChromaDB mocks are legacy)
 - `justfile` targets: `test`, `test-e2e`, `test-coverage`, `qa-report`
 
 **MUST NOT WRITE:**
@@ -127,7 +130,7 @@ WSP001/WAFC-Business/               ← Business intelligence
 - Remotion is DEPRECATED-BYPASS — do not reference it in any new tests
 - E2E video tests use `test-gemini-video-e2e.mjs` (renamed from test-remotion-e2e.mjs)
 - GEMINI_MODEL_WRITER / EDITOR / DIRECTOR env vars must be validated at boot via Enum check
-- Any WRITER→EDITOR handoff test MUST mock ChromaDB retrieval to prove vector handoff
+- Any WRITER→EDITOR handoff test MUST mock pgvector retrieval to prove vector handoff (ChromaDB mock path is legacy)
 
 ---
 
