@@ -1,3 +1,4 @@
+/// <reference path="../types/netlify-globals.d.ts" />
 /**
  * R. Scott Echols CV — AI Chat Edge Function
  * Deployed via Netlify Edge Functions (Deno runtime, CDN-edge, zero cold-start)
@@ -163,6 +164,7 @@ interface RagOutcome {
   context: string;
   status: RagStatus;
   attempts: number;
+  sources: string[];
   detail?: string;
 }
 
@@ -210,14 +212,14 @@ async function fetchRAGContext(
       try {
         results = await response.json();
       } catch {
-        return { context: "", status: "malformed", attempts: attemptsMade, detail: "non-JSON body" };
+        return { context: "", status: "malformed", attempts: attemptsMade, sources: [], detail: "non-JSON body" };
       }
 
       if (!Array.isArray(results)) {
-        return { context: "", status: "malformed", attempts: attemptsMade, detail: "expected array" };
+        return { context: "", status: "malformed", attempts: attemptsMade, sources: [], detail: "expected array" };
       }
       if (results.length === 0) {
-        return { context: "", status: "empty", attempts: attemptsMade };
+        return { context: "", status: "empty", attempts: attemptsMade, sources: [] };
       }
 
       // SOURCERY #1 — shape validation happens BEFORE thresholding, so an
@@ -228,13 +230,14 @@ async function fetchRAGContext(
           context: "",
           status: "malformed",
           attempts: attemptsMade,
+          sources: [],
           detail: `${invalid}/${results.length} result(s) missing or mistyped content/source/partition/score`,
         };
       }
 
       const kept = results.filter((r) => r.score > RAG_SCORE_FLOOR);
       if (kept.length === 0) {
-        return { context: "", status: "below_threshold", attempts: attemptsMade };
+        return { context: "", status: "below_threshold", attempts: attemptsMade, sources: [] };
       }
 
       const chunks = kept
@@ -248,6 +251,10 @@ async function fetchRAGContext(
         context: `\n\nRELEVANT KNOWLEDGE BASE CONTEXT (retrieved via semantic search):\n${chunks}\n`,
         status: "ok",
         attempts: attemptsMade,
+        // Source labels of the chunks that actually fed the answer. Non-empty
+        // only on the "ok" path — a populated list with a failed retrieval
+        // would be a lie. See docs/agent-contracts.md.
+        sources: [...new Set(kept.map((r) => `${r.partition}:${r.source}`))],
       };
     } catch (err: unknown) {
       const name = err instanceof Error ? err.name : "";
@@ -267,7 +274,7 @@ async function fetchRAGContext(
     })
   );
 
-  return { context: "", status: lastStatus, attempts: attemptsMade, detail: lastDetail };
+  return { context: "", status: lastStatus, attempts: attemptsMade, sources: [], detail: lastDetail };
 }
 
 // ─── System prompts ────────────────────────────────────────────────────────────
@@ -523,7 +530,7 @@ export default async (request: Request) => {
   const vectorEngineUrl = Netlify.env.get("VECTOR_ENGINE_URL") || "";
   const rag: RagOutcome = vectorEngineUrl
     ? await fetchRAGContext(message.trim(), effectiveTier, vectorEngineUrl)
-    : { context: "", status: "disabled", attempts: 0 };
+    : { context: "", status: "disabled", attempts: 0, sources: [] };
   const ragContext = rag.context;
   const ragActive = rag.status === "ok";
 
@@ -546,9 +553,13 @@ export default async (request: Request) => {
           reply: text,
           tier: effectiveTier,
           tokens_used: outputTokens,
+          // rag_context_used is kept for the existing UI and QA assertions.
+          // rag_status/rag_attempts/sources_used are additive and report the
+          // real retrieval outcome.
           rag_context_used: ragActive,
           rag_status: rag.status,
           rag_attempts: rag.attempts,
+          sources_used: rag.sources,
           answer_source: ragActive
             ? (isBusiness ? "RAG — Business Corpus" : "RAG — CV Corpus")
             : (isBusiness ? "Verified Profile Pack — Business" : "Verified Profile Pack — Public"),

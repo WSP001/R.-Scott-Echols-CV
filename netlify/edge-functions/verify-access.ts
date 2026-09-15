@@ -1,3 +1,4 @@
+/// <reference path="../types/netlify-globals.d.ts" />
 /**
  * Access key verification endpoint
  * POST /api/verify-access
