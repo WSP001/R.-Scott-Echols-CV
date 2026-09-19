@@ -121,6 +121,11 @@ const RAG_MAX_ATTEMPTS = 3;
 const RAG_BASE_DELAY_MS = 200;   // 200ms -> 400ms, plus jitter
 const RAG_TIMEOUT_MS = 4000;     // per attempt; total worst case stays under ~13s
 const RAG_SCORE_FLOOR = 0.3;
+// Cost control: only the best-scoring chunks are injected, each capped in size.
+// Retrieved context is the uncached tail of the prompt, so every char here is
+// billed at full input price on every request.
+const RAG_MAX_CHUNKS = 2;
+const RAG_MAX_CHUNK_CHARS = 1_500;
 
 /** Observable outcome of a retrieval attempt. Emitted to the client as rag_status. */
 export type RagStatus =
@@ -232,7 +237,10 @@ async function fetchRAGContext(
         };
       }
 
-      const kept = results.filter((r) => r.score > RAG_SCORE_FLOOR);
+      const kept = results
+        .filter((r) => r.score > RAG_SCORE_FLOOR)
+        .sort((a, b) => b.score - a.score)
+        .slice(0, RAG_MAX_CHUNKS);
       if (kept.length === 0) {
         return { context: "", status: "below_threshold", attempts: attemptsMade };
       }
@@ -240,7 +248,7 @@ async function fetchRAGContext(
       const chunks = kept
         .map(
           (r, i) =>
-            `[Context ${i + 1} — ${r.source} (relevance: ${(r.score * 100).toFixed(0)}%)]:\n${r.content}`
+            `[Context ${i + 1} — ${r.source} (relevance: ${(r.score * 100).toFixed(0)}%)]:\n${r.content.slice(0, RAG_MAX_CHUNK_CHARS)}`
         )
         .join("\n\n");
 
@@ -272,12 +280,15 @@ async function fetchRAGContext(
 
 // ─── System prompts ────────────────────────────────────────────────────────────
 
-const buildPublicSystem = (ragContext = "") => `You are RSE-Assistant, the intelligent AI guide embedded in R. Scott Echols' professional CV website.
+// Each builder returns the STATIC part of the system prompt only. Retrieved RAG
+// context is passed to Claude as a separate, uncached system block after it, so
+// the static prefix (persona + profile pack + rules) is byte-identical across
+// requests and eligible for Anthropic prompt caching.
+const buildPublicSystem = () => `You are RSE-Assistant, the intelligent AI guide embedded in R. Scott Echols' professional CV website.
 
 PERSONA: Grounded, concise, professional, and careful with claims. You are helpful, but you do not improvise history.
 
 ${RSE_CV_DATA}
-${ragContext}
 
 ANSWER RULES:
 - Treat retrieved context as the strongest source when it exists.
@@ -300,12 +311,11 @@ RESPONSE STYLE:
 
 Always be helpful. If asked something outside CV/professional topics, gently redirect.`;
 
-const buildBusinessSystem = (ragContext = "") => `You are RSE-Business-Assistant, the premium AI advisor for R. Scott Echols' enterprise clients and technical partners.
+const buildBusinessSystem = () => `You are RSE-Business-Assistant, the premium AI advisor for R. Scott Echols' enterprise clients and technical partners.
 
 You have business-tier access to deeper technical context, but you still must stay grounded.
 
 ${RSE_CV_DATA}
-${ragContext}
 
 ADDITIONAL BUSINESS-TIER KNOWLEDGE:
 - SeaTrace API detailed technical specifications and integration guides
@@ -336,13 +346,57 @@ const ANTHROPIC_TIMEOUT_MS = 20_000;   // per attempt
 const ANTHROPIC_DEADLINE_MS = 45_000;  // total wall-clock budget across retries
 const ANTHROPIC_VERSION = "2023-06-01";
 
+// Prompt-cache outcome, derived from Anthropic's usage block. Never inferred —
+// if the API reports no cache tokens at all, the prefix was NOT cached (e.g.
+// below the model's minimum cacheable length) and we say so.
+export type PromptCacheStatus = "hit" | "write" | "miss";
+
+export interface ClaudeUsage {
+  inputTokens: number;
+  outputTokens: number;
+  cacheReadTokens: number;
+  cacheWriteTokens: number;
+  cacheStatus: PromptCacheStatus;
+}
+
+export function classifyCache(usage: {
+  input_tokens?: unknown;
+  output_tokens?: unknown;
+  cache_read_input_tokens?: unknown;
+  cache_creation_input_tokens?: unknown;
+} | undefined): ClaudeUsage {
+  const n = (v: unknown) => (typeof v === "number" && Number.isFinite(v) && v >= 0 ? v : 0);
+  const cacheReadTokens = n(usage?.cache_read_input_tokens);
+  const cacheWriteTokens = n(usage?.cache_creation_input_tokens);
+  return {
+    inputTokens: n(usage?.input_tokens),
+    outputTokens: n(usage?.output_tokens),
+    cacheReadTokens,
+    cacheWriteTokens,
+    cacheStatus: cacheReadTokens > 0 ? "hit" : cacheWriteTokens > 0 ? "write" : "miss",
+  };
+}
+
+// FOR THE COMMONS GOOD — reusable pattern, candidate for shared WSP001 library
+// Anthropic caches the prompt prefix up to the block marked cache_control.
+// Static persona/profile text goes first (cached); per-request RAG context goes
+// in a trailing, unmarked block so it never invalidates the cached prefix.
+export function buildSystemBlocks(staticPrompt: string, dynamicContext: string) {
+  const blocks: Array<{ type: "text"; text: string; cache_control?: { type: "ephemeral" } }> = [
+    { type: "text", text: staticPrompt, cache_control: { type: "ephemeral" } },
+  ];
+  if (dynamicContext.trim()) blocks.push({ type: "text", text: dynamicContext });
+  return blocks;
+}
+
 async function callClaude(
   apiKey: string,
   systemPrompt: string,
+  ragContext: string,
   history: Array<{ role: string; content: string }>,
   userMessage: string,
   maxTokens: number
-): Promise<{ text: string; outputTokens: number }> {
+): Promise<{ text: string; usage: ClaudeUsage }> {
   // Build messages array — Claude uses "user" / "assistant" roles
   const messages = [
     ...history.slice(-10).map((m) => ({
@@ -355,7 +409,7 @@ async function callClaude(
   const body = {
     model: CLAUDE_MODEL,
     max_tokens: maxTokens,
-    system: systemPrompt,
+    system: buildSystemBlocks(systemPrompt, ragContext),
     messages,
   };
 
@@ -388,7 +442,7 @@ async function callClaude(
         // Claude returns content as an array of content blocks
         return {
           text: data?.content?.[0]?.text ?? "",
-          outputTokens: data?.usage?.output_tokens ?? 0,
+          usage: classifyCache(data?.usage),
         };
       }
 
@@ -527,15 +581,14 @@ export default async (request: Request) => {
   const ragContext = rag.context;
   const ragActive = rag.status === "ok";
 
-  const systemPrompt = isBusiness
-    ? buildBusinessSystem(ragContext)
-    : buildPublicSystem(ragContext);
+  const systemPrompt = isBusiness ? buildBusinessSystem() : buildPublicSystem();
 
   try {
     const maxTokens = isBusiness ? 2048 : 512;
-    const { text, outputTokens } = await callClaude(
+    const { text, usage } = await callClaude(
       anthropicKey,
       systemPrompt,
+      ragContext,
       history,
       message.trim(),
       maxTokens
@@ -545,7 +598,11 @@ export default async (request: Request) => {
         JSON.stringify({
           reply: text,
           tier: effectiveTier,
-          tokens_used: outputTokens,
+          tokens_used: usage.outputTokens,
+          input_tokens: usage.inputTokens,
+          cache_read_tokens: usage.cacheReadTokens,
+          cache_write_tokens: usage.cacheWriteTokens,
+          prompt_cache: usage.cacheStatus,
           rag_context_used: ragActive,
           rag_status: rag.status,
           rag_attempts: rag.attempts,
@@ -559,6 +616,7 @@ export default async (request: Request) => {
           ...CORS,
           "X-RateLimit-Remaining": String(rateCheck.remaining),
           "X-RAG-Status": rag.status,
+          "X-Prompt-Cache": usage.cacheStatus,
         },
       }
     );

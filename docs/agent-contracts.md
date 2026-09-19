@@ -272,6 +272,16 @@ This is what the runtime emits. QA writes tests against **this** block, nothing 
   reply: string;
   tier: 'public' | 'business';
   tokens_used: number;               // Anthropic usage.output_tokens
+  input_tokens: number;              // Anthropic usage.input_tokens (uncached portion)
+  cache_read_tokens: number;         // Anthropic usage.cache_read_input_tokens (billed at 0.1x)
+  cache_write_tokens: number;        // Anthropic usage.cache_creation_input_tokens (billed at 1.25x)
+  prompt_cache: 'hit' | 'write' | 'miss';
+    // hit   = cache_read_tokens > 0
+    // write = cache_write_tokens > 0 and no read (first request in a cache window)
+    // miss  = API reported zero cache tokens. NOT inferred: this is what Anthropic
+    //         returns when the static prefix is below the model's minimum cacheable
+    //         length, or caching is unavailable. A steady stream of 'miss' in
+    //         production means the cost optimisation is NOT working — surface it.
   rag_context_used: boolean;         // === (rag_status === 'ok')
   rag_status: 'ok' | 'disabled' | 'empty' | 'below_threshold' | 'malformed'
             | 'upstream_error' | 'timeout' | 'unreachable';
@@ -282,8 +292,21 @@ This is what the runtime emits. QA writes tests against **this** block, nothing 
     | 'Verified Profile Pack — Public'          // public  + any other rag_status
     | 'Verified Profile Pack — Business';       // business + any other rag_status
 }
-// Response header: X-RAG-Status: <rag_status>   (mirrors the body field)
+// Response headers: X-RAG-Status: <rag_status>       (mirrors the body field)
+//                   X-Prompt-Cache: <prompt_cache>   (mirrors the body field)
 ```
+
+Prompt shape sent to Anthropic (model lock `claude-opus-4-6` unchanged):
+
+```typescript
+system: [
+  { type: 'text', text: <static persona + RSE_CV_DATA + rules>, cache_control: { type: 'ephemeral' } },
+  { type: 'text', text: <RAG context> }   // only present when rag_status === 'ok'; never cached
+]
+```
+
+RAG context is capped at the top **2** chunks above `RAG_SCORE_FLOOR`, each truncated to 1 500
+characters, because it is the uncached (full-price) tail of every request.
 
 `retrieval_mode` is **derived**, not sent: `ok` → `vector-active`; `disabled` → `embedded-seed`;
 every other `rag_status` → `fallback-local`.
