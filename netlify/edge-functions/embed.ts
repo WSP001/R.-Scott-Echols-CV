@@ -1,3 +1,4 @@
+/// <reference path="../types/netlify-globals.d.ts" />
 /**
  * R. Scott Echols CV — Gemini Embedding 2 Edge Function
  *

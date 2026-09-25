@@ -2,7 +2,7 @@
 # FOR THE COMMONS GOOD — reusable across WSP001 repos
 #
 # Build:  docker build -t rse-retrieval -f scripts/Dockerfile .
-# Run:    docker run -p 8080:8080 -e GEMINI_API_KEY=xxx rse-retrieval
+# Run:    docker run -p 8080:8080 -e GEMINI_API_KEY=xxx -e DATABASE_URL=xxx rse-retrieval
 # Push:   docker tag rse-retrieval gcr.io/YOUR_PROJECT_ID/rse-retrieval
 #         docker push gcr.io/YOUR_PROJECT_ID/rse-retrieval
 
@@ -28,9 +28,9 @@ COPY scripts/api_server.py ./api_server.py
 COPY scripts/embed_engine.py ./embed_engine.py
 COPY scripts/vector_store.py ./vector_store.py
 
-# Create ChromaDB data directory
-RUN mkdir -p /data/chromadb
-ENV CHROMADB_PATH=/data/chromadb
+# Backend is PostgreSQL + pgvector — no local data volume needed.
+# DATABASE_URL and GEMINI_API_KEY are injected by Cloud Run as SECRETS,
+# never baked into the image and never echoed by the container.
 
 # Cloud Run sets PORT automatically — default 8080
 ENV PORT=8080
@@ -40,7 +40,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
     CMD curl -f http://localhost:${PORT}/health || exit 1
 
 # Non-root user (security best practice)
-RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app /data
+RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
 USER appuser
 
 # Start FastAPI server
