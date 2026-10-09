@@ -26,7 +26,7 @@
 
 ### R.-Scott-Echols-CV
 **URL:** https://github.com/WSP001/R.-Scott-Echols-CV  
-**Updated:** 2026-10-07  
+**Updated:** 2026-10-08  
 **Language:** HTML  
 **Description:** R. Scott Echols CV  
 **Private:** No (public)
