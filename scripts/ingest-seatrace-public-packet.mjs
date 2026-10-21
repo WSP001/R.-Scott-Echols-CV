@@ -154,7 +154,7 @@ export function projectFixture(fixtureName, data) {
 
   if (data.sku_label || data.source_spine) {
     chunks.push({
-      pillar: 'DockSide',
+      pillar: 'FinishedProduct',
       text: join([
         `SeaTrace public proof — finished product index, scenario ${scenario}.`,
         line('SKU', data.sku_label),
