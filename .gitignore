@@ -143,3 +143,7 @@ vite.config.ts.timestamp-*
 
 # Local vector runtime output
 .chromadb/
+
+# Python bytecode (truth_audit.py / embed_engine.py are run directly)
+__pycache__/
+*.py[cod]

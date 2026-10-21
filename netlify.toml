@@ -10,6 +10,14 @@
 #   BUSINESS_ACCESS_KEY    Business tier unlock passphrase
 #   VECTOR_ENGINE_URL      (optional) Cloud Run retrieval URL, enables live RAG
 #                          e.g. https://rse-retrieval-abc123-uc.a.run.app
+#   ABACUS_API_KEY         Abacus.AI key for /api/abacus (business tier only)
+#   ABACUS_MODEL           (optional) RouteLLM model name, default "route-llm"
+#
+# Cloud Run (NOT Netlify) — set as secrets on the rse-retrieval service:
+#   DATABASE_URL           PostgreSQL + pgvector DSN, needs ?sslmode=require
+#   INGEST_SECRET          guards POST /ingest
+#
+# Key rotation runbook: docs/API_KEY_ROTATION.md  (or run: just keys-map)
 #
 # NOTE: VITE_API_BASE_URL is NOT needed — /api/* routes are handled by edge functions
 
@@ -37,6 +45,18 @@
 [[edge_functions]]
   path = "/api/verify-access"
   function = "verify-access"
+
+# Abacus.AI side channel — business tier only. Does NOT serve /api/chat;
+# the CV chatbot remains locked to Claude Opus 4.6 per CLAUDE.md.
+[[edge_functions]]
+  path = "/api/abacus"
+  function = "abacus"
+
+# Social content generation for SirScottA2A-STUDIO. Generation only — this
+# endpoint never publishes. Claude Opus 4.6, same model lock as /api/chat.
+[[edge_functions]]
+  path = "/api/social-generate"
+  function = "social-generate"
 
 # ── SPA fallback ───────────────────────────────────────────────────────────────
 [[redirects]]
