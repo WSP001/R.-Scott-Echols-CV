@@ -100,7 +100,7 @@ pgvector → /retrieve (business tier only) → /api/chat RAG block
 ```
 
 Run: `node scripts/ingest-seatrace-public-packet.mjs --fixtures ../MARKETING-SeaTrace-MSC-v007/data/fixtures --dry-run`
-Push requires `VECTOR_ENGINE_URL` + `INGEST_SECRET`; missing either exits 3 (never a fake success).
+Dry run is the default. Push requires `--commit`, an `https://` `VECTOR_ENGINE_URL` and `INGEST_SECRET`; a missing or untrusted setting, or any failed chunk, exits 3 (never a fake success). `/ingest` dedupes on content hash only, so retire superseded rows before re-ingesting a corrected fixture.
 `source` carries the fixture and pillar so every grounded answer is traceable back to the exact
 public artefact. Private repos (SeaTrace002/003, ODOO) are **not** inputs to this script.
 

@@ -16,9 +16,12 @@
  * script needs no Gemini key and no LLM call: zero model cost.
  *
  * Usage:
- *   node scripts/ingest-seatrace-public-packet.mjs --fixtures ../MARKETING-SeaTrace-MSC-v007/data/fixtures --dry-run
- *   node scripts/ingest-seatrace-public-packet.mjs --fixtures <dir>            # push (needs VECTOR_ENGINE_URL, INGEST_SECRET)
+ *   node scripts/ingest-seatrace-public-packet.mjs --fixtures ../MARKETING-SeaTrace-MSC-v007/data/fixtures   # dry run (default)
  *   node scripts/ingest-seatrace-public-packet.mjs --fixtures <dir> --out packet.ndjson   # write packet only
+ *   node scripts/ingest-seatrace-public-packet.mjs --fixtures <dir> --commit   # push (needs HTTPS VECTOR_ENGINE_URL, INGEST_SECRET)
+ *
+ * /ingest dedupes on content hash only, so re-ingesting a corrected fixture does
+ * not retire the old chunk. Remove superseded rows server-side before --commit.
  *
  * Exit codes: 0 ok · 2 boundary violation · 3 push failure · 1 usage/read error
  */
@@ -51,12 +54,13 @@ const warn = (m) => console.warn(`⚠️  ${m}`);
 // ─── ARGS ─────────────────────────────────────────────────────────────────────
 
 function parseArgs(argv) {
-  const args = { fixtures: null, dryRun: false, out: null };
+  const args = { fixtures: null, commit: false, out: null };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '--fixtures') args.fixtures = argv[++i];
     else if (a === '--out') args.out = argv[++i];
-    else if (a === '--dry-run') args.dryRun = true;
+    else if (a === '--dry-run') args.commit = false;
+    else if (a === '--commit') args.commit = true;
     else if (a === '--help' || a === '-h') return null;
     else { console.error(`Unknown argument: ${a}`); return null; }
   }
@@ -201,6 +205,13 @@ export function projectFixture(fixtureName, data) {
 
 // ─── PUSH ─────────────────────────────────────────────────────────────────────
 
+export function isTrustedIngestUrl(raw) {
+  let u;
+  try { u = new URL(raw); } catch { return false; }
+  if (u.protocol === 'https:') return true;
+  return u.protocol === 'http:' && ['localhost', '127.0.0.1', '[::1]'].includes(u.hostname);
+}
+
 async function pushChunk(chunk, vectorEngineUrl, ingestSecret) {
   const res = await fetch(`${vectorEngineUrl}/ingest`, {
     method: 'POST',
@@ -228,7 +239,7 @@ async function pushChunk(chunk, vectorEngineUrl, ingestSecret) {
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   if (!args) {
-    console.error('Usage: node scripts/ingest-seatrace-public-packet.mjs --fixtures <dir> [--dry-run] [--out packet.ndjson]');
+    console.error('Usage: node scripts/ingest-seatrace-public-packet.mjs --fixtures <dir> [--out packet.ndjson] [--commit]');
     process.exit(1);
   }
 
@@ -262,9 +273,9 @@ async function main() {
     log(`💾 wrote ${chunks.length} chunk(s) to ${args.out}`);
   }
 
-  if (args.dryRun) {
+  if (!args.commit) {
     chunks.forEach((c) => log(`  [dry-run] ${c.source} (${c.text.length} chars, hash ${c.content_hash})`));
-    log('Dry run — nothing pushed.');
+    log('Dry run — nothing pushed. Pass --commit to ingest.');
     return;
   }
 
@@ -274,10 +285,19 @@ async function main() {
     console.error(`❌ push disabled: VECTOR_ENGINE_URL set=${!!vectorEngineUrl}, INGEST_SECRET set=${!!ingestSecret}`);
     process.exit(3);
   }
+  if (!isTrustedIngestUrl(vectorEngineUrl)) {
+    console.error('❌ push refused: VECTOR_ENGINE_URL must be https:// (http:// allowed only for localhost)');
+    process.exit(3);
+  }
 
   const summary = { ingested: 0, skipped: 0, failed: 0 };
   for (const c of chunks) {
-    const r = await pushChunk(c, vectorEngineUrl.replace(/\/$/, ''), ingestSecret);
+    let r;
+    try {
+      r = await pushChunk(c, vectorEngineUrl.replace(/\/$/, ''), ingestSecret);
+    } catch (e) {
+      r = { ok: false, status: 'network', detail: e?.name ?? 'error' };
+    }
     if (!r.ok) { summary.failed++; warn(`${c.source}: HTTP ${r.status} ${r.detail}`); continue; }
     summary[r.status]++;
     log(`  ${r.status === 'ingested' ? '➕' : '↩️ '} ${c.source} -> ${r.id}`);
