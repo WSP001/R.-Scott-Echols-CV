@@ -222,6 +222,7 @@ async function pushChunk(chunk, vectorEngineUrl, ingestSecret) {
       source: chunk.source,
       modality: 'text',
     }),
+    redirect: 'error',
     signal: AbortSignal.timeout(15000),
   });
   const bodyText = await res.text();
