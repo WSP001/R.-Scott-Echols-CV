@@ -24,6 +24,13 @@
 
 ## WSP001 REPOSITORIES
 
+### seatrace-next-v001-codex
+**URL:** https://github.com/WSP001/seatrace-next-v001-codex  
+**Updated:** 2026-11-03  
+**Language:** JavaScript  
+**Description:** Independent SeaTrace Next Codex v001: public packet lab and pathway directory  
+**Private:** No (public)
+
 ### R.-Scott-Echols-CV
 **URL:** https://github.com/WSP001/R.-Scott-Echols-CV  
 **Updated:** 2026-10-21  
